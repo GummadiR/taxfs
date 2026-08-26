@@ -5,10 +5,12 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 3 (Blueprint §7.3) — core ported and green; `gates` (with
-graph-derived tie-outs) and `forms` (+ field-map harness) in progress.
-Phase 2 built; live-project provisioning pending an operator permission
-click.** Phase 1 accepted (operator: "proceed",
+**Phase 3 (Blueprint §7.3) — COMPLETE.** shared/kernel/kernel2/goldens/
+divergence, spine (contracts + reference), gates with the §3.2
+graph-derived tie-outs, forms with the field-map verification harness and
+its G10 negative test, official 2025 PDF templates. Phase 2 built;
+live-project provisioning pending an operator permission click. Next:
+Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "proceed",
 2026-08-26), including its three deviation flags and region = us-east-2.
 
 ## In scope now
@@ -82,8 +84,11 @@ click.** Phase 1 accepted (operator: "proceed",
   their Calculation; ACC-TIEOUT-FORM re-adds exactly those recorded terms
   and restates NO formula. The three historical drift regressions (QBI,
   HSA/½SE, IL add-back/PTE) pass as automatic consequences of the graph.
-- Remaining in phase: `forms` + field-map verification harness (G10
-  negative test).
+- `forms` ported whole (mapping engine, MeF-shaped XML, package lock,
+  PDF fill — identity fields deliberately unfilled server-side, per §5
+  they fill client-side in Phase 5) with the official 2025 templates and
+  the stamp-flatten-render field-map harness; G10's seeded-negative test
+  added (a fabricated field name against the real f1040.pdf is caught).
 
 ## Deferred to their phases (not started)
 

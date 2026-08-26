@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaxOSReturn>
+  <ReturnHeader>
+    <Jurisdiction>FED</Jurisdiction>
+    <TaxYear>2025</TaxYear>
+    <RuleVersion>2025.FED.0.0.1-PLACEHOLDER</RuleVersion>
+    <FormDefRelease>2025.FORMS.FED.0.0.1-PLACEHOLDER</FormDefRelease>
+    <KernelVersion>kernel-0.1.0-skeleton</KernelVersion>
+  </ReturnHeader>
+  <ReturnData>
+    <Form1040>
+      <FormRevision>1040-2025.0-PLACEHOLDER</FormRevision>
+      <WagesSalariesAndTipsAmt>50000</WagesSalariesAndTipsAmt>
+      <TaxableInterestAmt>1200</TaxableInterestAmt>
+      <TotalIncomeAmt>51200</TotalIncomeAmt>
+      <AdjustedGrossIncomeAmt>51200</AdjustedGrossIncomeAmt>
+      <TotalDeductionsAmt>15000</TotalDeductionsAmt>
+      <TaxableIncomeAmt>36200</TaxableIncomeAmt>
+      <TaxAmt>4144</TaxAmt>
+      <TaxAfterCreditsAmt>4144</TaxAfterCreditsAmt>
+      <WithholdingTaxAmt>4000</WithholdingTaxAmt>
+      <EstimatedTaxPaymentsAmt>1000</EstimatedTaxPaymentsAmt>
+      <TotalPaymentsAmt>5000</TotalPaymentsAmt>
+      <RefundAmt>856</RefundAmt>
+      <TotalTaxAmt>4144</TotalTaxAmt>
+      <TotalWithholdingAmt>4000</TotalWithholdingAmt>
+      <TotalWagesAmt>50000</TotalWagesAmt>
+      <AdjustedGrossIncomeAmt>51200</AdjustedGrossIncomeAmt>
+      <TotalDeductionsAmt>15000</TotalDeductionsAmt>
+      <TaxPlusSch2Part1Amt>4144</TaxPlusSch2Part1Amt>
+    </Form1040>
+  </ReturnData>
+</TaxOSReturn>

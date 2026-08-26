@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TaxOSReturn>
+  <ReturnHeader>
+    <Jurisdiction>IL</Jurisdiction>
+    <TaxYear>2025</TaxYear>
+    <RuleVersion>2025.IL.0.0.1-PLACEHOLDER</RuleVersion>
+    <FormDefRelease>2025.FORMS.IL.0.0.1-PLACEHOLDER</FormDefRelease>
+    <KernelVersion>kernel-0.1.0-skeleton</KernelVersion>
+  </ReturnHeader>
+  <ReturnData>
+    <FormIL1040>
+      <FormRevision>IL1040-2025.0-PLACEHOLDER</FormRevision>
+      <IL1040_AGIAmt>51200</IL1040_AGIAmt>
+      <IL1040_BaseIncomeAmt>51200</IL1040_BaseIncomeAmt>
+      <IL1040_ExemptionAmt>2775</IL1040_ExemptionAmt>
+      <IL1040_NetIncomeAmt>48425</IL1040_NetIncomeAmt>
+      <IL1040_TaxAmt>2397</IL1040_TaxAmt>
+      <IL1040_WithholdingAmt>2000</IL1040_WithholdingAmt>
+      <IL1040_EstimatedPaymentsAmt>1000</IL1040_EstimatedPaymentsAmt>
+      <IL1040_TotalPaymentsAmt>3000</IL1040_TotalPaymentsAmt>
+      <IL1040_RefundAmt>603</IL1040_RefundAmt>
+      <IL1040_TotalTaxAmt>2397</IL1040_TotalTaxAmt>
+      <IL1040_TaxAfterCreditsAmt>2397</IL1040_TaxAfterCreditsAmt>
+      <IL1040_TotalIncomeAmt>51200</IL1040_TotalIncomeAmt>
+      <IL1040_ExemptionBaseAmt>2775</IL1040_ExemptionBaseAmt>
+      <IL1040_TotalTaxPage2Amt>2397</IL1040_TotalTaxPage2Amt>
+      <IL1040_OverpaymentAmt>603</IL1040_OverpaymentAmt>
+    </FormIL1040>
+    <FormSCHILWIT>
+      <FormRevision>SCHILWIT-2025.0-PLACEHOLDER</FormRevision>
+      <SCHILWIT_TotalWithholdingAmt>2000</SCHILWIT_TotalWithholdingAmt>
+    </FormSCHILWIT>
+  </ReturnData>
+</TaxOSReturn>

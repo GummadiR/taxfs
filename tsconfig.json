@@ -34,6 +34,9 @@
       ],
       "@taxfs/gates": [
         "packages/gates/src/index.ts"
+      ],
+      "@taxfs/forms": [
+        "packages/forms/src/index.ts"
       ]
     }
   },
