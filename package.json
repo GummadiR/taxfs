@@ -1,0 +1,24 @@
+{
+  "name": "taxfs",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "lint": "eslint .",
+    "audit:values": "tsx scripts/audit-hardcoded.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm --filter web typecheck",
+    "build": "pnpm --filter web build",
+    "test": "vitest run",
+    "e2e": "pnpm --filter web e2e",
+    "gates": "pnpm lint && pnpm audit:values && pnpm typecheck && pnpm build && pnpm test && pnpm e2e"
+  },
+  "devDependencies": {
+    "@types/node": "24.3.0",
+    "eslint": "9.34.0",
+    "tsx": "4.19.4",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.40.0",
+    "vitest": "3.2.4"
+  }
+}

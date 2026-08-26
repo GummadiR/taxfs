@@ -1,0 +1,10 @@
+node_modules/
+.next/
+dist/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.local
+.taxos-mask.json
+*.tsbuildinfo

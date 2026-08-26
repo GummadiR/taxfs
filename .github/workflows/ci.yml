@@ -1,0 +1,27 @@
+# TaxFS gate chain (Blueprint N7, §7 phase 1). Runs on EVERY push: a broken
+# build cannot depend on anyone remembering to check. Order is the merge
+# gate order from CLAUDE.md:
+#   lint (incl. money-lint) -> values audit -> typecheck -> PRODUCTION build
+#   -> unit -> e2e against that same production build.
+# Changing this file is a STOP-AND-SHOW event (CLAUDE.md).
+name: CI
+on: push
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm audit:values
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm --filter web exec playwright install --with-deps chromium
+      - run: pnpm e2e
