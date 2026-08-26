@@ -72,6 +72,7 @@ after it, the numbers never need to be consulted again.
 | P am-I-stuck class (Gate spinner, File It) | Latency budget §3; long actions report progress; nav feedback is default |
 | 8949 Box E misread (interleaved text layer) | Documents are read as **rendered pages** for comparisons; masked uploads rasterize ambiguous layouts |
 | GitHub API rate-limit merge failures | Merges via git push; CI decoupled from merge path |
+| P86 recurred in TaxFS Phase 1: `next build` (16.3.2 + Tailwind v4) PRINTS "Error: Cannot apply unknown utility class" for a broken stylesheet but exits 0 | Build gate runs through `scripts/build-strict.mjs` — any `Error:` line in build output fails the gate even at exit 0; the e2e styles-APPLIED assertion stands as the independent second wall (it caught the break before the wrapper existed) |
 
 ### 1.3 Optimizations adopted (from the architecture review)
 

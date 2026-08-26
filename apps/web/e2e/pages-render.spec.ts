@@ -6,7 +6,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const ROUTES = ['/'];
+const ROUTES = ['/', '/login', '/workspaces'];
 
 for (const route of ROUTES) {
   test(`renders ${route} with HTTP 200 and no client errors`, async ({ page }) => {

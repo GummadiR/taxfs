@@ -5,8 +5,9 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 1 (Blueprint §7.1) — built, awaiting operator review.**
-Nothing beyond Phase 1 has been started.
+**Phase 2 (Blueprint §7.2) — built; live-project provisioning pending an
+operator permission click.** Phase 1 accepted (operator: "proceed",
+2026-08-26), including its three deviation flags and region = us-east-2.
 
 ## In scope now
 
@@ -21,9 +22,47 @@ Nothing beyond Phase 1 has been started.
   values), plus the e2e server-reuse guard (P86 class). Each gate additionally
   proven by one deliberate break, recorded in `GATE-PROOFS.md`.
 
+## Phase 2 (built this session)
+
+- `supabase/migrations/0001_taxfs_init.sql`: the full §4 schema v2 — 16
+  tables, every PK composed with workspace_id, RLS ENABLED + FORCED on all,
+  membership roles (owner/editor/reviewer), audit triggers, updated_at
+  triggers, security_invoker nav_status view, explicit grants (anon: none).
+- `0002_storage.sql`: buckets (documents, packages) + membership-scoped
+  object policies as tracked migrations.
+- Design decision (recorded): my_workspaces() is SECURITY DEFINER owned by
+  `taxfs_definer`, a NOLOGIN BYPASSRLS role — with FORCE RLS everywhere, an
+  owner-owned definer would re-enter its own policies (Postgres raises
+  infinite-recursion; and UPDATE...WHERE applies SELECT policies, verified
+  empirically). Bypass surface = one fixed auth.uid()-filtered function; a
+  test asserts no other non-superuser role carries BYPASSRLS... (rig-level).
+- G1/G2 negative suite (`supabase/test/isolation.test.ts`, 14 tests) against
+  real Postgres running the real migrations, in CI via a postgres:16 service
+  container: cross-user reads = zero rows on every table + storage + the
+  nav view; cross-workspace writes refused by Postgres; ownership-claim
+  attack refused; reviewer reads-not-writes; editor promotion unlocks;
+  composite-PK coexistence (P91 unrepresentable); audit log written and
+  append-only even for owners; FORCE-RLS catalog guard; no-identity-columns
+  guard (G9 at schema level). Catalog + identity guards break-proven.
+- Web: Supabase SSR auth acting as the authenticated user (login,
+  protected /workspaces with RLS-scoped listing + workspace creation,
+  sign-out); Next 16 proxy (session refresh + guard); anon-key-only env
+  (.env.example documents that the service-role key never ships).
+
+## Pending operator actions
+
+1. Create the GitHub repo `taxfs` (github.com/new, private, no README) and
+   grant the Claude GitHub App access — the App cannot create repositories
+   (403). Then: push + verify CI + enable branch protection on main.
+2. Approve Supabase project creation (the auto-mode permission classifier
+   blocked `create_project`; cost verified $0/month, region us-east-2) —
+   or create project "taxfs" in the dashboard. Then migrations 0001/0002
+   apply and the live RLS smoke test runs.
+3. G9 endpoint-level scan test arrives with the first upload endpoints
+   (Phase 4), per the §9.1 note in GATE-PROOFS.md.
+
 ## Deferred to their phases (not started)
 
-- Phase 2: Supabase Auth, §4 schema, FORCE RLS, isolation proof (G1/G2/G9).
 - Phase 3: verbatim ports — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.

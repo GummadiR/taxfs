@@ -44,5 +44,16 @@ stop. Two walls now bind:
 - P86-class server reuse: `reuseExistingServer` must stay gated on
   `PW_REUSE=1` — `apps/web/test/e2e-config-guard.test.ts`.
 
-G1/G2/G9 (tenancy/RLS/identity) arrive with Phase 2; G6/G7/G10 (kernels,
-rule data, field maps) with Phase 3 — each with its negative test per §9.1.
+## Phase 2 break proofs (tenancy guards)
+
+| # | Guard | Deliberate break | Result |
+|---|-------|------------------|--------|
+| 8 | FORCE-RLS catalog guard | `alter table settings no force row level security` appended to the migration | suite red — `every public table has RLS enabled AND forced` fails |
+| 9 | no-identity-columns guard (G9, schema level) | `alter table settings add column ssn_last4 text` | suite red — `no identity columns exist anywhere` fails |
+
+Both reverted; suite 14/14 green after revert. The G1/G2 suite itself is
+negative by construction (every test attempts the forbidden read/write and
+passes only on refusal) and runs in CI against a real postgres:16 service.
+The G9 endpoint-level scan (POST a synthetic SSN at every endpoint) arrives
+with the first upload endpoints in Phase 4; G6/G7/G10 (kernels, rule data,
+field maps) arrive with Phase 3 — each with its negative test per §9.1.
