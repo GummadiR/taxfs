@@ -94,6 +94,13 @@ export interface TaxFact {
   derivation?: string; // calc_id
 }
 
+/** One signed term of a linear form line (TaxFS §3.2 tie-out rewrite). */
+export interface CalcTerm {
+  fact_id: string;
+  concept: string;
+  sign: 1 | -1;
+}
+
 export interface Calculation {
   calc_id: string;
   taxpayer_id: string;
@@ -104,6 +111,13 @@ export interface Calculation {
   formula_ref: string;
   steps: string[];
   value: Money;
+  /** Machine-checkable linear decomposition, present on the form-total
+   *  lines. The Gate-4 tie-out critic re-adds exactly these recorded terms —
+   *  it never restates a formula of its own, so a new component added here
+   *  is covered automatically and the P76/P94 drift class cannot recur. */
+  terms?: CalcTerm[];
+  /** value = max(0, Σ terms) when true (taxable income, IL net income). */
+  clamp_zero?: boolean;
 }
 
 export interface Finding {

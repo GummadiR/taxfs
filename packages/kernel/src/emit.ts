@@ -6,6 +6,8 @@
  */
 import { Money, type Calculation, type Jurisdiction, type TaxFact } from '@taxfs/shared';
 
+export type EmitTerm = { fact: TaxFact; sign: 1 | -1 };
+
 /** The slice of KernelInput the helpers need. */
 export interface EmitterHost {
   taxpayer_id: string;
@@ -34,6 +36,9 @@ export interface Emitter {
     steps: string[];
     value: Money;
     taxpayer_scope?: TaxFact['taxpayer_scope'];
+    /** Signed linear decomposition for the Gate-4 graph-derived tie-out. */
+    terms?: readonly { fact: TaxFact; sign: 1 | -1 }[];
+    clamp_zero?: boolean;
   }): TaxFact;
 }
 
@@ -43,7 +48,7 @@ export function makeEmitter(input: EmitterHost): Emitter {
   return {
     facts,
     calculations,
-    emit({ concept, jurisdiction, inputs, formula_ref, rule_version, steps, value, taxpayer_scope }) {
+    emit({ concept, jurisdiction, inputs, formula_ref, rule_version, steps, value, taxpayer_scope, terms, clamp_zero }) {
       const rounded = value.roundToDollar();
       const fact_id = derivedFactId(input.taxpayer_id, input.tax_year, concept);
       // calc_id equally carries the taxpayer — calculations.calc_id is a
@@ -72,6 +77,8 @@ export function makeEmitter(input: EmitterHost): Emitter {
         formula_ref,
         steps: [...steps, `round_half_up(${value.toString()}) = ${rounded.toString()}`],
         value: rounded,
+        ...(terms ? { terms: terms.map((t) => ({ fact_id: t.fact.fact_id, concept: t.fact.concept, sign: t.sign })) } : {}),
+        ...(clamp_zero ? { clamp_zero: true } : {}),
       };
       facts.push(fact);
       calculations.push(calc);

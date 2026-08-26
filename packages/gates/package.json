@@ -1,0 +1,12 @@
+{
+  "name": "@taxfs/gates",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "dependencies": {
+    "@taxfs/kernel": "workspace:*",
+    "@taxfs/shared": "workspace:*",
+    "@taxfs/spine": "workspace:*"
+  }
+}

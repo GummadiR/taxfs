@@ -3,8 +3,12 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "lib": ["ES2022"],
-    "types": ["node"],
+    "lib": [
+      "ES2022"
+    ],
+    "types": [
+      "node"
+    ],
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
@@ -16,10 +20,27 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {
-      "@taxfs/shared": ["packages/shared/src/index.ts"],
-      "@taxfs/kernel": ["packages/kernel/src/index.ts"],
-      "@taxfs/kernel2": ["packages/kernel2/src/index.ts"]
+      "@taxfs/shared": [
+        "packages/shared/src/index.ts"
+      ],
+      "@taxfs/kernel": [
+        "packages/kernel/src/index.ts"
+      ],
+      "@taxfs/kernel2": [
+        "packages/kernel2/src/index.ts"
+      ],
+      "@taxfs/spine": [
+        "packages/spine/src/index.ts"
+      ],
+      "@taxfs/gates": [
+        "packages/gates/src/index.ts"
+      ]
     }
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts", "supabase/**/*.ts", "vitest.config.ts"]
+  "include": [
+    "packages/**/*.ts",
+    "scripts/**/*.ts",
+    "supabase/**/*.ts",
+    "vitest.config.ts"
+  ]
 }

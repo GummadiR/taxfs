@@ -73,9 +73,17 @@ click.** Phase 1 accepted (operator: "proceed",
   kernel2 index arithmetic (money-lint) and the hardcoded §219(g)(2)(B)
   $200 floor in both kernels (values audit) — the floor is now cited rule
   data. Goldens and divergence unchanged and green.
-- Remaining in phase: `gates` port with tie-outs consuming the kernel's
-  emitted dependency graph (§1.2/§3.2), `forms` + field-map verification
-  harness (G10 negative test).
+- `spine` ported as contracts + in-memory reference and its contract suite
+  (PgSpine deliberately NOT ported — Phase 4 rewrites persistence on the §4
+  schema). `gates` ported (critics, orchestrator, engagement board,
+  transcript matcher; tests renamed by subject).
+- **Tie-out rewrite shipped (§3.2)**: the kernel's ten form-total emit sites
+  now record signed `terms` (and the zero-clamp where the form has one) on
+  their Calculation; ACC-TIEOUT-FORM re-adds exactly those recorded terms
+  and restates NO formula. The three historical drift regressions (QBI,
+  HSA/½SE, IL add-back/PTE) pass as automatic consequences of the graph.
+- Remaining in phase: `forms` + field-map verification harness (G10
+  negative test).
 
 ## Deferred to their phases (not started)
 

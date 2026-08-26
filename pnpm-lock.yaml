@@ -70,6 +70,18 @@ importers:
         specifier: 4.1.12
         version: 4.1.12
 
+  packages/gates:
+    dependencies:
+      '@taxfs/kernel':
+        specifier: workspace:*
+        version: link:../kernel
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@taxfs/spine':
+        specifier: workspace:*
+        version: link:../spine
+
   packages/kernel:
     dependencies:
       '@taxfs/shared':
@@ -98,6 +110,12 @@ importers:
       decimal.js:
         specifier: 10.6.0
         version: 10.6.0
+
+  packages/spine:
+    dependencies:
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
 
 packages:
 
