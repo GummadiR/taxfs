@@ -13,8 +13,10 @@ Nothing beyond Phase 1 has been started.
 - Monorepo skeleton: pnpm workspace; `packages/shared` (stub), `packages/kernel`
   (placeholder anchoring the money-lint scope), `apps/web` (thin Next.js shell).
 - The full gate chain, local and in CI on every push:
-  `lint (incl. money-lint) → audit:values → typecheck → production build →
-  unit → e2e against that production build`.
+  `lint (incl. money-lint) → audit:values → typecheck → production build
+  (strict: build output containing an Error line fails even at exit 0 —
+  hardening found during the gate proofs, see GATE-PROOFS.md) → unit →
+  e2e against that production build`.
 - §9.1 negative tests applicable to Phase 1: G3 (money-lint), G4 (hardcoded
   values), plus the e2e server-reuse guard (P86 class). Each gate additionally
   proven by one deliberate break, recorded in `GATE-PROOFS.md`.

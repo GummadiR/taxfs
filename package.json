@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "audit:values": "tsx scripts/audit-hardcoded.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit && pnpm --filter web typecheck",
-    "build": "pnpm --filter web build",
+    "build": "node scripts/build-strict.mjs",
     "test": "vitest run",
     "e2e": "pnpm --filter web e2e",
     "gates": "pnpm lint && pnpm audit:values && pnpm typecheck && pnpm build && pnpm test && pnpm e2e"
