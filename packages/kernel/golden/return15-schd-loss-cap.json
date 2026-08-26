@@ -1,0 +1,112 @@
+{
+ "name": "return15-schd-loss-cap",
+ "description": "Single, W-2 $50k, ST loss −8,000 vs LT gain +2,000 → combined −6,000, capped at −3,000 (§1211(b)); ST carryover 3,000, LT carryover 0 (ST-first worksheet); NCG 0.",
+ "note": "Hand-verified: stLossAfterLt 6,000; allowed 3,000 → st.out 3,000; total income 47,000. PLACEHOLDER — verify. P28: fed.capital_gain.net.total is no longer emitted when Schedule D is active — the sub-DAG owns the 1040 line 7 (sourced net totals fold into Part II), so the legacy line is lawfully absent here.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "50000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:p",
+   "concept": "lot.xxx-st.proceeds",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:b",
+   "concept": "lot.xxx-st.basis",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:t",
+   "concept": "lot.xxx-st.term",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:p",
+   "concept": "lot.yyy-lt.proceeds",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:b",
+   "concept": "lot.yyy-lt.basis",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:t",
+   "concept": "lot.yyy-lt.term",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "50000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.retirement.total": "0",
+  "fed.schd.st_net": "-8000",
+  "fed.schd.lt_net": "2000",
+  "carryover.capital_loss.st.out": "3000",
+  "fed.schd.total": "-3000",
+  "fed.schd.net_capital_gain": "0",
+  "fed.total_income": "47000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "47000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "32000",
+  "fed.tax.ordinary": "3640",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "3640",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "3640",
+  "fed.withholding.total": "5000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "5000",
+  "fed.tax.liability.total": "3640",
+  "fed.refund_or_due": "1360",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "47000",
+  "il.exemption.total": "2775",
+  "il.net_income": "44225",
+  "il.tax": "2189",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-2189",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

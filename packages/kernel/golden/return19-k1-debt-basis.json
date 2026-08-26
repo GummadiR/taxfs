@@ -1,0 +1,106 @@
+{
+ "name": "return19-k1-debt-basis",
+ "description": "S-corp loss -2,500, material participation: stock basis 1,000 absorbs first, 7203 debt basis 2,000 absorbs the remaining 1,500 -> fully allowed, nothing suspended. Negative combined QBI 2,500 carries forward.",
+ "note": "Hand-verified per §1366(d)/Form 7203 ordering. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "40000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "4000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:box1",
+   "concept": "k1.debts.box1",
+   "value": "-2500",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1:sc",
+   "concept": "k1.debts.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:mp",
+   "concept": "k1.debts.material_participation",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:bo",
+   "concept": "k1.debts.basis_opening",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:dbo",
+   "concept": "k1.debts.debt_basis_opening",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "40000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "k1.debts.allowed_net": "-2500",
+  "fed.sche.k1_total": "-2500",
+  "fed.total_income": "37500",
+  "fed.adjustments.total": "0",
+  "fed.agi": "37500",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.loss_carryforward.out": "2500",
+  "fed.qbi.deduction": "0",
+  "fed.taxable_income": "22500",
+  "fed.tax.ordinary": "2500",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "2500",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "2500",
+  "fed.withholding.total": "4000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "4000",
+  "fed.tax.liability.total": "2500",
+  "fed.refund_or_due": "1500",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "37500",
+  "il.exemption.total": "2775",
+  "il.net_income": "34725",
+  "il.tax": "1719",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-1719",
+  "fed.sch1.additional_income.total": "-2500",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

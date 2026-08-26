@@ -1,0 +1,72 @@
+{
+ "name": "return27-foreign-tax-credit",
+ "description": "Form 1116 (passive category): a US person sells inherited/owned real property in India. Gain is FOREIGN-SOURCE (income from real property is sourced where the property sits — §862(a)(5)), so the Indian tax withheld at source (TDS u/s 195) is creditable — but only up to the US tax on that same income (§904). Wages 100,000 + foreign long-term capital gain 50,000; Indian tax paid 10,000; federal withholding 15,000.",
+ "note": "HAND-VERIFIED against the PLACEHOLDER fixture rule-data this golden runs on (single std deduction 15,000; ordinary brackets 10/12/22% at 10k/40k/90k; LTCG 0% to 48k then 15%). Taxable = 100,000 + 50,000 - 15,000 = 135,000. Ordinary portion = 135,000 - 50,000 pref = 85,000 -> 10,000x.10 = 1,000 + 30,000x.12 = 3,600 + 45,000x.22 = 9,900 = 14,500. The 50,000 LTCG stacks above ordinary 85,000, past the 0% ceiling (48,000), so all of it sits in the 15% band = 7,500. Total tax 22,000. SS904(b)(2)(B): the entire foreign-source amount is long-term gain taxed at the 15% marginal preferential rate, so it is scaled 15/37 -> 50,000 x 15 / 37 = 20,270.27 -> 20,270. Limitation = 22,000 x 20,270 / 135,000 = 3,303.26 -> 3,303. Credit = min(10,000 Indian tax paid, 3,303 limitation) = 3,303 -- the taxpayer cannot credit more than the US tax on that same income. Unused 6,697 carries (SS904(c), informational here). Tax after credits = 22,000 - 3,303 = 18,697; payments 15,000 -> 3,697 owed.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "100000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "15000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:sale:gain",
+   "concept": "income.capital_gain.net",
+   "value": "50000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:income",
+   "concept": "foreign.income.passive",
+   "value": "50000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:ltcg",
+   "concept": "foreign.income.passive.ltcg",
+   "value": "50000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:tax",
+   "concept": "foreign.tax_paid",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.total_income": "150000",
+  "fed.agi": "150000",
+  "fed.taxable_income": "135000",
+  "fed.tax.total": "22000",
+  "fed.credit.foreign_tax": "3303",
+  "fed.credit.foreign_tax.unused": "6697",
+  "fed.credits.total": "3303",
+  "fed.tax_after_credits": "18697",
+  "fed.tax.liability.total": "18697",
+  "fed.payments.total": "15000",
+  "fed.refund_or_due": "-3697"
+ }
+}

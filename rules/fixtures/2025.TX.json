@@ -1,0 +1,17 @@
+{
+ "release": "2025.TX.0.0.1-PLACEHOLDER",
+ "notice": "Texas Franchise Tax COMPLIANCE-TRACKING parameters only (no margin computation, no XML — REQUIREMENTS states scope). Every figure PLACEHOLDER — verify against the current-year TX Comptroller franchise tax instructions.",
+ "no_tax_due_threshold": {
+  "value": "2470000",
+  "status": "PLACEHOLDER — verify"
+ },
+ "rate_retail_wholesale": {
+  "value": "0.00375",
+  "status": "PLACEHOLDER — verify"
+ },
+ "rate_other": {
+  "value": "0.0075",
+  "status": "PLACEHOLDER — verify"
+ },
+ "report_due_date": "2025-05-15"
+}

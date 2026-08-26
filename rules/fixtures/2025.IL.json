@@ -1,0 +1,74 @@
+{
+ "rule_version": "2025.IL.0.0.1-PLACEHOLDER",
+ "tax_year": 2025,
+ "jurisdiction": "IL",
+ "status": "draft",
+ "notice": "EVERY figure in this file is a structural placeholder. Nothing here computes real tax until a signed rule set exists (workstream B authoring + J compliance gate).",
+ "parameters": {
+  "flat_rate": {
+   "value": "0.0495",
+   "status": "PLACEHOLDER — verify"
+  },
+  "exemption_per_person": {
+   "value": "2775",
+   "status": "PLACEHOLDER — verify"
+  },
+  "additional_age65_or_blind_per_check": {
+   "value": "1000",
+   "status": "PLACEHOLDER — verify"
+  },
+  "disallowed_if_fed_agi_over_single": {
+   "value": "250000",
+   "status": "PLACEHOLDER — verify"
+  },
+  "disallowed_if_fed_agi_over_mfj": {
+   "value": "500000",
+   "status": "PLACEHOLDER — verify"
+  },
+  "sch_m_subtraction_concepts": {
+   "value": [
+    "income.retirement",
+    "income.social_security"
+   ],
+   "status": "PLACEHOLDER — verify"
+  },
+  "replacement_tax": {
+   "scorp_rate": {
+    "value": "0.015",
+    "status": "PLACEHOLDER — verify"
+   },
+   "partnership_rate": {
+    "value": "0.015",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "icr": {
+   "property_tax_credit_rate": {
+    "value": "0.05",
+    "status": "PLACEHOLDER — verify"
+   },
+   "agi_cap_single": {
+    "value": "250000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "agi_cap_joint": {
+    "value": "500000",
+    "status": "PLACEHOLDER — verify"
+   }
+  }
+ },
+ "audit_params": {
+  "round_number_multiple": {
+   "value": "1000",
+   "status": "PLACEHOLDER — verify"
+  },
+  "round_number_min_count": {
+   "value": "3",
+   "status": "PLACEHOLDER — verify"
+  },
+  "effective_rate_max": {
+   "value": "0.10",
+   "status": "PLACEHOLDER — verify"
+  }
+ }
+}

@@ -1,0 +1,81 @@
+{
+ "name": "return29-foreign-plus-brokerage",
+ "description": "Schedule D carries the WHOLE capital-gain story (P28): a brokerage 1099-B net total (sourced income.capital_gain.net, 20,000) coexists with the 15CA/15CB foreign-currency path (4,175,000 INR gain / 835,000 INR TDS at 83.5 = 50,000 / 10,000 USD). The FCY facts activate Schedule D, and the sourced totals FOLD INTO Part II — never dropped, never double-counted, and the legacy fed.capital_gain.net.total line is not emitted (Sch D owns the 1040 line 7).",
+ "note": "HAND-VERIFIED against the PLACEHOLDER fixture rules (std deduction 15,000; ordinary brackets 10/12/22% at 10k/40k/90k; LTCG 0% to 48k then 15%). Sch D: LT = 20,000 (folded 1099-B) + 50,000 (foreign, converted) = 70,000; ST 0; line 16 = 70,000; net capital gain 70,000. Total income = 100,000 wages + 70,000 = 170,000; taxable 155,000. Ordinary portion 85,000 -> 1,000 + 3,600 + 9,900 = 14,500; all 70,000 pref stacks past the 48,000 ceiling at 15% = 10,500; tax 25,000. Form 1116: foreign-source = the 50,000 LTCG only (the brokerage gain is US-source); SS904(b)(2)(B) scale by marginal preferential / TOP ordinary rate = 15/37 (the placeholder rules carry a 37% top bracket, same as return27) -> 50,000 x 15/37 = 20,270.27 -> 20,270. Limitation = 25,000 x 20,270 / 155,000 = 3,269.03 -> 3,269. Credit = min(10,000, 3,269) = 3,269; unused 6,731. After credits 21,731; payments 15,000 -> owe 6,731.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "100000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "15000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1099b:capgain",
+   "concept": "income.capital_gain.net",
+   "value": "20000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:income-inr",
+   "concept": "foreign.income.passive.foreign_currency",
+   "value": "4175000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:ltcg-inr",
+   "concept": "foreign.income.passive.ltcg.foreign_currency",
+   "value": "4175000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:tds-inr",
+   "concept": "foreign.tax_paid.foreign_currency",
+   "value": "835000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:fgn:rate",
+   "concept": "foreign.fx.units_per_usd",
+   "value": "83.5",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.schd.lt_net": "70000",
+  "fed.schd.total": "70000",
+  "fed.schd.net_capital_gain": "70000",
+  "fed.total_income": "170000",
+  "fed.taxable_income": "155000",
+  "fed.tax.total": "25000",
+  "fed.credit.foreign_tax": "3269",
+  "fed.credit.foreign_tax.unused": "6731",
+  "fed.tax_after_credits": "21731",
+  "fed.tax.liability.total": "21731",
+  "fed.payments.total": "15000",
+  "fed.refund_or_due": "-6731"
+ }
+}

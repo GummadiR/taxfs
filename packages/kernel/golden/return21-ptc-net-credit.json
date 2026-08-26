@@ -1,0 +1,93 @@
+{
+ "name": "return21-ptc-net-credit",
+ "description": "P5 Form 8962 (annual): single, wages 30,000, household 1 -> 200% FPL exactly (fpl 15,000). Applicable figure 0.06 -> contribution 1,800; PTC = min(6,000, 5,500-1,800) = 3,700 > APTC 3,000 -> NET CREDIT 700, refundable on the payments line.",
+ "note": "Hand-verified: taxable 15,000; tax 1,600 (1,000 + 600); payments 2,000 wh + 700 net PTC = 2,700; refund 1,100. PLACEHOLDER rules.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "30000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:prem",
+   "concept": "ptc.annual_premium",
+   "value": "6000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:slcsp",
+   "concept": "ptc.annual_slcsp",
+   "value": "5500",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:aptc",
+   "concept": "ptc.annual_aptc",
+   "value": "3000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:8962:size",
+   "concept": "ptc.household_size",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "30000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "30000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "30000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "15000",
+  "fed.tax.ordinary": "1600",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "1600",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "1600",
+  "fed.withholding.total": "2000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "2700",
+  "fed.tax.liability.total": "1600",
+  "fed.refund_or_due": "1100",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "30000",
+  "il.exemption.total": "2775",
+  "il.net_income": "27225",
+  "il.tax": "1348",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-1348",
+  "fed.ptc.net_credit": "700",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

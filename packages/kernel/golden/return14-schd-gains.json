@@ -1,0 +1,128 @@
+{
+ "name": "return14-schd-gains",
+ "description": "Single, W-2 $60k, ST gain +2,000 (taxed ordinary), LT gain +10,000, dividends 3,000 ord / 3,000 qual. NCG = 10,000; preferential = 13,000.",
+ "note": "Hand-verified: line7 12,000; NCG 10,000 (ST gain stays ordinary); total income 75,000. PLACEHOLDER — verify. P28: fed.capital_gain.net.total is no longer emitted when Schedule D is active — the sub-DAG owns the 1040 line 7 (sourced net totals fold into Part II), so the legacy line is lawfully absent here.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "60000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "9000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:div:ord",
+   "concept": "income.dividends.ordinary",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:div:qual",
+   "concept": "income.dividends.qualified",
+   "value": "3000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:p",
+   "concept": "lot.aaa-st.proceeds",
+   "value": "12000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:b",
+   "concept": "lot.aaa-st.basis",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:t",
+   "concept": "lot.aaa-st.term",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:p",
+   "concept": "lot.bbb-lt.proceeds",
+   "value": "30000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:b",
+   "concept": "lot.bbb-lt.basis",
+   "value": "20000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:t",
+   "concept": "lot.bbb-lt.term",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "60000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "3000",
+  "fed.dividends.qualified.total": "3000",
+  "fed.retirement.total": "0",
+  "fed.schd.st_net": "2000",
+  "fed.schd.lt_net": "10000",
+  "fed.schd.total": "12000",
+  "fed.schd.net_capital_gain": "10000",
+  "fed.total_income": "75000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "75000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "60000",
+  "fed.tax.ordinary": "6140",
+  "fed.tax.capgain": "1800",
+  "fed.tax.total": "7940",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "7940",
+  "fed.withholding.total": "9000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "9000",
+  "fed.tax.liability.total": "7940",
+  "fed.refund_or_due": "1060",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "75000",
+  "il.exemption.total": "2775",
+  "il.net_income": "72225",
+  "il.tax": "3575",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-3575",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

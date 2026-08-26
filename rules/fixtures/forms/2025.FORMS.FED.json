@@ -1,0 +1,1190 @@
+{
+ "release": "2025.FORMS.FED.0.0.1-PLACEHOLDER",
+ "jurisdiction": "FED",
+ "tax_year": 2025,
+ "notice": "FormDefinitions are versioned rule-data (workstream B content type 'Form definitions'). Every line id, label, MeF element name, threshold, and attachment condition below is a STRUCTURAL PLACEHOLDER — verify against the current-year IRS MeF schema package before any real use.",
+ "forms": [
+  {
+   "form_id": "1040",
+   "revision": "1040-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/Form1040 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:1040:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "always"
+   },
+   "attachment_order": 0,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "1040.1a",
+     "label": "Wages, salaries, tips",
+     "mef_element": "WagesSalariesAndTipsAmt",
+     "datatype": "money",
+     "from_concept": "fed.wages.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.2b",
+     "label": "Taxable interest",
+     "mef_element": "TaxableInterestAmt",
+     "datatype": "money",
+     "from_concept": "fed.interest.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.3a",
+     "label": "Qualified dividends",
+     "mef_element": "QualifiedDividendsAmt",
+     "datatype": "money",
+     "from_concept": "fed.dividends.qualified.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.3b",
+     "label": "Ordinary dividends",
+     "mef_element": "OrdinaryDividendsAmt",
+     "datatype": "money",
+     "from_concept": "fed.dividends.ordinary.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.5b",
+     "label": "Pensions and annuities, taxable amount",
+     "mef_element": "PensionsAnnuitiesTaxableAmt",
+     "datatype": "money",
+     "from_concept": "fed.retirement.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.7",
+     "label": "Capital gain or (loss)",
+     "mef_element": "CapitalGainLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.capital_gain.net.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.9",
+     "label": "Total income",
+     "mef_element": "TotalIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.total_income",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.10",
+     "label": "Adjustments to income (Schedule 1 line 26)",
+     "mef_element": "TotalAdjustmentsAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch1.adjustments_total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.11",
+     "label": "Adjusted gross income",
+     "mef_element": "AdjustedGrossIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.agi",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.12",
+     "label": "Standard deduction or itemized deductions",
+     "mef_element": "TotalDeductionsAmt",
+     "datatype": "money",
+     "from_concept": "fed.deduction.applied",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.15",
+     "label": "Taxable income",
+     "mef_element": "TaxableIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.taxable_income",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.16",
+     "label": "Tax",
+     "mef_element": "TaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.total",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.20",
+     "label": "Credits (Schedule 3)",
+     "mef_element": "TotalCreditsAmt",
+     "datatype": "money",
+     "from_concept": "fed.credits.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.22",
+     "label": "Tax after credits",
+     "mef_element": "TaxAfterCreditsAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax_after_credits",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.25a",
+     "label": "Federal income tax withheld",
+     "mef_element": "WithholdingTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.withholding.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.26",
+     "label": "Estimated tax payments",
+     "mef_element": "EstimatedTaxPaymentsAmt",
+     "datatype": "money",
+     "from_concept": "fed.estimated.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.33",
+     "label": "Total payments",
+     "mef_element": "TotalPaymentsAmt",
+     "datatype": "money",
+     "from_concept": "fed.payments.total",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.34",
+     "label": "Overpayment (refund, net of any Form 2210 penalty)",
+     "mef_element": "RefundAmt",
+     "datatype": "money",
+     "from_concept": "fed.net_amount_due",
+     "sign_convention": "positive_only",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.37",
+     "label": "Amount you owe (net of any Form 2210 penalty)",
+     "mef_element": "BalanceDueAmt",
+     "datatype": "money",
+     "from_concept": "fed.net_amount_due",
+     "sign_convention": "abs_of_negative",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.38",
+     "label": "Estimated tax penalty (Form 2210)",
+     "mef_element": "EstimatedTaxPenaltyAmt",
+     "datatype": "money",
+     "from_concept": "penalty.fed.estimated_tax",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.2a",
+     "label": "Tax-exempt interest (not federally taxable; Illinois adds it back)",
+     "mef_element": "TaxExemptInterestAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax_exempt_interest.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.13",
+     "label": "Qualified business income deduction",
+     "mef_element": "QualifiedBusinessIncomeDedAmt",
+     "datatype": "money",
+     "from_concept": "fed.qbi.deduction",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.24",
+     "label": "Total tax",
+     "mef_element": "TotalTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.liability.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.31",
+     "label": "Schedule 3 line 13 (incl. net PTC)",
+     "mef_element": "RefundableCreditsAmt",
+     "datatype": "money",
+     "from_concept": "fed.ptc.net_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.8",
+     "label": "Additional income (Schedule 1 line 10)",
+     "mef_element": "AdditionalIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch1.additional_income.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.25c",
+     "label": "Other federal withholding (Form 8959)",
+     "mef_element": "OtherWithholdingAmt",
+     "datatype": "money",
+     "from_concept": "fed.withholding.additional_medicare",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.17",
+     "label": "Amount from Schedule 2, line 3",
+     "mef_element": "AdditionsToTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch2.part1.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.23",
+     "label": "Other taxes from Schedule 2, line 21",
+     "mef_element": "OtherTaxesWithSchAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch2.part2.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.25d",
+     "label": "Total withholding (25a + 25c; 25b is a recorded gap)",
+     "mef_element": "TotalWithholdingAmt",
+     "datatype": "money",
+     "from_concept": "fed.withholding.combined",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.1z",
+     "label": "Add lines 1a through 1h",
+     "mef_element": "TotalWagesAmt",
+     "datatype": "money",
+     "from_concept": "fed.wages.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "1040.11b",
+     "label": "Amount from line 11a (adjusted gross income)",
+     "mef_element": "AdjustedGrossIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.agi",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.14",
+     "label": "Add lines 12e, 13a, and 13b",
+     "mef_element": "TotalDeductionsAmt",
+     "datatype": "money",
+     "from_concept": "fed.deductions.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.18",
+     "label": "Add lines 16 and 17",
+     "mef_element": "TaxPlusSch2Part1Amt",
+     "datatype": "money",
+     "from_concept": "fed.tax.plus_sch2_part1",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "1040.21",
+     "label": "Add lines 19 and 20",
+     "mef_element": "TotalCreditsAmt",
+     "datatype": "money",
+     "from_concept": "fed.credits.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  },
+  {
+   "form_id": "SCHB",
+   "revision": "SCHB-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/ScheduleB (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:SCHB:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_sum_exceeds",
+    "concepts": [
+     "fed.interest.total",
+     "fed.dividends.ordinary.total"
+    ],
+    "threshold": {
+     "value": "1500",
+     "status": "PLACEHOLDER — verify"
+    }
+   },
+   "attachment_order": 10,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHB.4",
+     "label": "Total taxable interest",
+     "mef_element": "SchBTotalInterestAmt",
+     "datatype": "money",
+     "from_concept": "fed.interest.total",
+     "sign_convention": "as_is",
+     "must_equal": {
+      "form_id": "1040",
+      "line_id": "1040.2b"
+     },
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "SCHB.6",
+     "label": "Total ordinary dividends",
+     "mef_element": "SchBTotalOrdinaryDividendsAmt",
+     "datatype": "money",
+     "from_concept": "fed.dividends.ordinary.total",
+     "sign_convention": "as_is",
+     "must_equal": {
+      "form_id": "1040",
+      "line_id": "1040.3b"
+     },
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  },
+  {
+   "form_id": "F8949",
+   "revision": "F8949-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/Form8949 (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:F8949:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "income.capital_gain.net",
+     "fed.schd.total"
+    ]
+   },
+   "attachment_order": 21,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F8949.2h",
+     "label": "Total long-term gain or (loss) (summary — per-transaction detail is step 2+)",
+     "mef_element": "F8949TotalGainLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.capital_gain.net.total",
+     "sign_convention": "as_is",
+     "must_equal": {
+      "form_id": "SCHD",
+      "line_id": "SCHD.16"
+     },
+     "status": "PLACEHOLDER — verify",
+     "omit_when_zero": true
+    }
+   ]
+  },
+  {
+   "form_id": "SCHD",
+   "revision": "SCHD-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/ScheduleD (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:SCHD:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "income.capital_gain.net",
+     "fed.schd.total"
+    ]
+   },
+   "attachment_order": 20,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHD.16",
+     "label": "Net capital gain or (loss)",
+     "mef_element": "SchDNetGainLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.capital_gain.net.total",
+     "sign_convention": "as_is",
+     "must_equal": {
+      "form_id": "1040",
+      "line_id": "1040.7"
+     },
+     "status": "PLACEHOLDER — verify",
+     "omit_when_zero": true
+    },
+    {
+     "line_id": "SCHD.7",
+     "label": "Net short-term capital gain or (loss)",
+     "mef_element": "NetSTCapitalGainLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.schd.st_net",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHD.15",
+     "label": "Net long-term capital gain or (loss)",
+     "mef_element": "NetLTCapitalGainLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.schd.lt_net",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ],
+   "gap_note": "P11 CPA fix: line 16 is dual-path like 1040 line 7 — SCHD.16 (legacy income.capital_gain.net path) and SCHD.16-schd (fed.schd.total, lots/K-1 path), both omit_when_zero; previously the lots path printed 0 here while 1040 line 7 showed the real total."
+  },
+  {
+   "form_id": "SCH1",
+   "revision": "SCH1-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCH1 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCH1:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.schc.net_profit.total",
+     "fed.sche.k1_total",
+     "fed.se_tax.deduction"
+    ]
+   },
+   "attachment_order": 1,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCH1.3",
+     "label": "Business income or (loss) (Schedule C)",
+     "mef_element": "BusinessIncomeLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.schc.net_profit.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH1.5",
+     "label": "Rental, partnerships, S corps (Schedule E)",
+     "mef_element": "RentalRealEstateIncomeLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.sche.k1_total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH1.15",
+     "label": "Deductible part of self-employment tax",
+     "mef_element": "DeductibleSelfEmploymentTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.se_tax.deduction",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH1.10",
+     "label": "Additional income total",
+     "mef_element": "AdditionalIncomeTotalAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch1.additional_income.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "SCH1.26",
+     "label": "Total adjustments (incl. ½ SE tax)",
+     "mef_element": "TotalAdjustmentsAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch1.adjustments_total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ],
+   "gap_note": "part I/II line coverage grows with the kernel; totals are kernel-emitted (never mapping math). Corrected 2025-07: the real 2025 Schedule 1 line 25 is the 24a-24z 'other adjustments' subtotal, not the grand total — the line feeding 1040 line 10 is line 26 (verified against the official 2025 PDF; line_id renamed SCH1.25 -> SCH1.26 accordingly)."
+  },
+  {
+   "form_id": "SCH2",
+   "revision": "SCH2-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCH2 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCH2:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.se_tax.total",
+     "fed.ptc.repayment",
+     "fed.tax.additional_medicare",
+     "fed.tax.niit"
+    ]
+   },
+   "attachment_order": 2,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCH2.1a",
+     "label": "Excess advance premium tax credit repayment (Form 8962) — line 1a",
+     "mef_element": "APTCRepaymentAmt",
+     "datatype": "money",
+     "from_concept": "fed.ptc.repayment",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH2.4",
+     "label": "Self-employment tax (Schedule SE)",
+     "mef_element": "SelfEmploymentTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.se_tax.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH2.21",
+     "label": "Part II total other taxes (SE + 8959 + 8960)",
+     "mef_element": "OtherTaxesTotalAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch2.part2.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "SCH2.8",
+     "label": "Additional tax on early retirement distributions (Form 5329 Part I, §72(t))",
+     "mef_element": "AdditionalTaxOnIRAsAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.early_distribution",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "SCH2.11",
+     "label": "Additional Medicare Tax (Form 8959)",
+     "mef_element": "AdditionalMedicareTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.additional_medicare",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH2.12",
+     "label": "Net investment income tax (Form 8960)",
+     "mef_element": "NetInvestmentIncomeTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.niit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH2.3",
+     "label": "Part I total additions to tax (1z + 2)",
+     "mef_element": "TotalAdditionsToTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch2.part1.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "must_equal": {
+      "form_id": "1040",
+      "line_id": "1040.17"
+     },
+     "status": "PLACEHOLDER — verify"
+    }
+   ],
+   "gap_note": "2025 layout verified against the official PDF: Part I is lines 1a-1z + 2 (AMT, not modeled) + 3; Part II total is line 21. The old single grand total on line 21 double-counted the APTC repayment — fixed P11 (CPA review): line 3 = fed.sch2.part1.total, line 21 = fed.sch2.part2.total."
+  },
+  {
+   "form_id": "SCH3",
+   "revision": "SCH3-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCH3 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCH3:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.ptc.net_credit",
+     "fed.credit.residential_clean_energy",
+     "fed.credit.foreign_tax"
+    ]
+   },
+   "attachment_order": 3,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCH3.1",
+     "label": "Foreign tax credit (Form 1116)",
+     "mef_element": "ForeignTaxCreditAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.foreign_tax",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH3.9",
+     "label": "Net premium tax credit (Form 8962)",
+     "mef_element": "NetPremiumTaxCreditAmt",
+     "datatype": "money",
+     "from_concept": "fed.ptc.net_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH3.2",
+     "label": "Credit for child and dependent care expenses (Form 2441)",
+     "mef_element": "CreditForChildAndDepdCareAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.dependent_care",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "SCH3.5a",
+     "label": "Residential clean energy credit (Form 5695)",
+     "mef_element": "ResidentialCleanEnergyCrAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.residential_clean_energy",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCH3.8",
+     "label": "Add lines 1 through 4, 5a, 5b, and 7. Enter here and on Form 1040 line 20",
+     "mef_element": "TotalNonrefundableCreditsAmt",
+     "datatype": "money",
+     "from_concept": "fed.credits.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  },
+  {
+   "form_id": "SCHC",
+   "revision": "SCHC-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCHC (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCHC:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.schc.net_profit.total"
+   },
+   "attachment_order": 4,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHC.31",
+     "label": "Net profit or (loss) — ALL businesses combined",
+     "mef_element": "NetProfitOrLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.schc.net_profit.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ],
+   "gap_note": "per-entity Schedule C copies are a recorded gap (aggregate only)"
+  },
+  {
+   "form_id": "SCHSE",
+   "revision": "SCHSE-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCHSE (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCHSE:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.se_tax.total"
+   },
+   "attachment_order": 5,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHSE.12",
+     "label": "Self-employment tax",
+     "mef_element": "SelfEmploymentTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.se_tax.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHSE.13",
+     "label": "Deduction for one-half of SE tax",
+     "mef_element": "OneHalfSelfEmploymentTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.se_tax.deduction",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "SCHE",
+   "revision": "SCHE-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/SCHE (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:SCHE:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.sche.k1_total"
+   },
+   "attachment_order": 6,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHE.41",
+     "label": "Total income or (loss) — page 2 (K-1s)",
+     "mef_element": "TotalIncomeOrLossAmt",
+     "datatype": "money",
+     "from_concept": "fed.sche.k1_total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ],
+   "gap_note": "per-K-1 rows (28A-D) are a recorded gap (per-k1 facts exist: k1.<id>.allowed_net)"
+  },
+  {
+   "form_id": "F8995",
+   "revision": "F8995-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/F8995 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F8995:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.qbi.deduction"
+   },
+   "attachment_order": 7,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F8995.15",
+     "label": "Qualified business income deduction",
+     "mef_element": "QualifiedBusinessIncomeDedAmt",
+     "datatype": "money",
+     "from_concept": "fed.qbi.deduction",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F8995.16",
+     "label": "Total QBI loss carryforward",
+     "mef_element": "QBILossCarryforwardAmt",
+     "datatype": "money",
+     "from_concept": "fed.qbi.loss_carryforward.out",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "F8962",
+   "revision": "F8962-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/F8962 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F8962:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.ptc.net_credit",
+     "fed.ptc.repayment"
+    ]
+   },
+   "attachment_order": 8,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F8962.26",
+     "label": "Net premium tax credit",
+     "mef_element": "NetPremiumTaxCreditAmt",
+     "datatype": "money",
+     "from_concept": "fed.ptc.net_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F8962.29",
+     "label": "Excess advance payment repayment",
+     "mef_element": "ExcessAPTCRepaymentAmt",
+     "datatype": "money",
+     "from_concept": "fed.ptc.repayment",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "F8959",
+   "revision": "F8959-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/F8959 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F8959:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.tax.additional_medicare",
+     "fed.withholding.additional_medicare"
+    ]
+   },
+   "attachment_order": 22,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F8959.18",
+     "label": "Total Additional Medicare Tax",
+     "mef_element": "TotalAMRRTTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.additional_medicare",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F8959.24",
+     "label": "Additional Medicare Tax withholding on Medicare wages",
+     "mef_element": "AddnlMedcrRRTTaxWithholdingAmt",
+     "datatype": "money",
+     "from_concept": "fed.withholding.additional_medicare",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "F8960",
+   "revision": "F8960-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/F8960 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F8960:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "fed.tax.niit"
+    ]
+   },
+   "attachment_order": 23,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F8960.17",
+     "label": "Net investment income tax",
+     "mef_element": "NetInvestmentIncomeTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.tax.niit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "F5695",
+   "revision": "F5695-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/F5695 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F5695:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "any_concept_present",
+    "concepts": [
+     "credit.solar.installation_cost"
+    ]
+   },
+   "attachment_order": 24,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F5695.1",
+     "label": "Qualified solar electric property costs",
+     "mef_element": "SolarElectricPropCostsAmt",
+     "datatype": "money",
+     "from_concept": "credit.solar.installation_cost",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": false
+    },
+    {
+     "line_id": "F5695.15",
+     "label": "Residential clean energy credit",
+     "mef_element": "ResidentialCleanEnergyCrAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.residential_clean_energy",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F5695.16",
+     "label": "Credit carryforward (informational — post-2025 usability unresolved)",
+     "mef_element": "CarryforwardAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.solar.unused",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ],
+   "gap_note": "line set is the minimal solar-only path (5695 lines 2-12 other property types not modeled); the line-14 limitation worksheet is simplified to this model's credit set; carryforward is informational only pending post-termination IRS guidance"
+  },
+  {
+   "form_id": "F1116",
+   "revision": "F1116-2025.0-PLACEHOLDER",
+   "source_schema_ref": "mef://2025/IndividualIncomeTax/Form1116 (PLACEHOLDER — procure real MeF XSD)",
+   "pdf_template_ref": "pdf-template:F1116:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.credit.foreign_tax"
+   },
+   "attachment_order": 12,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "F1116.35",
+     "label": "Foreign tax credit (line 35 → Schedule 3 line 1)",
+     "mef_element": "ForeignTaxCreditAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.foreign_tax",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "F1116.CARRY",
+     "label": "Unused foreign tax (informational — §904(c) carryback 1 / carryforward 10)",
+     "mef_element": "UnusedForeignTaxAmt",
+     "datatype": "money",
+     "from_concept": "fed.credit.foreign_tax.unused",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "F1116.1a",
+     "label": "Gross foreign-source income, passive category (Part I line 1a, total column)",
+     "mef_element": "ForeignGrossIncomeAmt",
+     "datatype": "money",
+     "from_concept": "foreign.income.passive",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F1116.7",
+     "label": "Net foreign source taxable income (Part I line 7)",
+     "mef_element": "ForeignTaxableIncomeAmt",
+     "datatype": "money",
+     "from_concept": "foreign.income.passive",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "F1116.8",
+     "label": "Foreign taxes paid or accrued, US dollars (Part II line 8)",
+     "mef_element": "ForeignTaxesPaidAmt",
+     "datatype": "money",
+     "from_concept": "foreign.tax_paid",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "form_id": "SCHA",
+   "jurisdiction": "FED",
+   "revision": "2025",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "fed.sch_a.total"
+   },
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHA.1",
+     "label": "Medical and dental expenses",
+     "mef_element": "MedicalDentalExpensesAmt",
+     "datatype": "money",
+     "from_concept": "deduction.sch_a.medical",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.2",
+     "label": "Amount from Form 1040 line 11a (adjusted gross income)",
+     "mef_element": "AdjustedGrossIncomeAmt",
+     "datatype": "money",
+     "from_concept": "fed.agi",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.4",
+     "label": "Medical and dental expenses above the AGI floor",
+     "mef_element": "MedicalDentalDeductionAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.medical.allowed",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.5d",
+     "label": "Add lines 5a through 5c (state and local taxes paid)",
+     "mef_element": "StateLocalTaxesPaidAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.salt.before_cap",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.5e",
+     "label": "State and local taxes after the §164(b)(6) cap",
+     "mef_element": "StateLocalTaxLimitedAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.salt.allowed",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.10",
+     "label": "Home mortgage interest and points, plus investment interest",
+     "mef_element": "InterestPaidAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.interest",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.14",
+     "label": "Gifts to charity",
+     "mef_element": "CharitableContributionsAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.charitable",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "SCHA.17",
+     "label": "Total itemized deductions (to Form 1040 line 12e)",
+     "mef_element": "TotalItemizedDeductionsAmt",
+     "datatype": "money",
+     "from_concept": "fed.sch_a.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  }
+ ]
+}

@@ -1,16 +1,25 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["node"],
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "noEmit": true,
-    "types": ["node"]
+    "baseUrl": ".",
+    "paths": {
+      "@taxfs/shared": ["packages/shared/src/index.ts"],
+      "@taxfs/kernel": ["packages/kernel/src/index.ts"],
+      "@taxfs/kernel2": ["packages/kernel2/src/index.ts"]
+    }
   },
-  "include": ["packages/**/*.ts", "scripts/**/*.ts", "supabase/**/*.ts"],
-  "exclude": ["**/node_modules/**", "apps/**"]
+  "include": ["packages/**/*.ts", "scripts/**/*.ts", "supabase/**/*.ts", "vitest.config.ts"]
 }

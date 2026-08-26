@@ -1,0 +1,95 @@
+{
+ "name": "return23-ptc-cliff",
+ "description": "P5 Form 8962 (annual): single, wages 65,000, household 1 -> 433% FPL, AT/ABOVE the 400% cliff (post-2025 regime) -> PTC 0 and the FULL APTC 4,000 repays UNCAPPED.",
+ "note": "Hand-verified: taxable 50,000; tax 6,800 (1,000 + 3,600 + 2,200); liability 6,800 + 4,000 = 10,800; wh 7,000 -> due 3,800. PLACEHOLDER rules. P11 CPA fix: 1040 line 22 = max(0, line 18 − line 21) where line 18 = tax + Sch 2 Part I (APTC repayment) — tax_after_credits now includes the repayment; line 24 unchanged (Part I no longer re-added).",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "65000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:prem",
+   "concept": "ptc.annual_premium",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:slcsp",
+   "concept": "ptc.annual_slcsp",
+   "value": "6000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:aptc",
+   "concept": "ptc.annual_aptc",
+   "value": "4000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:8962:size",
+   "concept": "ptc.household_size",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "65000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "65000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "65000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "50000",
+  "fed.tax.ordinary": "6800",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "6800",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "10800",
+  "fed.withholding.total": "7000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "7000",
+  "fed.tax.liability.total": "10800",
+  "fed.refund_or_due": "-3800",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "65000",
+  "il.exemption.total": "2775",
+  "il.net_income": "62225",
+  "il.tax": "3080",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-3080",
+  "fed.ptc.repayment": "4000",
+  "fed.sch1.adjustments_total": "0",
+  "fed.sch2.total": "4000",
+  "fed.sch2.part1.total": "4000"
+ }
+}

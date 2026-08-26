@@ -1,0 +1,175 @@
+{
+ "release": "2025.PDF.0.0.1-PLACEHOLDER",
+ "status": "PLACEHOLDER — verify",
+ "notice": "Placeholder layout grids only. Official form PDF templates are procurement artifacts; when they land, this fixture maps line_ids to real AcroForm field names/positions and the renderer swaps to true PDF filling.",
+ "templates": {
+  "1040": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHB": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHD": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F8949": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCH1": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCH2": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCH3": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHC": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHSE": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHE": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F8995": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F8962": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F8959": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F8960": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "IL1040": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHM": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHILWIT": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHICR": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F5695": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "1120S": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "K1-1120S": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "1065": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "K1-1065": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "IL1120ST": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "IL1065": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "K1P": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "F1116": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  },
+  "SCHA": {
+   "page": 1,
+   "start_x": 72,
+   "start_y": 720,
+   "line_height": 14
+  }
+ }
+}

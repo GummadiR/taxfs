@@ -9,7 +9,7 @@
  */
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import type pg from 'pg';
-import { bootRig, TEST_DB_URL, type Rig } from './rig.js';
+import { bootRig, TEST_DB_URL, type Rig } from './rig';
 
 const USER_A = '11111111-1111-4111-8111-111111111111';
 const USER_B = '22222222-2222-4222-8222-222222222222';

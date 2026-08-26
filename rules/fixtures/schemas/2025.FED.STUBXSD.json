@@ -1,0 +1,11 @@
+{
+  "schema_ref": "stub-xsd://2025/FED — STAND-IN until the real IRS MeF schema package is procured (registration-gated download). Real XSD validation replaces StubSchemaValidator behind the same interface.",
+  "status": "PLACEHOLDER — verify",
+  "money_pattern": "^-?\\d+$",
+  "required_elements": {
+    "1040": ["TotalIncomeAmt", "AdjustedGrossIncomeAmt", "TaxableIncomeAmt", "TaxAmt", "TotalPaymentsAmt"],
+    "SCHB": ["SchBTotalInterestAmt"],
+    "SCHD": ["SchDNetGainLossAmt"],
+    "F8949": ["F8949TotalGainLossAmt"]
+  }
+}

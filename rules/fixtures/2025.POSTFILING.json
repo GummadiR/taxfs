@@ -1,0 +1,40 @@
+{
+  "release": "2025.POSTFILING.0.0.1-PLACEHOLDER",
+  "notice": "Post-filing parameters + pre-approved factual templates (workstream I). Every figure and template is PLACEHOLDER pending verification (DUT limit, 35 ILCS 5/506 window) and compliance/UPL review (workstream K).",
+  "il_sync_window_days": { "value": "120", "status": "PLACEHOLDER — verify" },
+  "dut_size_limit_bytes": { "value": "15728640", "status": "PLACEHOLDER — verify" },
+  "agree_alert_template": {
+    "value": "Verified error on the filed return: {summary}. Agreeing means additional tax of ${delta}. Until paid, interest continues to accrue, and an accuracy-related addition under §6662 can apply to substantial understatements. Review the recomputation below before you respond — you file or mail the response yourself; nothing is sent for you.",
+    "status": "PLACEHOLDER — verify"
+  },
+  "il_sync_alert_template": {
+    "value": "A finalized federal change starts the Illinois conformity clock: an IL-1040-X reporting the federal change is due within {days} days of the final federal determination (35 ILCS 5/506 — verify). Due {due_date}. This alert persists until the IL companion is generated.",
+    "status": "PLACEHOLDER — verify"
+  },
+  "amendment_templates": [
+    {
+      "template_id": "tmpl-late-doc",
+      "reason": "late_doc",
+      "text": "This amended return is filed solely to incorporate {doc}, received after the original filing. {concept_summary} adjusted by ${delta}. All other lines recomputed accordingly.",
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "template_id": "tmpl-user-correction",
+      "reason": "user_correction",
+      "text": "This amended return is filed to correct {concept_summary} as originally reported. The correction changes tax by ${delta}. Supporting records are retained and available.",
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "template_id": "tmpl-notice-outcome",
+      "reason": "notice_outcome",
+      "text": "This amended return reflects the resolution of IRS notice {notice_ref}. {concept_summary} adjusted by ${delta} consistent with that resolution.",
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "template_id": "tmpl-rule-patch",
+      "reason": "rule_patch",
+      "text": "This amended return is filed following a correction to the applicable rule set ({rule_ref}). {concept_summary} adjusted by ${delta}. No other positions changed.",
+      "status": "PLACEHOLDER — verify"
+    }
+  ]
+}

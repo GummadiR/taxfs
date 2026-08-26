@@ -1,0 +1,11 @@
+{
+  "dataset": "BLS_OEWS",
+  "version": "BLS-OEWS.MOCK.0.0.1-PLACEHOLDER",
+  "vintage": "May 2024 survey (MOCK FIXTURE — not real BLS data)",
+  "source_ref": "https://www.bls.gov/oes/ (mock stand-in; real vintage is a versioned managed import, Cap 23)",
+  "notice": "MOCK dataset for pipeline exercise only. Benchmarks are NEVER generated — real releases import licensed/public survey data with source and date stamps, regression-gated like rule releases. No LLM-generated values, ever (§5.6.4 / G.4).",
+  "rows": [
+    { "soc_code": "15-1252", "title": "Software Developers", "area": "Chicago-Naperville-Elgin, IL", "p25": { "value": "92000", "status": "PLACEHOLDER — verify" }, "p50": { "value": "118000", "status": "PLACEHOLDER — verify" }, "p75": { "value": "148000", "status": "PLACEHOLDER — verify" } },
+    { "soc_code": "11-1021", "title": "General and Operations Managers", "area": "Chicago-Naperville-Elgin, IL", "p25": { "value": "78000", "status": "PLACEHOLDER — verify" }, "p50": { "value": "104000", "status": "PLACEHOLDER — verify" }, "p75": { "value": "141000", "status": "PLACEHOLDER — verify" } }
+  ]
+}

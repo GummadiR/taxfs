@@ -1,0 +1,82 @@
+{
+ "release": "2025.ESTTAX.0.0.1-PLACEHOLDER",
+ "notice": "Estimated-tax / safe-harbor parameters (G.5, S4). Every figure PLACEHOLDER — verify against current-year §6654 / Form 2210 + Schedule AI instructions. The effective-rate proxy stands in until the kernel computes Schedule AI tax directly (verify).",
+ "safe_harbor_prior_year_pct": {
+  "value": "1.10",
+  "status": "PLACEHOLDER — verify"
+ },
+ "current_year_required_pct": {
+  "value": "0.90",
+  "status": "PLACEHOLDER — verify"
+ },
+ "annualized_effective_rate_proxy": {
+  "value": "0.20",
+  "status": "PLACEHOLDER — verify"
+ },
+ "quarters": [
+  {
+   "quarter": 1,
+   "due_date": "2025-04-15",
+   "annualization_factor": {
+    "value": "4",
+    "status": "PLACEHOLDER — verify"
+   },
+   "cumulative_installment_pct": {
+    "value": "0.225",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  {
+   "quarter": 2,
+   "due_date": "2025-06-16",
+   "annualization_factor": {
+    "value": "2.4",
+    "status": "PLACEHOLDER — verify"
+   },
+   "cumulative_installment_pct": {
+    "value": "0.45",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  {
+   "quarter": 3,
+   "due_date": "2025-09-15",
+   "annualization_factor": {
+    "value": "1.5",
+    "status": "PLACEHOLDER — verify"
+   },
+   "cumulative_installment_pct": {
+    "value": "0.675",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  {
+   "quarter": 4,
+   "due_date": "2026-01-15",
+   "annualization_factor": {
+    "value": "1",
+    "status": "PLACEHOLDER — verify"
+   },
+   "cumulative_installment_pct": {
+    "value": "0.90",
+    "status": "PLACEHOLDER — verify"
+   }
+  }
+ ],
+ "safe_harbor_prior_year_pct_low": {
+  "value": "1.00",
+  "status": "PLACEHOLDER — verify"
+ },
+ "high_agi_threshold": {
+  "value": "150000",
+  "status": "PLACEHOLDER — verify"
+ },
+ "high_agi_threshold_mfs": {
+  "value": "75000",
+  "status": "PLACEHOLDER — verify"
+ },
+ "de_minimis_balance_due": {
+  "value": "1000",
+  "status": "PLACEHOLDER — verify"
+ }
+}

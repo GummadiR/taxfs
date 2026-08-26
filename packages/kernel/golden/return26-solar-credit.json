@@ -1,0 +1,66 @@
+{
+ "name": "return26-solar-credit",
+ "description": "Single filer, W-2 60,000 (fed WH 6,000, IL WH 3,000) + a 30,000 residential solar installation (Form 5695). The 30% credit (9,000) exceeds the available tax (5,700), so the allowed credit is LIMITED to 5,700 and 3,300 is unused (informational — §25D(c) carryforward usability after the OBBBA termination is unresolved).",
+ "note": "Hand-verified against PLACEHOLDER 2025 rules. Taxable 45,000 → ordinary tax 1,000 + 3,600 + 1,100 = 5,700. 5695: 30,000 × 0.30 = 9,000 tentative; limitation 5,700; allowed 5,700; unused 3,300. Tax after credits 0; refund = payments 6,000. IL: net 57,225 × 0.0495 = 2,832.6375 → 2,833; refund 167.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "60000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "6000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "3000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:solar:cost",
+   "concept": "credit.solar.installation_cost",
+   "value": "30000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "60000",
+  "fed.total_income": "60000",
+  "fed.agi": "60000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "45000",
+  "fed.tax.ordinary": "5700",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "5700",
+  "fed.credit.residential_clean_energy": "5700",
+  "fed.credit.solar.unused": "3300",
+  "fed.credits.total": "5700",
+  "fed.tax_after_credits": "0",
+  "fed.tax.liability.total": "0",
+  "fed.withholding.total": "6000",
+  "fed.payments.total": "6000",
+  "fed.refund_or_due": "6000",
+  "il.base_income": "60000",
+  "il.exemption.total": "2775",
+  "il.net_income": "57225",
+  "il.tax": "2833",
+  "il.payments.total": "3000",
+  "il.refund_or_due": "167"
+ }
+}

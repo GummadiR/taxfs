@@ -51,7 +51,17 @@ stop. Two walls now bind:
 | 8 | FORCE-RLS catalog guard | `alter table settings no force row level security` appended to the migration | suite red — `every public table has RLS enabled AND forced` fails |
 | 9 | no-identity-columns guard (G9, schema level) | `alter table settings add column ssn_last4 text` | suite red — `no identity columns exist anywhere` fails |
 
-Both reverted; suite 14/14 green after revert. The G1/G2 suite itself is
+Both reverted; suite 14/14 green after revert.
+
+## Phase 3 — the walls caught real defects in the verbatim port (live proof)
+
+Not seeded breaks: these were found in TaxOS code lifted unchanged.
+
+| Wall | Catch | Resolution |
+|---|---|---|
+| money-lint (G3) | 3 native `+` in `kernel2` (`i + 1` index arithmetic) — kernel2 was NOT in TaxOS's lint scope, TaxFS's includes it | rewritten with shifted-slice cumulative bounds; no native arithmetic remains in scope |
+| values audit (G4) | the §219(g)(2)(B) $200 reduced-limit floor hardcoded in BOTH kernels (`Money.fromString('200')` / `D('200')`) | moved to rule data (`ira.reduced_limit_floor`, cited) in the verified + stub fixtures; both kernels read it; all 42 goldens still tie and the divergence suite stays green |
+| values audit (G4) | first scan produced 157 prose false-positives in the kernel (form numbers like 1040/8582 in explanation strings) | scanner rewritten: char-level comment/string stripping + a dedicated Money-string-literal pass (`Money.fromString('200')` still caught); 8 negative tests pin the behavior | The G1/G2 suite itself is
 negative by construction (every test attempts the forbidden read/write and
 passes only on refusal) and runs in CI against a real postgres:16 service.
 The G9 endpoint-level scan (POST a synthetic SSN at every endpoint) arrives

@@ -1,0 +1,102 @@
+{
+  "_README": "REAL BENCHMARK TEMPLATE. 1) Copy this file to '2025.REAL.return1.json' (that name is gitignored — it holds your actual tax figures / PII and must never be committed). 2) In input_facts, fill each `value` from your source documents and DELETE any income row you don't have. 3) In expected_lines, copy each value from your professionally-prepared 1040 / IL-1040 at the line noted in _field_guide, and DELETE any line your return doesn't have. 4) Run: pnpm vitest run packages/compliance/test/verified-benchmark.test.ts — the harness auto-detects 2025.REAL.return1.json and asserts the kernel (on source-verified rule-data) ties dollar-for-dollar to your return. Any mismatch is reported per line. Values are whole-dollar decimal STRINGS (e.g. \"60000\"). Do NOT run until every value is filled.",
+  "benchmark_id": "2025.REAL.return1-PLACEHOLDER",
+  "prepared_by": "REPLACE — your preparer, e.g. 'Jane Roe, EA #12345' (keep the word 'verified' here OR keep 'PLACEHOLDER' in benchmark_id, or the loader refuses an unattributed real-looking benchmark)",
+  "source_golden": "my-2025-return",
+
+  "filing_status": "single",
+  "_filing_status_help": "One of: single | mfj (married filing jointly) | mfs (married filing separately) | hoh (head of household).",
+  "il_exemption_count": 1,
+  "_il_exemption_count_help": "Number of IL personal exemptions claimed on your IL-1040 (Line 10 exemption allowance ÷ per-person amount). Typically 1 (single) or 2 (MFJ), plus dependents.",
+
+  "_field_guide": {
+    "INPUTS (input_facts)": {
+      "income.wages": "SUM of Box 1 (wages) across all your W-2s.",
+      "income.interest": "SUM of Box 1 (interest income) across all 1099-INTs.",
+      "income.dividends.ordinary": "SUM of Box 1a (total ordinary dividends) across all 1099-DIVs.",
+      "income.dividends.qualified": "SUM of Box 1b (qualified dividends) across all 1099-DIVs. Must be <= ordinary.",
+      "income.capital_gain.net": "Net long-term capital gain — Schedule D result (from 1099-B / Form 8949). Enter net gain; step-1 does not model losses/carryforwards.",
+      "income.retirement": "SUM of the federally-taxable amount from 1099-R (Box 2a). IL subtracts this on Sch M.",
+      "income.social_security": "Federally-taxable Social Security (1040 line 6b), from SSA-1099. IL subtracts this on Sch M.",
+      "deduction.itemized.total": "Total itemized deductions — Schedule A total. Enter only if you itemize; the kernel takes the greater of this and the standard deduction. Delete this row to use the standard deduction.",
+      "payments.fed.withholding": "SUM of federal tax withheld: W-2 Box 2 + any 1099 federal withholding.",
+      "payments.fed.estimated": "Total federal estimated payments made (Form 1040-ES). Delete if none.",
+      "payments.il.withholding": "SUM of IL tax withheld: W-2 Box 17 + any 1099 IL withholding (Schedule IL-WIT total).",
+      "payments.il.estimated": "Total IL estimated payments made (IL-1040-ES). Delete if none."
+    },
+    "EXPECTED OUTPUTS (expected_lines)": {
+      "fed.total_income": "Form 1040, line 9 (Total income).",
+      "fed.agi": "Form 1040, line 11 (Adjusted gross income).",
+      "fed.deduction.applied": "Form 1040, line 12 (Standard deduction OR itemized — whichever you used).",
+      "fed.taxable_income": "Form 1040, line 15 (Taxable income).",
+      "fed.tax.total": "Form 1040, line 16 (Tax). Includes the qualified-dividends/capital-gains worksheet if applicable.",
+      "fed.tax_after_credits": "Form 1040, line 22 (tax after credits). For step-1 (no additional taxes) this equals your total tax, line 24.",
+      "fed.payments.total": "Form 1040, line 33 (Total payments).",
+      "fed.refund_or_due": "Positive = refund (Form 1040 line 34); negative = balance due (line 37).",
+      "il.base_income": "IL-1040 base income (Federal AGI ± Schedule M additions/subtractions) — verify the exact line number on your 2025 IL-1040 (typically ~line 9).",
+      "il.net_income": "IL-1040 net income (base income − exemption allowance) — typically ~line 11.",
+      "il.tax": "IL-1040 tax (net income × 4.95%) — typically ~line 12.",
+      "il.payments.total": "IL-1040 total payments/withholding — typically ~line 25/26.",
+      "il.refund_or_due": "Positive = IL overpayment/refund; negative = IL balance due."
+    }
+  },
+
+  "input_facts": [
+    { "fact_id": "w2:wages", "concept": "income.wages", "value": "", "jurisdiction": ["FED", "IL"], "_help": "W-2 Box 1 total" },
+    { "fact_id": "w2:fedwh", "concept": "payments.fed.withholding", "value": "", "jurisdiction": ["FED"], "_help": "W-2 Box 2 + 1099 federal withholding" },
+    { "fact_id": "w2:ilwh", "concept": "payments.il.withholding", "value": "", "jurisdiction": ["IL"], "_help": "W-2 Box 17 + IL withholding (Sch IL-WIT)" }
+  ],
+  "_more_input_rows_you_may_add": [
+    { "fact_id": "int:1", "concept": "income.interest", "value": "", "jurisdiction": ["FED", "IL"], "_help": "1099-INT Box 1 total" },
+    { "fact_id": "div:1", "concept": "income.dividends.ordinary", "value": "", "jurisdiction": ["FED", "IL"], "_help": "1099-DIV Box 1a total" },
+    { "fact_id": "div:1q", "concept": "income.dividends.qualified", "value": "", "jurisdiction": ["FED", "IL"], "_help": "1099-DIV Box 1b total (<= ordinary)" },
+    { "fact_id": "capg:1", "concept": "income.capital_gain.net", "value": "", "jurisdiction": ["FED", "IL"], "_help": "Schedule D net long-term gain" },
+    { "fact_id": "ret:1", "concept": "income.retirement", "value": "", "jurisdiction": ["FED", "IL"], "_help": "1099-R Box 2a (IL subtracts on Sch M)" },
+    { "fact_id": "ssa:1", "concept": "income.social_security", "value": "", "jurisdiction": ["FED", "IL"], "_help": "1040 line 6b (IL subtracts on Sch M)" },
+    { "fact_id": "itemized", "concept": "deduction.itemized.total", "value": "", "jurisdiction": ["FED"], "_help": "Schedule A total (omit to use standard deduction)" },
+    { "fact_id": "fedest", "concept": "payments.fed.estimated", "value": "", "jurisdiction": ["FED"], "_help": "Federal 1040-ES total" },
+    { "fact_id": "ilest", "concept": "payments.il.estimated", "value": "", "jurisdiction": ["IL"], "_help": "IL-1040-ES total" }
+  ],
+
+  "_advanced_input_rows_complex_returns": {
+    "_README": "For a return with a real Schedule D, rental, Form 4797 or K-1, replace the simple 'income.capital_gain.net' row with the raw facts below — the kernel derives Schedule D, the §1211(b) loss cap, the §469(i) rental allowance and the Form 4797 flow itself, exactly as it does for your uploaded documents. Use one <id> per lot / property / entity.",
+    "capital_gains_by_lot": [
+      { "fact_id": "lot:a:proceeds", "concept": "lot.<id>.proceeds", "value": "", "jurisdiction": ["FED"], "_help": "Form 8949 proceeds (sales price) for this lot" },
+      { "fact_id": "lot:a:basis", "concept": "lot.<id>.basis", "value": "", "jurisdiction": ["FED"], "_help": "Form 8949 cost/other basis for this lot" },
+      { "fact_id": "lot:a:term", "concept": "lot.<id>.term", "value": "", "jurisdiction": ["FED"], "_help": "0 = short-term (held <= 1yr), 1 = long-term" },
+      { "fact_id": "lot:a:wash", "concept": "lot.<id>.wash_disallowed", "value": "", "jurisdiction": ["FED"], "_help": "§1091 wash-sale loss disallowed (optional; omit if none)" }
+    ],
+    "capital_loss_carryover_in": [
+      { "fact_id": "co:st", "concept": "carryover.capital_loss.st", "value": "", "jurisdiction": ["FED"], "_help": "Short-term carryover from your prior-year Capital Loss Carryover Worksheet (Sch D line 6). Enter as a positive number." },
+      { "fact_id": "co:lt", "concept": "carryover.capital_loss.lt", "value": "", "jurisdiction": ["FED"], "_help": "Long-term carryover from prior year (Sch D line 14). Positive number." }
+    ],
+    "k1_passthrough_incl_form_4797": [
+      { "fact_id": "k1:e:box1", "concept": "k1.<id>.box1", "value": "", "jurisdiction": ["FED"], "_help": "K-1 box 1 ordinary business income/(loss)" },
+      { "fact_id": "k1:e:box2", "concept": "k1.<id>.box2", "value": "", "jurisdiction": ["FED"], "_help": "K-1 box 2 net rental real-estate income/(loss) (optional)" },
+      { "fact_id": "k1:e:f4797", "concept": "k1.<id>.f4797", "value": "", "jurisdiction": ["FED"], "_help": "Form 4797 ordinary gain/(loss) reported through this K-1 — flows to Schedule 1 line 4. Negative for a loss." },
+      { "fact_id": "k1:e:scorp", "concept": "k1.<id>.is_scorp", "value": "", "jurisdiction": ["FED"], "_help": "1 = S-corp (1120-S), 0 = partnership (1065)" },
+      { "fact_id": "k1:e:matpart", "concept": "k1.<id>.material_participation", "value": "", "jurisdiction": ["FED"], "_help": "1 = materially participated (nonpassive), 0 = passive" },
+      { "fact_id": "k1:e:rental", "concept": "k1.<id>.rental_active", "value": "", "jurisdiction": ["FED"], "_help": "1 = rental real estate with active participation (§469(i) special allowance may free up to 25k of loss, phased out over MAGI 100k-150k)" }
+    ]
+  },
+  "_multiple_returns_help": "You can anchor more than one return: name additional files 2025.REAL.return2.json, 2025.REAL.return3.json, … (all gitignored). The harness auto-discovers and runs every one on each build.",
+
+  "_preparer_divergences_help": "OPTIONAL. If your preparer made an error and TaxOS is deliberately more correct on a line, put TaxOS's corrected value in expected_lines for that concept and document the disagreement here, so the tie does not fail on the disputed line. Example: { 'fed.sche.k1_total': { 'preparer_value': '-25069', 'reason': 'Form 8582 MAGI was impossible; §469(i) allowance should be 0' } }.",
+  "preparer_divergences": {},
+
+  "expected_lines": {
+    "fed.total_income": "",
+    "fed.agi": "",
+    "fed.deduction.applied": "",
+    "fed.taxable_income": "",
+    "fed.tax.total": "",
+    "fed.tax_after_credits": "",
+    "fed.payments.total": "",
+    "fed.refund_or_due": "",
+    "il.base_income": "",
+    "il.net_income": "",
+    "il.tax": "",
+    "il.payments.total": "",
+    "il.refund_or_due": ""
+  }
+}

@@ -1,0 +1,95 @@
+{
+ "name": "return22-ptc-repayment-capped",
+ "description": "P5 Form 8962 (annual): MFJ, wages 50,000, household 2 -> 250% FPL (fpl 20,000). Applicable figure INTERPOLATED 0.06->0.08 = 0.07 -> contribution 3,500; PTC = min(8,000, 7,000-3,500) = 3,500 < APTC 6,000 -> excess 2,500 CAPPED at 1,950 (<=300% other-status cap).",
+ "note": "Hand-verified: taxable 20,000; tax 2,000; liability 2,000 + 1,950 repayment = 3,950; wh 3,000 -> due 950. PLACEHOLDER rules. P11 CPA fix: 1040 line 22 = max(0, line 18 − line 21) where line 18 = tax + Sch 2 Part I (APTC repayment) — tax_after_credits now includes the repayment; line 24 unchanged (Part I no longer re-added).",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "50000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "3000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:prem",
+   "concept": "ptc.annual_premium",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:slcsp",
+   "concept": "ptc.annual_slcsp",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1095a:aptc",
+   "concept": "ptc.annual_aptc",
+   "value": "6000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:8962:size",
+   "concept": "ptc.household_size",
+   "value": "2",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "50000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "50000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "50000",
+  "fed.deduction.standard": "30000",
+  "fed.deduction.applied": "30000",
+  "fed.taxable_income": "20000",
+  "fed.tax.ordinary": "2000",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "2000",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "3950",
+  "fed.withholding.total": "3000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "3000",
+  "fed.tax.liability.total": "3950",
+  "fed.refund_or_due": "-950",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "50000",
+  "il.exemption.total": "5550",
+  "il.net_income": "44450",
+  "il.tax": "2200",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-2200",
+  "fed.ptc.repayment": "1950",
+  "fed.sch1.adjustments_total": "0",
+  "fed.sch2.total": "1950",
+  "fed.sch2.part1.total": "1950"
+ }
+}

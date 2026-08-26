@@ -1,7 +1,12 @@
-/**
- * @taxfs/shared — Phase 1 stub.
- * Money, concepts, and the rule loaders arrive in Phase 3 as verbatim ports
- * from TaxOS (Blueprint §2). Until then this package only anchors the
- * workspace wiring so the gate chain exercises a real cross-package import.
- */
+export * from './money';
+export * from './types';
+export * from './concepts';
+export * from './rules';
+export * from './capability';
+export * from './materiality';
+export * from './events';
+export * from './ahc/index';
+
+// TaxFS addition (not in the TaxOS original): workspace marker used by the
+// Phase-1 wiring test and the web shell.
 export const WORKSPACE = 'taxfs' as const;

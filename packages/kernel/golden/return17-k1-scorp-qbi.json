@@ -1,0 +1,105 @@
+{
+ "name": "return17-k1-scorp-qbi",
+ "description": "W-2 $30k + S-corp K-1 box1 +40,000, material participation, ample basis. No SE tax on S-corp K-1 income. QBI 8995: 20% x min(40,000, 55,000) = 8,000; taxable 47,000.",
+ "note": "Hand-verified: Sch E 40,000; AGI 70,000; deduction 15,000; QBI 8,000; taxable 47,000. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "30000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ss",
+   "concept": "income.wages.ss",
+   "value": "30000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "9000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:box1",
+   "concept": "k1.asap.box1",
+   "value": "40000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1:sc",
+   "concept": "k1.asap.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:mp",
+   "concept": "k1.asap.material_participation",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:bo",
+   "concept": "k1.asap.basis_opening",
+   "value": "50000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "30000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "k1.asap.allowed_net": "40000",
+  "fed.sche.k1_total": "40000",
+  "fed.total_income": "70000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "70000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "8000",
+  "fed.taxable_income": "47000",
+  "fed.tax.ordinary": "6140",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "6140",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "6140",
+  "fed.withholding.total": "9000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "9000",
+  "fed.tax.liability.total": "6140",
+  "fed.refund_or_due": "2860",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "70000",
+  "il.exemption.total": "2775",
+  "il.net_income": "67225",
+  "il.tax": "3328",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-3328",
+  "fed.sch1.additional_income.total": "40000",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

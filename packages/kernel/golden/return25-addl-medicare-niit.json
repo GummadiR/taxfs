@@ -1,0 +1,105 @@
+{
+ "name": "return25-addl-medicare-niit",
+ "description": "MFJ high-earner: wages 270,000 (Medicare wages 272,000, box 6 withholding 4,364) + interest 5,000 + ordinary dividends 3,000. Exercises Form 8959 (0.9% on Medicare wages over the 250,000 MFJ threshold; Part IV box-6 excess over 1.45% into 1040 line 25c) and Form 8960 (3.8% on min(NII 8,000, MAGI excess 28,000)).",
+ "note": "Hand-verified against PLACEHOLDER 2025 rules. 8959: (272,000 − 250,000) × 0.009 = 198; Part IV: 4,364 − 0.0145 × 272,000 (= 3,944) = 420 of income-tax withholding. 8960: NII = 5,000 + 3,000 = 8,000; MAGI 278,000 − 250,000 = 28,000; 8,000 × 0.038 = 304. Ordinary tax on taxable 248,000 (MFJ placeholder brackets): 2,000 + 7,200 + 22,000 + 68,000 × 0.24 = 47,520. Total tax = 47,520 + 198 + 304 = 48,022; payments = 40,000 + 420 = 40,420. IL: net 272,450 × 0.0495 = 13,486.275 → 13,486.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "270000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:medwages",
+   "concept": "income.wages.medicare",
+   "value": "272000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:medwh",
+   "concept": "payments.fed.medicare_withholding",
+   "value": "4364",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "40000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "13000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099int:interest",
+   "concept": "income.interest",
+   "value": "5000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099div:ord",
+   "concept": "income.dividends.ordinary",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "270000",
+  "fed.interest.total": "5000",
+  "fed.dividends.ordinary.total": "3000",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "278000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "278000",
+  "fed.deduction.standard": "30000",
+  "fed.deduction.applied": "30000",
+  "fed.taxable_income": "248000",
+  "fed.tax.ordinary": "47520",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "47520",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "47520",
+  "fed.tax.additional_medicare": "198",
+  "fed.withholding.additional_medicare": "420",
+  "fed.tax.niit": "304",
+  "fed.sch2.total": "502",
+  "fed.tax.liability.total": "48022",
+  "fed.withholding.total": "40000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "40420",
+  "fed.refund_or_due": "-7602",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "278000",
+  "il.exemption.total": "5550",
+  "il.net_income": "272450",
+  "il.tax": "13486",
+  "il.withholding.total": "13000",
+  "il.estimated.total": "0",
+  "il.payments.total": "13000",
+  "il.refund_or_due": "-486"
+ }
+}

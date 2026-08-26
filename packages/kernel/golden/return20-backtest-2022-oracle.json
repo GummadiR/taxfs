@@ -1,0 +1,296 @@
+{
+ "name": "return20-backtest-2022-oracle",
+ "description": "BACK-TEST oracle (docs/reviews/BACKTEST-2022.md): anonymized structure of a CPA-prepared 2022 MFJ return. Three S-corp K-1s (two nonpassive materially-participating losses of 1,772 each; one passive with box1 loss 5,222 + K-1 LT capital gain 18,118 + prior unallowed passive 14,039) and one passive partnership K-1 (loss 3,756 + prior unallowed 2,046). 8995 with prior QBI carryforward 13,712 and REIT/PTP income 4. The CPA's structural results reproduced to the dollar: AGI 249,287; 8582 unallowed 6,945 split 1,143/5,802; QBID 1.",
+ "note": "Hand-verified against the CPA return (structural lines) and by hand against placeholder 2025 rules (tax lines). Oracle-matched: AGI 249,287; Sch D 18,118; Sch E p2 -21,662 (CPA: Sch E -17,892 + 4797 -3,770 = -21,662 — TaxOS folds the 4797 character split into Sch E, recorded gap); suspended 1,143 + 5,802; QBI loss c/f 17,256; QBID 1 (0.20 x 4 = 0.8 -> 1). Year-dependent lines (deduction, brackets, IL) use PLACEHOLDER 2025 rules, not 2022 rules. P28: fed.capital_gain.net.total is no longer emitted when Schedule D is active — the sub-DAG owns the 1040 line 7 (sourced net totals fold into Part II), so the legacy line is lawfully absent here.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "246192",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "38848",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1099int:interest",
+   "concept": "income.interest",
+   "value": "5913",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099div:ord",
+   "concept": "income.dividends.ordinary",
+   "value": "726",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099div:qual",
+   "concept": "income.dividends.qualified",
+   "value": "570",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s1:box1",
+   "concept": "k1.s1.box1",
+   "value": "-1772",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1s1:sc",
+   "concept": "k1.s1.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s1:mp",
+   "concept": "k1.s1.material_participation",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s1:bo",
+   "concept": "k1.s1.basis_opening",
+   "value": "32069",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s1:dbo",
+   "concept": "k1.s1.debt_basis_opening",
+   "value": "5965",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:box1",
+   "concept": "k1.s2.box1",
+   "value": "-5222",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:sc",
+   "concept": "k1.s2.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:mp",
+   "concept": "k1.s2.material_participation",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:bo",
+   "concept": "k1.s2.basis_opening",
+   "value": "94350",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:cg",
+   "concept": "k1.s2.capital_gain",
+   "value": "18118",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:pc",
+   "concept": "k1.s2.passive_carryover",
+   "value": "14039",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s2:qe",
+   "concept": "k1.s2.qbi_eligible",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s3:box1",
+   "concept": "k1.s3.box1",
+   "value": "-1772",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1s3:sc",
+   "concept": "k1.s3.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s3:mp",
+   "concept": "k1.s3.material_participation",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1s3:bo",
+   "concept": "k1.s3.basis_opening",
+   "value": "39593",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:box1",
+   "concept": "k1.p1.box1",
+   "value": "-3756",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:sc",
+   "concept": "k1.p1.is_scorp",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:mp",
+   "concept": "k1.p1.material_participation",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:bo",
+   "concept": "k1.p1.basis_opening",
+   "value": "12000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:pc",
+   "concept": "k1.p1.passive_carryover",
+   "value": "2046",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1p1:qe",
+   "concept": "k1.p1.qbi_eligible",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:reg:qbico",
+   "concept": "carryover.qbi",
+   "value": "13712",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:1099div:reit",
+   "concept": "income.reit_ptp.qualified",
+   "value": "4",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "246192",
+  "fed.interest.total": "5913",
+  "fed.dividends.ordinary.total": "726",
+  "fed.dividends.qualified.total": "570",
+  "fed.retirement.total": "0",
+  "fed.schd.st_net": "0",
+  "fed.schd.lt_net": "18118",
+  "fed.schd.total": "18118",
+  "fed.schd.net_capital_gain": "18118",
+  "k1.s1.allowed_net": "-1772",
+  "k1.s2.allowed_net": "-18118",
+  "k1.s3.allowed_net": "-1772",
+  "k1.p1.allowed_net": "0",
+  "k1.s2.passive_suspended.out": "1143",
+  "k1.p1.passive_suspended.out": "5802",
+  "fed.sche.k1_total": "-21662",
+  "fed.total_income": "249287",
+  "fed.adjustments.total": "0",
+  "fed.agi": "249287",
+  "fed.deduction.standard": "30000",
+  "fed.deduction.applied": "30000",
+  "fed.qbi.loss_carryforward.out": "17256",
+  "fed.qbi.deduction": "1",
+  "fed.taxable_income": "219286",
+  "fed.tax.ordinary": "36144",
+  "fed.tax.capgain": "2803",
+  "fed.tax.total": "38947",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "38947",
+  "fed.withholding.total": "38848",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "38848",
+  "fed.tax.liability.total": "38947",
+  "fed.refund_or_due": "-99",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "249287",
+  "il.exemption.total": "5550",
+  "il.net_income": "243737",
+  "il.tax": "12065",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-12065",
+  "fed.sch1.additional_income.total": "-21662",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

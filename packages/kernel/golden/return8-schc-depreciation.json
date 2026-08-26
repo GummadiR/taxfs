@@ -1,0 +1,171 @@
+{
+ "name": "return8-schc-depreciation",
+ "description": "Single filer, W-2 $10k + two businesses with Form 4562 assets. alpha: laptop (basis 3000, §179 3000, 5-yr) + server (basis 10000, no §179, 5-yr: bonus 40% = 4000, MACRS yr1 20% of 6000 = 1200). beta: rig (basis 80000, §179 80000, 7-yr). §179 requested 83000 > income limit (69800 + 3000 + 10000 wages = 82800) -> allowed 82800 pro-rata (laptop 2993, rig 79807), carryforward 200. IL decoupling: bonus 4000 added back, as-if MACRS 800 subtracted -> IL base 3200, tax 21.",
+ "note": "Expected outputs computed from PLACEHOLDER fixture rule-data. Hand-verified: §179 income limit 82800 incl. W-2 wages per Reg. §1.179-2(c)(6)(iv); alpha dep 2993+5200=8193, net 66807; beta net 3000-79807=-76807; schc total -10000 -> no SE tax; AGI 0. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "10000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ss",
+   "concept": "income.wages.ss",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:gross",
+   "concept": "schc.alpha.gross_receipts",
+   "value": "80000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:office",
+   "concept": "schc.alpha.expense.office",
+   "value": "5000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:a1:basis",
+   "concept": "dep.laptop.basis",
+   "value": "3000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:alpha"
+  },
+  {
+   "fact_id": "f:a1:179",
+   "concept": "dep.laptop.sec179",
+   "value": "3000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:alpha"
+  },
+  {
+   "fact_id": "f:a1:life",
+   "concept": "dep.laptop.life_years",
+   "value": "5",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:alpha"
+  },
+  {
+   "fact_id": "f:a2:basis",
+   "concept": "dep.server.basis",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:alpha"
+  },
+  {
+   "fact_id": "f:a2:life",
+   "concept": "dep.server.life_years",
+   "value": "5",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:alpha"
+  },
+  {
+   "fact_id": "f:beta:gross",
+   "concept": "schc.beta.gross_receipts",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:b1:basis",
+   "concept": "dep.rig.basis",
+   "value": "80000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:beta"
+  },
+  {
+   "fact_id": "f:b1:179",
+   "concept": "dep.rig.sec179",
+   "value": "80000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:beta"
+  },
+  {
+   "fact_id": "f:b1:life",
+   "concept": "dep.rig.life_years",
+   "value": "7",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:beta"
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "10000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "dep.laptop.deduction_current": "2993",
+  "dep.server.deduction_current": "5200",
+  "schc.alpha.net_profit": "66807",
+  "dep.rig.deduction_current": "79807",
+  "schc.beta.net_profit": "-76807",
+  "fed.sec179.carryforward": "200",
+  "fed.schc.net_profit.total": "-10000",
+  "fed.total_income": "0",
+  "fed.adjustments.total": "0",
+  "fed.agi": "0",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.loss_carryforward.out": "10000",
+  "fed.qbi.deduction": "0",
+  "fed.taxable_income": "0",
+  "fed.tax.ordinary": "0",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "0",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "0",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "0",
+  "fed.tax.liability.total": "0",
+  "fed.refund_or_due": "0",
+  "il.sch_m.subtractions": "0",
+  "il.sch_m.additions": "4000",
+  "il.sch_m.depreciation_subtraction": "800",
+  "il.base_income": "3200",
+  "il.exemption.total": "2775",
+  "il.net_income": "425",
+  "il.tax": "21",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-21",
+  "fed.sch1.additional_income.total": "-10000",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

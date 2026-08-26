@@ -1,0 +1,66 @@
+{
+ "_meta": {
+  "release_id": "2025.IL.1.0",
+  "tax_year": 2025,
+  "jurisdiction": "IL",
+  "status": "SOURCE-VERIFIED — pending licensed EA/CPA signature",
+  "verified_against": "2025 IL-1040 Instructions; 35 ILCS 5/204 (exemption); IL Publication 120; 2025 Schedule M Instructions",
+  "signer": "REQUIRED — no named EA/CPA signature yet.",
+  "benchmark": "REQUIRED — tie dollar-for-dollar to your actual 2025 IL-1040.",
+  "scope": "Step-1: full-year IL resident, W-2 + 1099-INT/DIV/B. No Sch NR, no entity returns."
+ },
+ "tax_rate": {
+  "flat_rate": 0.0495
+ },
+ "personal_exemption": {
+  "amount_per_person": 2850,
+  "disallowed_if_fed_agi_over_single": 250000,
+  "disallowed_if_fed_agi_over_mfj": 500000,
+  "additional_age65_or_blind_per_check": 1000
+ },
+ "computation_flow": {
+  "step1_start": "federal_AGI (Fed 1040 Line 11)",
+  "step2_additions": "add IL additions (Sch M) e.g. fed tax-exempt interest from non-US-obligation (Fed 1040 Line 2a)",
+  "step3_subtractions": "subtract SS + qualified retirement (Line 5), IL overpayment (Line 6), Sch M other (Line 7)",
+  "step4_base_income": "total income - subtractions (floor 0)",
+  "step5_net_income": "base income - exemption allowance",
+  "step6_tax": "net income * 0.0495",
+  "step7_credits": "Sch CR (other-state), Sch ICR (property/education), then payments (IL-WIT, IL-1040-ES)"
+ },
+ "schedule_m": {
+  "subtractions": {
+   "social_security_benefits": "federally-taxed SS subtracted (IL does not tax)",
+   "qualified_retirement_income": "pensions/401k/IRA/govt retirement subtracted if in federal AGI",
+   "_roth_note": "Roth distributions NOT subtracted (already excluded federally)"
+  },
+  "additions": {
+   "fed_tax_exempt_interest_dividends": "added back except US-obligation interest (Fed 1040 Line 2a)"
+  },
+  "il_taxed_normally": "interest, dividends, capital gains taxed at 4.95% (not subtracted)"
+ },
+ "attachments_required_step1": {
+  "always": [
+   "Schedule IL-WIT",
+   "all W-2/1099 withholding forms",
+   "federal Form 1040 + schedules"
+  ],
+  "conditional": [
+   "Schedule M (if additions/subtractions)",
+   "Schedule ICR (if property/education credit)",
+   "Schedule CR (if other-state credit)"
+  ]
+ },
+ "replacement_tax": {
+  "scorp_rate": 0.015,
+  "partnership_rate": 0.015
+ },
+ "computation_notes": {
+  "p6_1_replacement_tax": "replacement_tax added P6.1 (35 ILCS 5/201(c)-(d): 1.5% S-corps and partnerships) - pending dual verification.",
+  "p9_1_icr": "icr added P9.1 (35 ILCS 5/208 5% property-tax credit; P.A. 100-0022 AGI caps 250k/500k) - pending dual verification."
+ },
+ "icr": {
+  "property_tax_credit_rate": 0.05,
+  "agi_cap_single": 250000,
+  "agi_cap_joint": 500000
+ }
+}

@@ -1,0 +1,28 @@
+{
+  "benchmark_id": "2025.SAMPLE.return1-PLACEHOLDER",
+  "prepared_by": "SAMPLE — dummy scaffold, NOT a professional return (replace with your professionally-prepared 2025 return)",
+  "notice": "GOLDEN BENCHMARK SLOT — replace with your real professionally-prepared 2025 return. Put the return's INPUT facts (W-2/1099 amounts, filing status, IL exemptions) in `input_facts` and the professional's computed 1040 / IL-1040 LINE OUTPUTS in `expected_lines`. The harness (packages/compliance/test/verified-benchmark.test.ts) runs `input_facts` through the kernel on the SOURCE-VERIFIED rule-data and asserts dollar-for-dollar equality with `expected_lines`. IMPORTANT: the expected_lines below are the kernel's OWN output on the sample inputs (so the scaffold is green) — that is circular by design for the scaffold. When you drop in the REAL professional return, expected_lines becomes an INDEPENDENT anchor: any kernel disagreement then fails this test, which is the whole point.",
+  "source_golden": "return1-single-w2 (sample inputs)",
+  "filing_status": "single",
+  "il_exemption_count": 1,
+  "input_facts": [
+    { "fact_id": "f:w2-1:wages", "concept": "income.wages", "value": "60000", "jurisdiction": ["FED", "IL"] },
+    { "fact_id": "f:w2-1:fedwh", "concept": "payments.fed.withholding", "value": "6000", "jurisdiction": ["FED"] },
+    { "fact_id": "f:w2-1:ilwh", "concept": "payments.il.withholding", "value": "2900", "jurisdiction": ["IL"] }
+  ],
+  "expected_lines": {
+    "fed.total_income": "60000",
+    "fed.agi": "60000",
+    "fed.deduction.applied": "15750",
+    "fed.taxable_income": "44250",
+    "fed.tax.total": "5072",
+    "fed.tax_after_credits": "5072",
+    "fed.payments.total": "6000",
+    "fed.refund_or_due": "928",
+    "il.base_income": "60000",
+    "il.net_income": "57150",
+    "il.tax": "2829",
+    "il.payments.total": "2900",
+    "il.refund_or_due": "71"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "rule_version": "2025.AUTH.0.0.1-PLACEHOLDER",
+  "tax_year": 2025,
+  "notice": "Authority records (workstream B content type). In production every record carries verbatim primary-source text + pin-cite, authored and signed by a named EA/CPA. Everything here is PLACEHOLDER structure.",
+  "records": [
+    {
+      "rule_id": "IRC-61A-PLACEHOLDER",
+      "citation": "IRC §61(a) (PLACEHOLDER — verify)",
+      "verbatim_text": "Gross income means all income from whatever source derived. (PLACEHOLDER excerpt — verify against primary source)",
+      "authority_tier": "statute",
+      "formula_refs": ["FED.1040.TOTAL_INCOME", "FED.1040.AGI"],
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "IRC-63-PLACEHOLDER",
+      "citation": "IRC §63 (PLACEHOLDER — verify)",
+      "verbatim_text": "Taxable income means gross income minus the deductions allowed by this chapter. (PLACEHOLDER excerpt — verify)",
+      "authority_tier": "statute",
+      "formula_refs": ["FED.1040.DEDUCTION.GREATER_OF", "FED.1040.TAXABLE_INCOME", "FED.STD_DEDUCTION.TABLE"],
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "IRC-1-PLACEHOLDER",
+      "citation": "IRC §1 (PLACEHOLDER — verify)",
+      "verbatim_text": "A tax is hereby imposed on the taxable income of every individual, determined per the applicable rate tables. (PLACEHOLDER excerpt — verify)",
+      "authority_tier": "statute",
+      "formula_refs": ["FED.TAX.BRACKETS", "FED.TAX.QDCGT.WORKSHEET.SIMPLIFIED", "FED.TAX.TOTAL"],
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "IRC-31-PLACEHOLDER",
+      "citation": "IRC §31 (PLACEHOLDER — verify)",
+      "verbatim_text": "Tax withheld at source on wages is allowed as a credit against the tax imposed. (PLACEHOLDER excerpt — verify)",
+      "authority_tier": "statute",
+      "formula_refs": ["FED.1040.PAYMENTS", "FED.1040.REFUND_OR_DUE", "FED.1040.TAX_AFTER_CREDITS"],
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "ILCS-5-201-PLACEHOLDER",
+      "citation": "35 ILCS 5/201 (PLACEHOLDER — verify)",
+      "verbatim_text": "A tax measured by net income is hereby imposed on every individual for the privilege of earning or receiving income in or as a resident of this State. (PLACEHOLDER excerpt — verify)",
+      "authority_tier": "statute",
+      "formula_refs": ["IL.1040.BASE_INCOME", "IL.1040.NET_INCOME", "IL.1040.TAX.FLAT_RATE", "IL.1040.EXEMPTION", "IL.SCH_M.SUBTRACTIONS", "IL.1040.PAYMENTS", "IL.1040.REFUND_OR_DUE"],
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "PUB-AUDIT-ROUNDNUM-PLACEHOLDER",
+      "citation": "IRS examination guidance on documentation quality (administrative guidance, NOT legal authority — PLACEHOLDER — verify)",
+      "verbatim_text": "Amounts supported by records are reported as computed; estimated round amounts invite substantiation review. (PLACEHOLDER paraphrase-of-guidance slot — verify)",
+      "authority_tier": "admin_guidance",
+      "formula_refs": [],
+      "finding_critics": ["IRS-ROUNDNUM"],
+      "status": "PLACEHOLDER — verify"
+    }
+  ]
+}

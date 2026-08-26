@@ -1,0 +1,61 @@
+{
+ "name": "entity1-backtest-2022-scorp",
+ "description": "ENTITY BACK-TEST oracle (docs/reviews/BACKTEST-2022.md addendum): anonymized structure of a CPA-prepared 2022 Form 1120-S + IL-1120-ST with two 50% shareholders. All income through line 19 other deductions (10,445) and Sch K line 10 other income (ST 6,217 + LT 30,020). Pins the per-member cumulative-rounding allocation: -10,445 -> -5,223/-5,222 and 36,237 -> 18,119/18,118 (member order = sorted member id; the taxpayer was the second member and received -5,222 / 18,118 = ST 3,108 + LT 15,010 exactly as on the filed K-1 statement).",
+ "note": "Hand-verified against the CPA-prepared entity return: ordinary -10,445; Sch K line 18 recon 25,792; IL-1120-ST base 25,792; replacement tax 25,792 x 0.015 = 386.88 -> 387; K-1-P Step 4 line 20 = -5,222 and line 31 = 18,118 for the taxpayer member. Rates are PLACEHOLDER 2025 fixtures (IL replacement tax 1.5% is year-stable).",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:ent:scorp",
+   "concept": "entity.sco.is_scorp",
+   "value": "1",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:ent:ded-other",
+   "concept": "entity.sco.deduction.other",
+   "value": "10445",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:ent:k-oi-st",
+   "concept": "entity.sco.k.other_income_st",
+   "value": "6217",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:ent:k-oi-lt",
+   "concept": "entity.sco.k.other_income_lt",
+   "value": "30020",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:ent:share-ma",
+   "concept": "entity.sco.member.ma.share",
+   "value": "0.5",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:ent:share-mb",
+   "concept": "entity.sco.member.mb.share",
+   "value": "0.5",
+   "jurisdiction": ["FED"]
+  }
+ ],
+ "expected": {
+  "entity.sco.ordinary_income": "-10445",
+  "entity.sco.k_total": "25792",
+  "entity.sco.il.base_income": "25792",
+  "entity.sco.il.replacement_tax": "387",
+  "k1.sco-ma.box1": "-5223",
+  "k1.sco-mb.box1": "-5222",
+  "k1.sco-ma.is_scorp": "1",
+  "k1.sco-mb.is_scorp": "1",
+  "k1.sco-ma.capital_gain": "18119",
+  "k1.sco-mb.capital_gain": "18118",
+  "entity.sco.member.ma.k1p_line20": "-5223",
+  "entity.sco.member.mb.k1p_line20": "-5222",
+  "entity.sco.member.ma.k1p_line31": "18119",
+  "entity.sco.member.mb.k1p_line31": "18118"
+ }
+}

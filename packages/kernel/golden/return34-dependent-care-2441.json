@@ -1,0 +1,66 @@
+{
+ "name": "return34-dependent-care-2441",
+ "description": "P50 Form 2441: 5,000 of expenses for 2 qualifying persons (under the 6,000 cap), AGI 90,000 so the §21(a)(2) rate has stepped all the way down to the 20% floor -> credit 1,000, nonrefundable.",
+ "note": "Hand-verified: rate 0.35 less 0.01 per 2,000 of AGI over 15,000 floors at 0.20; 5,000 x 20% = 1,000. Taxable 60,000 -> tax 2,000+4,800=6,800. Liability 5,800; wh 9,000 -> refund 3,200. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "90000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "9000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "4000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:2441:exp",
+   "concept": "credit.dependent_care.expenses",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:2441:persons",
+   "concept": "credit.dependent_care.qualifying_persons",
+   "value": "2",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:2441:ei",
+   "concept": "credit.dependent_care.earned_income_not_limiting",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.credit.dependent_care": "1000",
+  "fed.agi": "90000",
+  "fed.taxable_income": "60000",
+  "fed.tax.total": "6800",
+  "fed.tax.liability.total": "5800",
+  "fed.refund_or_due": "3200"
+ }
+}

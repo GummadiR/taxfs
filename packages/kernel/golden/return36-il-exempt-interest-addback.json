@@ -1,0 +1,53 @@
+{
+ "name": "return36-il-exempt-interest-addback",
+ "description": "P49 IL-1040 line 2: 2,312 of federally tax-exempt interest is NOT in federal AGI but IS added back to Illinois base income (35 ILCS 5/203(a)(2)(A)).",
+ "note": "Hand-verified: federal AGI 150,000 excludes the exempt interest; taxable 120,000 -> tax 18,000. IL base 150,000+2,312=152,312; net less 5,550 exemptions = 146,762 x 4.95% = 7,265; wh 7,000 -> owe 265. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "150000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "20000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "7000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099:exempt",
+   "concept": "income.tax_exempt_interest",
+   "value": "2312",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "il.base_income": "152312",
+  "il.net_income": "146762",
+  "il.tax": "7265",
+  "il.refund_or_due": "-265",
+  "fed.agi": "150000",
+  "fed.taxable_income": "120000",
+  "fed.tax.total": "18000",
+  "fed.refund_or_due": "2000"
+ }
+}

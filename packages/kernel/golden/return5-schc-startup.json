@@ -1,0 +1,119 @@
+{
+ "name": "return5-schc-startup",
+ "description": "Single filer, no W-2. Two Schedule C businesses exercising IRC §195: 'alpha' $8,000 startup costs, 6 amortization months (first-year 5000 + 3000×6/180=100 → 5100); 'beta' $52,000 startup costs, 12 months (cap phased to 3000 + 49000×12/180=3266.67 → deduction 6266.67, net rounds). No SS wages → SE SS portion capped only by wage base.",
+ "note": "Expected outputs computed from PLACEHOLDER fixture rule-data. §195 lines hand-verified: alpha 5100; beta first-year 3000 (5000−(52000−50000)), amort 3266.67, deduction 6266.67→6267 line; net beta 100000−6267=93733... see expected. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:alpha:gross",
+   "concept": "schc.alpha.gross_receipts",
+   "value": "20000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:startup",
+   "concept": "schc.alpha.startup_costs_total",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:months",
+   "concept": "schc.alpha.startup_amort_months",
+   "value": "6",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:beta:gross",
+   "concept": "schc.beta.gross_receipts",
+   "value": "100000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:beta:startup",
+   "concept": "schc.beta.startup_costs_total",
+   "value": "52000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:beta:months",
+   "concept": "schc.beta.startup_amort_months",
+   "value": "12",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:est:fed",
+   "concept": "payments.fed.estimated",
+   "value": "25000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:est:il",
+   "concept": "payments.il.estimated",
+   "value": "5000",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "0",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.alpha.startup_deduction": "5100",
+  "schc.alpha.net_profit": "14900",
+  "schc.beta.startup_deduction": "6267",
+  "schc.beta.net_profit": "93733",
+  "fed.schc.net_profit.total": "108633",
+  "fed.se_tax.total": "15349",
+  "fed.se_tax.deduction": "7675",
+  "fed.total_income": "108633",
+  "fed.adjustments.total": "0",
+  "fed.agi": "100958",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "17192",
+  "fed.taxable_income": "68766",
+  "fed.tax.ordinary": "10929",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "10929",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "10929",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "25000",
+  "fed.payments.total": "25000",
+  "fed.tax.liability.total": "26278",
+  "fed.refund_or_due": "-1278",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "100958",
+  "il.exemption.total": "2775",
+  "il.net_income": "98183",
+  "il.tax": "4860",
+  "il.withholding.total": "0",
+  "il.estimated.total": "5000",
+  "il.payments.total": "5000",
+  "il.refund_or_due": "140",
+  "fed.sch1.additional_income.total": "108633",
+  "fed.sch1.adjustments_total": "7675",
+  "fed.sch2.total": "15349"
+ }
+}

@@ -1,0 +1,26 @@
+{
+  "release": "2025.BIZRULES.0.0.1-PLACEHOLDER",
+  "notice": "Published IRS/IL reject rules run as rule-data (D.4.2). These are STRUCTURAL PLACEHOLDERS — the real set is republished each year and authored via workstream B.",
+  "rules": [
+    {
+      "rule_id": "FED-REJ-REFUND-XOR-OWE-PLACEHOLDER",
+      "jurisdiction": "FED",
+      "kind": "lines_not_both_present",
+      "form_id": "1040",
+      "a": "1040.34",
+      "b": "1040.37",
+      "message": "A return cannot claim a refund and owe a balance simultaneously",
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "rule_id": "IL-REJ-REFUND-XOR-OWE-PLACEHOLDER",
+      "jurisdiction": "IL",
+      "kind": "lines_not_both_present",
+      "form_id": "IL1040",
+      "a": "IL1040.36",
+      "b": "IL1040.39",
+      "message": "An IL return cannot claim a refund and owe a balance simultaneously",
+      "status": "PLACEHOLDER — verify"
+    }
+  ]
+}

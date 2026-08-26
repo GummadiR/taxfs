@@ -1,0 +1,458 @@
+{
+ "_meta": {
+  "release_id": "2025.FED.1.0",
+  "tax_year": 2025,
+  "jurisdiction": "FED",
+  "status": "SOURCE-VERIFIED — pending licensed EA/CPA signature",
+  "verified_against": "IRS Rev. Proc. 2024-40 (§1(j) brackets, §1(h) LTCG) and Rev. Proc. 2025-32 §3.01 (OBBBA standard deduction); §24 CTC",
+  "pending_verification": "NOT yet covered by verified_against — added ahead of sourcing and each carries its own _note: child_dependent_care_credit (§21), early_distribution_additional_tax (§72(t)), foreign_tax_credit_de_minimis (§904(j)) and schedule_a (§213(a) medical floor + §164(b)(6) SALT cap). All are STATUTORY. The §21, §72(t) and §904(j) amounts are non-indexed; the SALT cap is NOT — it is the 2025 OBBBA value and steps up 1% a year through 2029, so it MUST be re-read for any other tax year. None has been checked against the IRS instructions by a signer. The compliance gate must clear these before any live filing relies on them. P93 adds retirement_contributions (§223, §219, §408A, §402(g), §408(p), §408(k)/§415(c), §4973) sourced from Rev. Proc. 2024-25 and Notice 2024-80 — pending the same EA/CPA sign-off.",
+  "signer": "REQUIRED — no named EA/CPA signature yet. Workstream-J compliance gate must be satisfied before live filing.",
+  "benchmark": "REQUIRED — must tie dollar-for-dollar to your actual professionally-prepared 2025 return before reliance.",
+  "scope": "Step-1: W-2, 1099-INT/DIV/B, standard-vs-itemized. No Sch C/E, no entity returns, no OBBBA Schedule 1-A above-the-line deductions (step-2). §21 dependent-care and §72(t) early-distribution figures are present but OUTSIDE this declared scope — see pending_verification.",
+  "structural_gap": "Unlike the placeholder file, figures here are bare scalars with no per-figure status envelope, so code cannot distinguish a sourced figure from an unsourced one inside this file — the distinction lives only in this _meta prose. Adding that envelope is a recorded gap."
+ },
+ "standard_deduction": {
+  "single": 15750,
+  "married_filing_jointly": 31500,
+  "married_filing_separately": 15750,
+  "head_of_household": 23625,
+  "qualifying_surviving_spouse": 31500,
+  "additional_age65_or_blind_single": 2000,
+  "additional_age65_or_blind_married_per_person": 1600
+ },
+ "ordinary_income_brackets": {
+  "single": [
+   {
+    "rate": 0.1,
+    "over": 0
+   },
+   {
+    "rate": 0.12,
+    "over": 11925
+   },
+   {
+    "rate": 0.22,
+    "over": 48475
+   },
+   {
+    "rate": 0.24,
+    "over": 103350
+   },
+   {
+    "rate": 0.32,
+    "over": 197300
+   },
+   {
+    "rate": 0.35,
+    "over": 250525
+   },
+   {
+    "rate": 0.37,
+    "over": 626350
+   }
+  ],
+  "married_filing_jointly": [
+   {
+    "rate": 0.1,
+    "over": 0
+   },
+   {
+    "rate": 0.12,
+    "over": 23850
+   },
+   {
+    "rate": 0.22,
+    "over": 96950
+   },
+   {
+    "rate": 0.24,
+    "over": 206700
+   },
+   {
+    "rate": 0.32,
+    "over": 394600
+   },
+   {
+    "rate": 0.35,
+    "over": 501050
+   },
+   {
+    "rate": 0.37,
+    "over": 751600
+   }
+  ],
+  "married_filing_separately": [
+   {
+    "rate": 0.1,
+    "over": 0
+   },
+   {
+    "rate": 0.12,
+    "over": 11925
+   },
+   {
+    "rate": 0.22,
+    "over": 48475
+   },
+   {
+    "rate": 0.24,
+    "over": 103350
+   },
+   {
+    "rate": 0.32,
+    "over": 197300
+   },
+   {
+    "rate": 0.35,
+    "over": 250525
+   },
+   {
+    "rate": 0.37,
+    "over": 375800
+   }
+  ],
+  "head_of_household": [
+   {
+    "rate": 0.1,
+    "over": 0
+   },
+   {
+    "rate": 0.12,
+    "over": 17000
+   },
+   {
+    "rate": 0.22,
+    "over": 64850
+   },
+   {
+    "rate": 0.24,
+    "over": 103350
+   },
+   {
+    "rate": 0.32,
+    "over": 197300
+   },
+   {
+    "rate": 0.35,
+    "over": 250500
+   },
+   {
+    "rate": 0.37,
+    "over": 626350
+   }
+  ]
+ },
+ "long_term_capital_gains_brackets": {
+  "single": [
+   {
+    "rate": 0.0,
+    "over": 0
+   },
+   {
+    "rate": 0.15,
+    "over": 48350
+   },
+   {
+    "rate": 0.2,
+    "over": 533400
+   }
+  ],
+  "married_filing_jointly": [
+   {
+    "rate": 0.0,
+    "over": 0
+   },
+   {
+    "rate": 0.15,
+    "over": 96700
+   },
+   {
+    "rate": 0.2,
+    "over": 600050
+   }
+  ],
+  "married_filing_separately": [
+   {
+    "rate": 0.0,
+    "over": 0
+   },
+   {
+    "rate": 0.15,
+    "over": 48350
+   },
+   {
+    "rate": 0.2,
+    "over": 300000
+   }
+  ],
+  "head_of_household": [
+   {
+    "rate": 0.0,
+    "over": 0
+   },
+   {
+    "rate": 0.15,
+    "over": 64750
+   },
+   {
+    "rate": 0.2,
+    "over": 566700
+   }
+  ]
+ },
+ "additional_medicare_tax": {
+  "rate": 0.009,
+  "threshold_single": 200000,
+  "threshold_mfj": 250000,
+  "threshold_mfs": 125000,
+  "_note": "§3101(b)(2)/Form 8959. Not inflation-adjusted. regular_medicare_rate: §3101(b)(1) employee Medicare rate (Form 8959 Part IV baseline), statutory.",
+  "regular_medicare_rate": 0.0145
+ },
+ "net_investment_income_tax": {
+  "rate": 0.038,
+  "threshold_single": 200000,
+  "threshold_mfj": 250000,
+  "threshold_mfs": 125000,
+  "_note": "§1411/Form 8960. Not inflation-adjusted."
+ },
+ "child_tax_credit": {
+  "max_per_child": 2200,
+  "refundable_portion": 1700,
+  "phaseout_start_single": 200000,
+  "phaseout_start_mfj": 400000,
+  "_note": "§24 as amended by OBBBA. Verify phaseout mechanics against Sch 8812."
+ },
+ "early_distribution_additional_tax": {
+  "rate": 0.1,
+  "_note": "§72(t)(1) additional tax on early distributions from qualified retirement plans (Form 5329 Part I). STATUTORY 10%. The §72(t)(2) exceptions are fact-specific and stay the filer's determination — TaxOS takes Form 5329 line 3 (the amount subject to the tax AFTER exceptions) as the input."
+ },
+ "schedule_a": {
+  "medical_agi_floor_pct": 0.075,
+  "salt_cap": 40000,
+  "salt_cap_mfs": 20000,
+  "salt_phasedown_agi": 500000,
+  "salt_phasedown_agi_mfs": 250000,
+  "salt_phasedown_rate": 0.3,
+  "salt_cap_floor": 10000,
+  "salt_cap_floor_mfs": 5000,
+  "_note": "Schedule A. medical_agi_floor_pct is §213(a), permanent 7.5%. The SALT figures are the OBBBA §164(b)(6) regime for 2025: cap $40,000 ($20,000 MFS), phasing DOWN by 30% of MAGI over $500,000 ($250,000 MFS) but never below $10,000 ($5,000 MFS). The cap steps up 1% a year through 2029 — these are the 2025 values and MUST be re-read for any other year. NOT yet checked against the Schedule A instructions by a signer."
+ },
+ "foreign_tax_credit_de_minimis": {
+  "limit_mfj": 600,
+  "limit_other": 300,
+  "_note": "§904(j)(2)(B) de minimis election — claim the foreign tax credit WITHOUT Form 1116 and without the §904 limitation. STATUTORY $300 / $600 joint, NOT inflation-indexed. Available only when all foreign-source income is passive category shown on a payee statement (1099-DIV/-INT, K-1); §904(j)(3)(A) forfeits any §904(c) carryback/carryforward of excess. Verify against the Form 1116 instructions before signature."
+ },
+ "child_dependent_care_credit": {
+  "max_expenses_one_person": 3000,
+  "max_expenses_two_or_more": 6000,
+  "rate_max": 0.35,
+  "rate_min": 0.2,
+  "phasedown_agi_start": 15000,
+  "phasedown_agi_step": 2000,
+  "phasedown_rate_per_step": 0.01,
+  "_note": "§21 child and dependent care credit. STATUTORY figures, NOT inflation-indexed — ARPA's 2021 expansion expired, so the credit is nonrefundable again and the expense caps reverted. Verify against the Form 2441 instructions before signature."
+ },
+ "computation_notes": {
+  "flow": "total income -> Sch 1 adjustments -> AGI -> greater(standard, itemized Sch A) -> taxable income -> tax (ordinary brackets + LTCG worksheet) -> credits -> payments -> refund/balance",
+  "rounding": "whole-dollar, kernel-owned, component-sum consistent",
+  "obbba_schedule_1a": "OBBBA above-the-line deductions on Sch 1-A (2025-2028) NOT modeled in step-1.",
+  "p6_1_added_sections": "self_employment/schedule_c/schedule_d/depreciation/qbi/ptc sections added P6.1 from statutory sources (IRC 1401-1402/274(n)/195/280A/1211(b)/168-179 per OBBBA/199A + Rev. Proc. 2024-40; PTC: tax-year-2025 ARPA-extended regime - NO 400% cliff, cliff_pct is a 100000 sentinel, figures 0-8.5%, FPL = 2024 48-state guidelines) - PENDING dual verification (workstream B); release status stays review, never auto-production."
+ },
+ "self_employment": {
+  "ss_wage_base": 176100,
+  "ss_rate": 0.124,
+  "medicare_rate": 0.029,
+  "net_earnings_factor": 0.9235,
+  "se_tax_floor": 400
+ },
+ "schedule_c": {
+  "meals_deductible_rate": 0.5,
+  "startup_expense_cap": 5000.0,
+  "startup_phaseout_threshold": 50000.0,
+  "startup_amortization_months": 180.0,
+  "homeoffice_simplified_rate": 5.0,
+  "homeoffice_simplified_sqft_cap": 300.0,
+  "standard_mileage_rate": 0.7
+ },
+ "schedule_d": {
+  "capital_loss_cap": 3000,
+  "capital_loss_cap_mfs": 1500
+ },
+ "sec469i": {
+  "allowance": 25000,
+  "allowance_mfs": 12500,
+  "phaseout_start": 100000,
+  "phaseout_rate": 0.5
+ },
+ "depreciation": {
+  "sec179_cap": 2500000,
+  "sec179_phaseout_threshold": 4000000,
+  "bonus_rate": 0.4,
+  "macrs_hy": {
+   "5": [
+    0.2,
+    0.32,
+    0.192,
+    0.1152,
+    0.1152,
+    0.0576
+   ],
+   "7": [
+    0.1429,
+    0.2449,
+    0.1749,
+    0.1249,
+    0.0893,
+    0.0892,
+    0.0893,
+    0.0446
+   ]
+  }
+ },
+ "qbi": {
+  "rate": 0.2,
+  "threshold": {
+   "single": 197300,
+   "mfj": 394600,
+   "mfs": 197300,
+   "hoh": 197300
+  }
+ },
+ "ptc": {
+  "fpl_base": 15060,
+  "fpl_per_additional": 5380,
+  "cliff_pct": 100000,
+  "applicable_points": [
+   {
+    "at_pct": 150,
+    "figure": 0.0
+   },
+   {
+    "at_pct": 200,
+    "figure": 0.02
+   },
+   {
+    "at_pct": 250,
+    "figure": 0.04
+   },
+   {
+    "at_pct": 300,
+    "figure": 0.06
+   },
+   {
+    "at_pct": 400,
+    "figure": 0.085
+   }
+  ],
+  "repayment_caps": [
+   {
+    "up_to_pct": 200,
+    "cap_single": 375,
+    "cap_other": 750
+   },
+   {
+    "up_to_pct": 300,
+    "cap_single": 950,
+    "cap_other": 1900
+   },
+   {
+    "up_to_pct": 400,
+    "cap_single": 1575,
+    "cap_other": 3150
+   }
+  ]
+ },
+ "residential_clean_energy": {
+  "rate": 0.3,
+  "_note": "§25D(a)/Form 5695: 30% of qualified residential clean energy property cost. TERMINATED for expenditures after 2025-12-31 by OBBBA §70506 — tax year 2025 is the final year. Statutory rate, not inflation-adjusted."
+ },
+ "retirement_contributions": {
+  "_note": "P93 — contribution-limit rule data for the HSA/IRA/employer-plan validation waves. 2025 figures: HSA per Rev. Proc. 2024-25; IRA/401(k)/SIMPLE/SEP/415(c) and the phase-out ranges per Notice 2024-80; the 60-63 enhanced catch-up is SECURE 2.0 §109 (§414(v)(2)(E)); the 6% excess-contribution excise is §4973 (statutory, non-indexed). The SIMPLE small-employer 110%-limit variants (§408(p)(2)(E)(i)(II)) are NOT modeled and must be flagged if a SIMPLE participant claims the higher figure.",
+  "hsa": {
+   "limit_self_only": 4300,
+   "limit_family": 8550,
+   "catch_up": 1000,
+   "catch_up_age": 55,
+   "_note": "§223(b): Rev. Proc. 2024-25. Catch-up is §223(b)(3), age 55+, per spouse and only into that spouse's own HSA."
+  },
+  "ira": {
+   "limit": 7000,
+   "catch_up": 1000,
+   "catch_up_age": 50,
+   "reduced_limit_floor": 200,
+   "deduction_phaseout": {
+    "single": {
+     "start": 79000,
+     "end": 89000
+    },
+    "hoh": {
+     "start": 79000,
+     "end": 89000
+    },
+    "mfj": {
+     "start": 126000,
+     "end": 146000
+    },
+    "qss": {
+     "start": 126000,
+     "end": 146000
+    },
+    "mfs": {
+     "start": 0,
+     "end": 10000
+    },
+    "mfj_spouse_covered": {
+     "start": 236000,
+     "end": 246000
+    },
+    "_note": "§219(g) MAGI ranges for ACTIVE PLAN PARTICIPANTS (Notice 2024-80). mfj/qss is the range when the CONTRIBUTOR is covered at work; mfj_spouse_covered is §219(g)(7) — contributor NOT covered, spouse is. No one covered: fully deductible at any income."
+   },
+   "roth_phaseout": {
+    "single": {
+     "start": 150000,
+     "end": 165000
+    },
+    "hoh": {
+     "start": 150000,
+     "end": 165000
+    },
+    "mfj": {
+     "start": 236000,
+     "end": 246000
+    },
+    "qss": {
+     "start": 236000,
+     "end": 246000
+    },
+    "mfs": {
+     "start": 0,
+     "end": 10000
+    },
+    "_note": "§408A(c)(3) MAGI ranges (Notice 2024-80). The §219 limit is COMBINED across Traditional + Roth per person."
+   }
+  },
+  "elective_deferral": {
+   "limit": 23500,
+   "catch_up_50": 7500,
+   "catch_up_60_63": 11250,
+   "_note": "§402(g) employee elective deferrals — 401(k)/403(b)/most 457(b), summed ACROSS employers per person. catch_up_60_63 REPLACES catch_up_50 for a participant aged exactly 60-63 at year end."
+  },
+  "simple": {
+   "limit": 16500,
+   "catch_up_50": 3500,
+   "catch_up_60_63": 5250,
+   "_note": "§408(p) SIMPLE deferrals (Notice 2024-80). Small-employer 110% variants not modeled — see section _note."
+  },
+  "sep": {
+   "compensation_rate": 0.25,
+   "annual_additions_limit": 70000,
+   "min_compensation": 750,
+   "_note": "§408(k)/§415(c): lesser of 25% of compensation or $70,000 (2025). For self-employed, compensation is net SE earnings after the ½SE-tax deduction, making the effective rate 20% — the kernel must use the reduced-rate worksheet, never a flat 25% of net profit. nondeductible_excise_rate is §4972(a): 10% on nondeductible employer contributions (statutory, non-indexed).",
+   "nondeductible_excise_rate": 0.1
+  },
+  "excess_contribution_excise": {
+   "rate": 0.06,
+   "_note": "§4973(a): 6% excise per year on excess IRA/HSA contributions remaining in the account, capped at 6% of the account's year-end value (cap not modeled; flagged when it could bind)."
+  }
+ }
+}

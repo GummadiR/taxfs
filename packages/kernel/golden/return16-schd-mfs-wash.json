@@ -1,0 +1,129 @@
+{
+ "name": "return16-schd-mfs-wash",
+ "description": "MFS with prior carryovers (ST 1,000, LT 2,000) and a §1091 wash sale: ST lot −4,000 with 1,500 disallowed → −2,500; LT lot +1,000. stNet −3,500, ltNet −1,000, combined −4,500 → MFS cap −1,500; carryovers out: ST 2,000, LT 1,000.",
+ "note": "Hand-verified per Pub 550 ST-first worksheet. PLACEHOLDER — verify. P28: fed.capital_gain.net.total is no longer emitted when Schedule D is active — the sub-DAG owns the 1040 line 7 (sourced net totals fold into Part II), so the legacy line is lawfully absent here.",
+ "filing_status": "mfs",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "30000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:co:st",
+   "concept": "carryover.capital_loss.st",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:co:lt",
+   "concept": "carryover.capital_loss.lt",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:p",
+   "concept": "lot.wash-st.proceeds",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:b",
+   "concept": "lot.wash-st.basis",
+   "value": "9000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:t",
+   "concept": "lot.wash-st.term",
+   "value": "0",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l1:w",
+   "concept": "lot.wash-st.wash_disallowed",
+   "value": "1500",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:p",
+   "concept": "lot.zzz-lt.proceeds",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:b",
+   "concept": "lot.zzz-lt.basis",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:l2:t",
+   "concept": "lot.zzz-lt.term",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "30000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.retirement.total": "0",
+  "fed.schd.st_net": "-3500",
+  "fed.schd.lt_net": "-1000",
+  "carryover.capital_loss.st.out": "2000",
+  "carryover.capital_loss.lt.out": "1000",
+  "fed.schd.total": "-1500",
+  "fed.schd.net_capital_gain": "0",
+  "fed.total_income": "28500",
+  "fed.adjustments.total": "0",
+  "fed.agi": "28500",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "13500",
+  "fed.tax.ordinary": "1420",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "1420",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "1420",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "0",
+  "fed.tax.liability.total": "1420",
+  "fed.refund_or_due": "-1420",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "28500",
+  "il.exemption.total": "2775",
+  "il.net_income": "25725",
+  "il.tax": "1273",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-1273",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

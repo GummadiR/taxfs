@@ -1,0 +1,25 @@
+{
+  "rule_version": "2025.QUESTIONS.0.0.1-PLACEHOLDER",
+  "tax_year": 2025,
+  "notice": "Fixed question templates authored (in production) by tax professionals — workstream B content type 'Question templates'. Determination questions are ANTI-COACHING: the agent may order them but never phrase them (E.2). Every template is PLACEHOLDER pending professional authoring + sign-off.",
+  "templates": [
+    {
+      "template_id": "tmpl-il-residency",
+      "determination": "il_full_year_residency",
+      "text": "Were you a resident of Illinois for all of tax year 2025?",
+      "answer_type": "bool",
+      "attestation": true,
+      "maps_to": "attestation.il_residency",
+      "status": "PLACEHOLDER — verify"
+    },
+    {
+      "template_id": "tmpl-schc-ledger",
+      "determination": null,
+      "text": "Did you receive any self-employment or business income this year, whether or not you received a tax form for it?",
+      "answer_type": "bool",
+      "attestation": false,
+      "maps_to": "prompt.schc_ledger_completeness",
+      "status": "PLACEHOLDER — verify"
+    }
+  ]
+}

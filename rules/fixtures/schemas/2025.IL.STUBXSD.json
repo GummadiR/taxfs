@@ -1,0 +1,10 @@
+{
+  "schema_ref": "stub-xsd://2025/IL — STAND-IN until the real IL DoR electronic filing spec is procured. Real validation replaces StubSchemaValidator behind the same interface.",
+  "status": "PLACEHOLDER — verify",
+  "money_pattern": "^-?\\d+$",
+  "required_elements": {
+    "IL1040": ["IL1040_AGIAmt", "IL1040_BaseIncomeAmt", "IL1040_NetIncomeAmt", "IL1040_TaxAmt", "IL1040_TotalPaymentsAmt"],
+    "SCHM": ["SCHM_TotalSubtractionsAmt"],
+    "SCHILWIT": ["SCHILWIT_TotalWithholdingAmt"]
+  }
+}

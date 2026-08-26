@@ -1,0 +1,10 @@
+{
+ "release": "2025.FBAR.0.0.1-PLACEHOLDER",
+ "notice": "FinCEN Form 114 monitoring parameters. Threshold PLACEHOLDER — verify against current 31 CFR §1010.350 guidance; dates follow the FinCEN annual notice (automatic extension).",
+ "aggregate_threshold": {
+  "value": "10000",
+  "status": "PLACEHOLDER — verify"
+ },
+ "report_due_date": "2026-04-15",
+ "automatic_extension_date": "2026-10-15"
+}

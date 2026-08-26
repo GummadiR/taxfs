@@ -1,0 +1,58 @@
+{
+ "name": "return38-estimated-tax-penalties",
+ "description": "P52 Form 2210 and IL-2210: entered underpayment penalties ride BELOW the refund/balance line, so the amount actually paid is net of them in both jurisdictions.",
+ "note": "Hand-verified: taxable 120,000 -> tax 18,000; wh 15,000 -> due 3,000, plus the 270 Form 2210 penalty = 3,270 net. IL net 144,450 x 4.95% = 7,150; wh 4,000 -> due 3,150, plus 85 IL-2210 = 3,235 net. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "150000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "15000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "4000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:2210:fed",
+   "concept": "penalty.fed.estimated_tax",
+   "value": "270",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:2210:il",
+   "concept": "penalty.il.estimated_tax",
+   "value": "85",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.refund_or_due": "-3000",
+  "fed.net_amount_due": "-3270",
+  "il.net_amount_due": "-3235",
+  "fed.agi": "150000",
+  "fed.taxable_income": "120000",
+  "fed.tax.total": "18000"
+ }
+}

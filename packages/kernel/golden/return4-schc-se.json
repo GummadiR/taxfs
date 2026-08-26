@@ -1,0 +1,119 @@
+{
+ "name": "return4-schc-se",
+ "description": "Single filer, W-2 ($100k, SS wages $100k) + one Schedule C business (receipts $60k; office $5k, meals $2k -> $1k deductible, supplies $3k). Exercises Sch C net profit, kernel-applied §274(n) meals limit, SE tax with SS wage-base coordination, half-SE-tax deduction, and total-liability refund path.",
+ "note": "Expected outputs are computed from the PLACEHOLDER fixture rule-data (rules/fixtures/2025.*.json). SE-specific lines hand-verified: net_profit 51000; net_earnings 51000×0.9235=47098.50→47099; ss_base min(47099, 176100−100000)=47099; se_tax 47099×0.153=7206.147→7206; deduction 3603. PLACEHOLDER — verify. P3 QBI applied: component 51000-3603=47397 -> deduction 9479 (20% x min(47397, 132397)); taxable 122918. Hand-verified.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2-1:wages",
+   "concept": "income.wages",
+   "value": "100000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2-1:sswages",
+   "concept": "income.wages.ss",
+   "value": "100000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2-1:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "12000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2-1:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "4900",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:gross",
+   "concept": "schc.aantic.gross_receipts",
+   "value": "60000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:office",
+   "concept": "schc.aantic.expense.office",
+   "value": "5000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:meals",
+   "concept": "schc.aantic.expense.meals",
+   "value": "2000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:supplies",
+   "concept": "schc.aantic.expense.supplies",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "100000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.aantic.net_profit": "51000",
+  "fed.schc.net_profit.total": "51000",
+  "fed.se_tax.total": "7206",
+  "fed.se_tax.deduction": "3603",
+  "fed.total_income": "151000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "147397",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "9479",
+  "fed.taxable_income": "122918",
+  "fed.tax.ordinary": "23500",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "23500",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "23500",
+  "fed.withholding.total": "12000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "12000",
+  "fed.tax.liability.total": "30706",
+  "fed.refund_or_due": "-18706",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "147397",
+  "il.exemption.total": "2775",
+  "il.net_income": "144622",
+  "il.tax": "7159",
+  "il.withholding.total": "4900",
+  "il.estimated.total": "0",
+  "il.payments.total": "4900",
+  "il.refund_or_due": "-2259",
+  "fed.sch1.additional_income.total": "51000",
+  "fed.sch1.adjustments_total": "3603",
+  "fed.sch2.total": "7206"
+ }
+}

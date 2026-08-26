@@ -1,0 +1,50 @@
+{
+ "name": "return35-early-distribution-5329",
+ "description": "P53 Form 5329 Part I: 10,000 of early retirement distribution subject to the §72(t)(1) additional tax -> 1,000, an OTHER tax added after credits.",
+ "note": "Hand-verified: single, taxable 60,000-15,000=45,000 -> tax 1,000+3,600+1,100=5,700. Plus 10% x 10,000 = 1,000 -> liability 6,700; wh 7,000 -> refund 300. PLACEHOLDER rules.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "60000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "2500",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:5329:subject",
+   "concept": "tax.early_distribution.subject_amount",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.tax.early_distribution": "1000",
+  "fed.agi": "60000",
+  "fed.taxable_income": "45000",
+  "fed.tax.total": "5700",
+  "fed.tax.liability.total": "6700",
+  "fed.refund_or_due": "300"
+ }
+}

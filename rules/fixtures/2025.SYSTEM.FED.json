@@ -1,0 +1,23 @@
+{
+  "_meta": {
+    "config_id": "2025.SYSTEM.FED",
+    "tax_year": 2025,
+    "jurisdiction": "FED",
+    "kind": "PLATFORM-CONFIG",
+    "notice": "Platform critic-tuning + workstream config — NOT IRS-published tax figures. Kept separate from the source-verified rule-data (2025.FED.1.0.json) so the verified tax figures stay pure and each file is independently auditable. round_number_* and effective_rate_max are audit-heuristic tuning (F.7 critics). authority_grades are legal-standard judgments per claimed-position concept (workstream F / Cap 26). saver_credit_agi_max is a real IRS figure that is NOT yet in the verified rule-data — treat it as UNVERIFIED platform config until it is source-verified and moved into 2025.FED.1.0.json.",
+    "status": "PLATFORM-CONFIG — heuristics/judgments, not source-verified tax figures"
+  },
+  "audit_params": {
+    "round_number_multiple": "1000",
+    "round_number_min_count": "3",
+    "effective_rate_max": "0.50"
+  },
+  "authority_grades": {
+    "deduction.itemized.total": "reasonable_basis",
+    "credits.sch3.total": "substantial_authority"
+  },
+  "credit_finder": {
+    "saver_credit_agi_max": "40000",
+    "_note": "UNVERIFIED prompt threshold (Form 8880 Saver's Credit AGI ceiling). Verify against the 2025 figure and move into the verified rule-data before reliance."
+  }
+}

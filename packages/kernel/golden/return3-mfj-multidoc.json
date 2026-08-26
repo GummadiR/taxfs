@@ -1,0 +1,151 @@
+{
+ "name": "return3-mfj-multidoc",
+ "description": "MFJ, two W-2s, 1099-INT, 1099-DIV (with qualified), 1099-B net LT gain, 1099-R retirement (exercises the IL Sch M subtraction), Sch 3 credit.",
+ "note": "Expected outputs are computed from the PLACEHOLDER fixture rule-data (rules/fixtures/2025.*.json). They are regression anchors for the kernel STRUCTURE, not real tax. PLACEHOLDER — verify.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2-1:wages",
+   "concept": "income.wages",
+   "value": "80000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ],
+   "scope": "primary"
+  },
+  {
+   "fact_id": "f:w2-1:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "9000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "primary"
+  },
+  {
+   "fact_id": "f:w2-1:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "3900",
+   "jurisdiction": [
+    "IL"
+   ],
+   "scope": "primary"
+  },
+  {
+   "fact_id": "f:w2-2:wages",
+   "concept": "income.wages",
+   "value": "45000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ],
+   "scope": "spouse"
+  },
+  {
+   "fact_id": "f:w2-2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "4500",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "spouse"
+  },
+  {
+   "fact_id": "f:w2-2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "2200",
+   "jurisdiction": [
+    "IL"
+   ],
+   "scope": "spouse"
+  },
+  {
+   "fact_id": "f:int-1:interest",
+   "concept": "income.interest",
+   "value": "800",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:div-1:ordinary",
+   "concept": "income.dividends.ordinary",
+   "value": "2000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:div-1:qualified",
+   "concept": "income.dividends.qualified",
+   "value": "1500",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:b-1:capgain",
+   "concept": "income.capital_gain.net",
+   "value": "5000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:r-1:retirement",
+   "concept": "income.retirement",
+   "value": "10000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:user:credits",
+   "concept": "credits.sch3.total",
+   "value": "500",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "125000",
+  "fed.interest.total": "800",
+  "fed.dividends.ordinary.total": "2000",
+  "fed.dividends.qualified.total": "1500",
+  "fed.capital_gain.net.total": "5000",
+  "fed.retirement.total": "10000",
+  "fed.total_income": "142800",
+  "fed.adjustments.total": "0",
+  "fed.agi": "142800",
+  "fed.deduction.standard": "30000",
+  "fed.deduction.applied": "30000",
+  "fed.taxable_income": "112800",
+  "fed.tax.ordinary": "14986",
+  "fed.tax.capgain": "975",
+  "fed.tax.total": "15961",
+  "fed.credits.total": "500",
+  "fed.tax_after_credits": "15461",
+  "fed.withholding.total": "13500",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "13500",
+  "fed.tax.liability.total": "15461",
+  "fed.refund_or_due": "-1961",
+  "il.sch_m.subtractions": "10000",
+  "il.base_income": "132800",
+  "il.exemption.total": "5550",
+  "il.net_income": "127250",
+  "il.tax": "6299",
+  "il.withholding.total": "6100",
+  "il.estimated.total": "0",
+  "il.payments.total": "6100",
+  "il.refund_or_due": "-199",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

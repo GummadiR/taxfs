@@ -1,0 +1,169 @@
+{
+ "name": "return12-sec179-split",
+ "description": "Critique-fix F2 regression: three §179 requests (1000 each) across two businesses, income-limited to 2500 (2000 business + 500 wages). Cumulative rounding must allocate 833/834/833 — sums tie exactly to the allowed total under both per-asset (kernel) and per-entity (kernel2) grouping.",
+ "note": "Expected computed from PLACEHOLDER fixture rule-data. Hand-verified: allowed 2500; x 833, y 834, z 833; carryforward 500; abiz net -667, bbiz net 167; schc total -500; AGI 0; no SE on a loss. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "500",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ss",
+   "concept": "income.wages.ss",
+   "value": "500",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:a:gross",
+   "concept": "schc.abiz.gross_receipts",
+   "value": "1000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:ax:basis",
+   "concept": "dep.xasset.basis",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:ax:179",
+   "concept": "dep.xasset.sec179",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:ax:life",
+   "concept": "dep.xasset.life_years",
+   "value": "5",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:ay:basis",
+   "concept": "dep.yasset.basis",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:ay:179",
+   "concept": "dep.yasset.sec179",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:ay:life",
+   "concept": "dep.yasset.life_years",
+   "value": "5",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:abiz"
+  },
+  {
+   "fact_id": "f:b:gross",
+   "concept": "schc.bbiz.gross_receipts",
+   "value": "1000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:bz:basis",
+   "concept": "dep.zasset.basis",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:bbiz"
+  },
+  {
+   "fact_id": "f:bz:179",
+   "concept": "dep.zasset.sec179",
+   "value": "1000",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:bbiz"
+  },
+  {
+   "fact_id": "f:bz:life",
+   "concept": "dep.zasset.life_years",
+   "value": "5",
+   "jurisdiction": [
+    "FED"
+   ],
+   "scope": "entity:bbiz"
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "500",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "dep.xasset.deduction_current": "833",
+  "dep.yasset.deduction_current": "834",
+  "schc.abiz.net_profit": "-667",
+  "dep.zasset.deduction_current": "833",
+  "schc.bbiz.net_profit": "167",
+  "fed.sec179.carryforward": "500",
+  "fed.schc.net_profit.total": "-500",
+  "fed.total_income": "0",
+  "fed.adjustments.total": "0",
+  "fed.agi": "0",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.loss_carryforward.out": "500",
+  "fed.qbi.deduction": "0",
+  "fed.taxable_income": "0",
+  "fed.tax.ordinary": "0",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "0",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "0",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "0",
+  "fed.tax.liability.total": "0",
+  "fed.refund_or_due": "0",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "0",
+  "il.exemption.total": "2775",
+  "il.net_income": "0",
+  "il.tax": "0",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "0",
+  "fed.sch1.additional_income.total": "-500",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

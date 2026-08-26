@@ -1,0 +1,68 @@
+{
+ "name": "return11-qss-w2",
+ "description": "Qualifying surviving spouse, W-2 $90k — must resolve MFJ-level standard deduction ($30,000 stub) and MFJ brackets per IRC §2(a) via the qss fallback.",
+ "note": "Expected computed from PLACEHOLDER fixture rule-data. Key check: fed.deduction.standard MUST equal the MFJ figure (30000), proving the §2(a) fallback path. PLACEHOLDER — verify.",
+ "filing_status": "qss",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "90000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "4300",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "90000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "90000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "90000",
+  "fed.deduction.standard": "30000",
+  "fed.deduction.applied": "30000",
+  "fed.taxable_income": "60000",
+  "fed.tax.ordinary": "6800",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "6800",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "6800",
+  "fed.withholding.total": "8000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "8000",
+  "fed.tax.liability.total": "6800",
+  "fed.refund_or_due": "1200",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "90000",
+  "il.exemption.total": "5550",
+  "il.net_income": "84450",
+  "il.tax": "4180",
+  "il.withholding.total": "4300",
+  "il.estimated.total": "0",
+  "il.payments.total": "4300",
+  "il.refund_or_due": "120",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

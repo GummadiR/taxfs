@@ -1,0 +1,18 @@
+{
+  "benchmark_id": "2025.PRO-PREPARED.return1-PLACEHOLDER",
+  "notice": "Accuracy-proof anchor (Build Plan §19, J.1). In production this file holds a return prepared INDEPENDENTLY by a tax professional from the same source documents — an external anchor, not a copy of our goldens. This fixture stands in for the pipeline; values are PLACEHOLDER and mirror the demo rule-data.",
+  "prepared_by": "STUB — professional preparer fixture (PLACEHOLDER — procure real benchmark returns)",
+  "source_golden": "return1-single-w2",
+  "expected_lines": {
+    "fed.total_income": "60000",
+    "fed.agi": "60000",
+    "fed.taxable_income": "45000",
+    "fed.tax.total": "5700",
+    "fed.tax_after_credits": "5700",
+    "fed.refund_or_due": "300",
+    "il.base_income": "60000",
+    "il.net_income": "57225",
+    "il.tax": "2833",
+    "il.refund_or_due": "67"
+  }
+}

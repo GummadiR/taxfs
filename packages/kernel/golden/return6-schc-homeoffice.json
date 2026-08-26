@@ -1,0 +1,154 @@
+{
+ "name": "return6-schc-homeoffice",
+ "description": "Single filer, two Schedule C businesses exercising Form 8829: 'alpha' actual method wins (home 2000 sqft, office 200 sqft -> 10% of $24,000 = $2,400 + $500 prior carryover = $2,900 vs simplified $1,000); 'beta' gross-income limited (tentative $500 caps both methods; actual $2,000 -> $500 allowed, $1,500 carryover_out).",
+ "note": "Expected outputs computed from PLACEHOLDER fixture rule-data. 8829 lines hand-verified: alpha ded 2900 (no carryover_out); beta ded 500, carryover_out 1500; net alpha 25100, beta 0; SE on 25100: 23180 net earnings, SE tax 3547, deduction 1774. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:alpha:gross",
+   "concept": "schc.alpha.gross_receipts",
+   "value": "30000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:office",
+   "concept": "schc.alpha.expense.office",
+   "value": "2000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:ho-sqft",
+   "concept": "schc.alpha.homeoffice.sq_ft",
+   "value": "200",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:ho-home",
+   "concept": "schc.alpha.homeoffice.home_sq_ft",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:ho-exp",
+   "concept": "schc.alpha.homeoffice.home_expenses_total",
+   "value": "24000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:ho-carry",
+   "concept": "schc.alpha.homeoffice.carryover_prior",
+   "value": "500",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:beta:gross",
+   "concept": "schc.beta.gross_receipts",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:beta:supplies",
+   "concept": "schc.beta.expense.supplies",
+   "value": "2500",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:beta:ho-sqft",
+   "concept": "schc.beta.homeoffice.sq_ft",
+   "value": "400",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:beta:ho-home",
+   "concept": "schc.beta.homeoffice.home_sq_ft",
+   "value": "1600",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:beta:ho-exp",
+   "concept": "schc.beta.homeoffice.home_expenses_total",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:est:fed",
+   "concept": "payments.fed.estimated",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "0",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.alpha.homeoffice.deduction": "2900",
+  "schc.alpha.net_profit": "25100",
+  "schc.beta.homeoffice.deduction": "500",
+  "schc.beta.homeoffice.carryover_out": "1500",
+  "schc.beta.net_profit": "0",
+  "fed.schc.net_profit.total": "25100",
+  "fed.se_tax.total": "3547",
+  "fed.se_tax.deduction": "1774",
+  "fed.total_income": "25100",
+  "fed.adjustments.total": "0",
+  "fed.agi": "23326",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "1665",
+  "fed.taxable_income": "6661",
+  "fed.tax.ordinary": "666",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "666",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "666",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "5000",
+  "fed.payments.total": "5000",
+  "fed.tax.liability.total": "4213",
+  "fed.refund_or_due": "787",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "23326",
+  "il.exemption.total": "2775",
+  "il.net_income": "20551",
+  "il.tax": "1017",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-1017",
+  "fed.sch1.additional_income.total": "25100",
+  "fed.sch1.adjustments_total": "1774",
+  "fed.sch2.total": "3547"
+ }
+}

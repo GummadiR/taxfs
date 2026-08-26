@@ -1,0 +1,13 @@
+{
+  "release": "2025.CAPTURE.0.0.1-PLACEHOLDER",
+  "notice": "Substantiation-quality rules for year-round capture (G.5). Patterns and thresholds are PLACEHOLDERS pending professional authoring — the §274(d) specificity standard is doctrine, not vibes.",
+  "generic_purpose_patterns": {
+    "value": ["business meeting", "meeting", "business trip", "client visit", "work", "errand", "business", "misc", "stuff"],
+    "status": "PLACEHOLDER — verify"
+  },
+  "min_specific_purpose_length": { "value": "12", "status": "PLACEHOLDER — verify" },
+  "completeness_prompt": {
+    "value": "A timestamp proves WHEN, not WHAT. Add who/what/why (e.g., \"lunch w/ J. Rivera re: Q3 site contract\") — generic purposes do not meet the §274(d) substantiation standard and stay out of the Defense File until corrected.",
+    "status": "PLACEHOLDER — verify"
+  }
+}

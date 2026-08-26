@@ -1,0 +1,70 @@
+{
+ "name": "return24-il-property-tax-credit",
+ "description": "P9.1 Schedule ICR: single, wages 100,000, principal-residence property tax 14,640 -> credit 732 (5%, 35 ILCS 5/208), nonrefundable against IL tax; AGI 100,000 under the 250,000 P.A. 100-0022 cap. Mirrors the 2022 oracle's $732 credit shape (docs/reviews/BACKTEST-2022.md addendum).",
+ "note": "Hand-verified: IL net 97,225 -> tax 4,813; after ICR 732 -> 4,081 due. Fed: taxable 85,000 -> tax 14,500; wh 15,000 -> refund 500. PLACEHOLDER rules.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "100000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "15000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:icr:ptax",
+   "concept": "il.property_tax.residence",
+   "value": "14640",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "100000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "100000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "100000",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "85000",
+  "fed.tax.ordinary": "14500",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "14500",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "14500",
+  "fed.withholding.total": "15000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "15000",
+  "fed.tax.liability.total": "14500",
+  "fed.refund_or_due": "500",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "100000",
+  "il.exemption.total": "2775",
+  "il.net_income": "97225",
+  "il.tax": "4813",
+  "il.icr.property_tax_credit": "732",
+  "il.tax_after_credits": "4081",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-4081",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

@@ -1,0 +1,76 @@
+{
+ "name": "return10-mfs-schc",
+ "description": "Married filing separately with a Schedule C business (receipts $40k, supplies $4k) and no W-2 — SE tax with full wage-base room.",
+ "note": "Expected computed from PLACEHOLDER fixture rule-data. Hand-verified: net 36000; net earnings 36000x0.9235=33246; SE 33246x0.153=5086.638->5087; deduction 2544 (5086.638/2=2543.5... kernel: 5087x0.5=2543.5->2544). PLACEHOLDER — verify.",
+ "filing_status": "mfs",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:biz:gross",
+   "concept": "schc.solo.gross_receipts",
+   "value": "40000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:supplies",
+   "concept": "schc.solo.expense.supplies",
+   "value": "4000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:est:fed",
+   "concept": "payments.fed.estimated",
+   "value": "6000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "0",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.solo.net_profit": "36000",
+  "fed.schc.net_profit.total": "36000",
+  "fed.se_tax.total": "5087",
+  "fed.se_tax.deduction": "2544",
+  "fed.total_income": "36000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "33456",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "3691",
+  "fed.taxable_income": "14765",
+  "fed.tax.ordinary": "1572",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "1572",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "1572",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "6000",
+  "fed.payments.total": "6000",
+  "fed.tax.liability.total": "6659",
+  "fed.refund_or_due": "-659",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "33456",
+  "il.exemption.total": "2775",
+  "il.net_income": "30681",
+  "il.tax": "1519",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "-1519",
+  "fed.sch1.additional_income.total": "36000",
+  "fed.sch1.adjustments_total": "2544",
+  "fed.sch2.total": "5087"
+ }
+}

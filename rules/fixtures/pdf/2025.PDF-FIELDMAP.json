@@ -1,0 +1,238 @@
+{
+ "release": "2025.PDF-FIELDMAP.0.3.0-PLACEHOLDER",
+ "status": "PLACEHOLDER — verify",
+ "notice": "Binds form line_ids to the OFFICIAL 2025 template PDFs' AcroForm field names. FED field names were read from each PDF with scripts/dump-pdf-fields.ts and matched to their printed line by the line-number the IRS reprints in the RIGHT margin next to each box (pdftotext -bbox), cross-checked against the printed line text — never guessed. The reprinted-number anchor is used deliberately: the left line label sits one row above its box on several forms, so left-label matching is off-by-one (caught on Schedule C, where the naive match picks line 30's box for line 31). IL fields carry descriptive names and are matched by name. Every mapping is proven by packages/forms/test/pdffill-real.test.ts, which fills each form with a distinct value per line and asserts each value lands in its own field while every OTHER text field stays blank. DEFERRED (not mapped): F8949 (per-box A/B/C x ST/LT Totals rows — the single 'F8949.2h' summary has no one real field; the line is omit_when_zero so the lots path never prints a false 0). P11 CPA fixes applied: SCH2 line 1a (2025 layout — line 2 is AMT), SCH2.3/1040.17 Part I and SCH2.21/1040.23 Part II totals, 1040.25d combined withholding, SCHD.16 dual-path, SCHM.42 (real subtractions total), SCHICR Section A, IL-1040 lines 16/18/19.",
+ "forms": {
+  "1040": {
+   "template_path": "templates/pdf/2025/FED/f1040.pdf",
+   "fields": {
+    "1040.1a": "topmostSubform[0].Page1[0].f1_47[0]",
+    "1040.2b": "topmostSubform[0].Page1[0].f1_59[0]",
+    "1040.3a": "topmostSubform[0].Page1[0].f1_60[0]",
+    "1040.3b": "topmostSubform[0].Page1[0].f1_61[0]",
+    "1040.5b": "topmostSubform[0].Page1[0].f1_66[0]",
+    "1040.7": "topmostSubform[0].Page1[0].f1_70[0]",
+    "1040.8": "topmostSubform[0].Page1[0].f1_72[0]",
+    "1040.9": "topmostSubform[0].Page1[0].f1_73[0]",
+    "1040.10": "topmostSubform[0].Page1[0].f1_74[0]",
+    "1040.11": "topmostSubform[0].Page1[0].f1_75[0]",
+    "1040.12": "topmostSubform[0].Page2[0].f2_02[0]",
+    "1040.13": "topmostSubform[0].Page2[0].f2_03[0]",
+    "1040.15": "topmostSubform[0].Page2[0].f2_06[0]",
+    "1040.16": "topmostSubform[0].Page2[0].f2_08[0]",
+    "1040.20": "topmostSubform[0].Page2[0].f2_12[0]",
+    "1040.22": "topmostSubform[0].Page2[0].f2_14[0]",
+    "1040.24": "topmostSubform[0].Page2[0].f2_16[0]",
+    "1040.25a": "topmostSubform[0].Page2[0].f2_17[0]",
+    "1040.25c": "topmostSubform[0].Page2[0].f2_19[0]",
+    "1040.26": "topmostSubform[0].Page2[0].f2_21[0]",
+    "1040.31": "topmostSubform[0].Page2[0].f2_26[0]",
+    "1040.33": "topmostSubform[0].Page2[0].f2_29[0]",
+    "1040.34": "topmostSubform[0].Page2[0].f2_30[0]",
+    "1040.37": "topmostSubform[0].Page2[0].f2_35[0]",
+    "1040.17": "topmostSubform[0].Page2[0].f2_09[0]",
+    "1040.23": "topmostSubform[0].Page2[0].f2_15[0]",
+    "1040.25d": "topmostSubform[0].Page2[0].f2_20[0]",
+    "1040.1z": "topmostSubform[0].Page1[0].f1_57[0]",
+    "1040.2a": "topmostSubform[0].Page1[0].f1_58[0]",
+    "1040.11b": "topmostSubform[0].Page2[0].f2_01[0]",
+    "1040.14": "topmostSubform[0].Page2[0].f2_05[0]",
+    "1040.18": "topmostSubform[0].Page2[0].f2_10[0]",
+    "1040.21": "topmostSubform[0].Page2[0].f2_13[0]",
+    "1040.38": "topmostSubform[0].Page2[0].f2_36[0]"
+   },
+   "filing_status_boxes": {
+    "single": "topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[0]",
+    "mfj": "topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[1]",
+    "mfs": "topmostSubform[0].Page1[0].Checkbox_ReadOrder[0].c1_8[2]",
+    "hoh": "topmostSubform[0].Page1[0].c1_8[0]",
+    "qss": "topmostSubform[0].Page1[0].c1_8[1]"
+   }
+  },
+  "SCHB": {
+   "template_path": "templates/pdf/2025/FED/f1040sb.pdf",
+   "fields": {
+    "SCHB.4": "topmostSubform[0].Page1[0].f1_33[0]",
+    "SCHB.6": "topmostSubform[0].Page1[0].f1_64[0]"
+   }
+  },
+  "SCH1": {
+   "template_path": "templates/pdf/2025/FED/f1040s1.pdf",
+   "fields": {
+    "SCH1.3": "topmostSubform[0].Page1[0].f1_07[0]",
+    "SCH1.5": "topmostSubform[0].Page1[0].f1_09[0]",
+    "SCH1.10": "topmostSubform[0].Page1[0].f1_38[0]",
+    "SCH1.15": "topmostSubform[0].Page2[0].f2_05[0]",
+    "SCH1.26": "topmostSubform[0].Page2[0].f2_30[0]"
+   }
+  },
+  "SCH2": {
+   "template_path": "templates/pdf/2025/FED/f1040s2.pdf",
+   "fields": {
+    "SCH2.4": "form1[0].Page1[0].f1_15[0]",
+    "SCH2.11": "form1[0].Page1[0].f1_22[0]",
+    "SCH2.12": "form1[0].Page1[0].f1_23[0]",
+    "SCH2.21": "form1[0].Page2[0].f2_24[0]",
+    "SCH2.1a": "form1[0].Page1[0].Line1a_ReadOrder[0].f1_03[0]",
+    "SCH2.3": "form1[0].Page1[0].f1_13[0]",
+    "SCH2.8": "form1[0].Page1[0].f1_19[0]"
+   }
+  },
+  "SCH3": {
+   "template_path": "templates/pdf/2025/FED/f1040s3.pdf",
+   "fields": {
+    "SCH3.9": "topmostSubform[0].Page1[0].f1_26[0]",
+    "SCH3.1": "topmostSubform[0].Page1[0].f1_03[0]",
+    "SCH3.2": "topmostSubform[0].Page1[0].f1_04[0]",
+    "SCH3.5a": "topmostSubform[0].Page1[0].f1_07[0]",
+    "SCH3.8": "topmostSubform[0].Page1[0].f1_25[0]"
+   }
+  },
+  "SCHC": {
+   "template_path": "templates/pdf/2025/FED/f1040sc.pdf",
+   "fields": {
+    "SCHC.31": "topmostSubform[0].Page1[0].f1_46[0]"
+   }
+  },
+  "SCHD": {
+   "template_path": "templates/pdf/2025/FED/f1040sd.pdf",
+   "fields": {
+    "SCHD.7": "topmostSubform[0].Page1[0].f1_22[0]",
+    "SCHD.15": "topmostSubform[0].Page1[0].f1_43[0]",
+    "SCHD.16": "topmostSubform[0].Page2[0].f2_1[0]"
+   }
+  },
+  "SCHE": {
+   "template_path": "templates/pdf/2025/FED/f1040se.pdf",
+   "fields": {
+    "SCHE.41": "topmostSubform[0].Page2[0].f2_78[0]"
+   }
+  },
+  "SCHSE": {
+   "template_path": "templates/pdf/2025/FED/f1040sse.pdf",
+   "fields": {
+    "SCHSE.12": "topmostSubform[0].Page1[0].f1_21[0]",
+    "SCHSE.13": "topmostSubform[0].Page1[0].f1_22[0]"
+   }
+  },
+  "F8995": {
+   "template_path": "templates/pdf/2025/FED/f8995.pdf",
+   "fields": {
+    "F8995.15": "topmostSubform[0].Page1[0].f1_31[0]",
+    "F8995.16": "topmostSubform[0].Page1[0].f1_32[0]"
+   }
+  },
+  "F8962": {
+   "template_path": "templates/pdf/2025/FED/f8962.pdf",
+   "fields": {
+    "F8962.26": "topmostSubform[0].Page1[0].f1_93[0]",
+    "F8962.29": "topmostSubform[0].Page1[0].f1_96[0]"
+   }
+  },
+  "F8959": {
+   "template_path": "templates/pdf/2025/FED/f8959.pdf",
+   "fields": {
+    "F8959.18": "topmostSubform[0].Page1[0].f1_20[0]",
+    "F8959.24": "topmostSubform[0].Page1[0].f1_26[0]"
+   }
+  },
+  "F8960": {
+   "template_path": "templates/pdf/2025/FED/f8960.pdf",
+   "fields": {
+    "F8960.17": "topmostSubform[0].Page1[0].f1_27[0]"
+   }
+  },
+  "IL1040": {
+   "template_path": "templates/pdf/2025/IL/il1040.pdf",
+   "fields": {
+    "IL1040.1": "Federally adjusted income",
+    "IL1040.7": "Total of your subtractions",
+    "IL1040.9": "Illinois base income",
+    "IL1040.10": "Exemption allowance",
+    "IL1040.11": "Illinois net income from Schedule NR",
+    "IL1040.12": "Income tax",
+    "IL1040.25": "Illinois Income Tax withheld",
+    "IL1040.26": "Estimated payments",
+    "IL1040.37": "Overpayment amount",
+    "IL1040.41": "Amount you owe",
+    "IL1040.16": "Schedule ICR",
+    "IL1040.18": "Total of your credits",
+    "IL1040.19": "Tax after nonrefundable credits",
+    "IL1040.15": "Income tax paid to another state",
+    "IL1040.21": "Use tax",
+    "IL1040.23": "Total Tax",
+    "IL1040.28": "Pass-through entity tax credit",
+    "IL1040.34": "Late-payment penalty for underpayment",
+    "IL1040.31": "Total payments and refundable credit",
+    "IL1040.2": "Federally tax-exempt interest",
+    "IL1040.3": "Other additions",
+    "IL1040.4": "Total income",
+    "IL1040.10a": "Exemption amount",
+    "IL1040.24": "Total tax from Page 1",
+    "IL1040.32": "If Line 31 is greater",
+    "IL1040.33": "If Line 24 is greater"
+   },
+   "filing_status_boxes": {
+    "single": "filing_status|single",
+    "mfj": "filing_status|married filing jointly",
+    "mfs": "filing_status|married filing separately",
+    "qss": "filing_status|widowed",
+    "hoh": "filing_status|head of household"
+   }
+  },
+  "SCHILWIT": {
+   "template_path": "templates/pdf/2025/IL/schilwit.pdf",
+   "fields": {
+    "SCHILWIT.5": "Total amount"
+   }
+  },
+  "SCHM": {
+   "template_path": "templates/pdf/2025/IL/schm.pdf",
+   "fields": {
+    "SCHM.42": "Add Lines 33 through 41"
+   }
+  },
+  "SCHICR": {
+   "template_path": "templates/pdf/2025/IL/schicr.pdf",
+   "fields": {
+    "ICR.1": "Tax amount",
+    "ICR.3": "Subtract L2 - L1",
+    "ICR.4a": "Illinois Property Tax amt",
+    "ICR.4f": "Subtract L4e - L4a",
+    "ICR.5": "Compare L3 - L4g",
+    "ICR.13": "Add Lines 5, 8, and 11"
+   }
+  },
+  "F8949": {
+   "template_path": "templates/pdf/2025/FED/f8949.pdf",
+   "fields": {
+    "F8949.2h": "topmostSubform[0].Page2[0].f2_95[0]"
+   }
+  },
+  "SCHA": {
+   "template_path": "templates/pdf/2025/FED/f1040sa.pdf",
+   "fields": {
+    "SCHA.1": "form1[0].Page1[0].f1_3[0]",
+    "SCHA.2": "form1[0].Page1[0].Line2_ReadOrder[0].f1_4[0]",
+    "SCHA.4": "form1[0].Page1[0].f1_6[0]",
+    "SCHA.5d": "form1[0].Page1[0].f1_10[0]",
+    "SCHA.5e": "form1[0].Page1[0].f1_11[0]",
+    "SCHA.10": "form1[0].Page1[0].f1_22[0]",
+    "SCHA.14": "form1[0].Page1[0].f1_26[0]",
+    "SCHA.17": "form1[0].Page1[0].f1_30[0]"
+   }
+  },
+  "F1116": {
+   "template_path": "templates/pdf/2025/FED/f1116.pdf",
+   "fields": {
+    "F1116.1a": "topmostSubform[0].Page1[0].f1_13[0]",
+    "F1116.7": "topmostSubform[0].Page1[0].f1_51[0]",
+    "F1116.8": "topmostSubform[0].Page1[0].f1_82[0]",
+    "F1116.35": "topmostSubform[0].Page2[0].f2_27[0]"
+   },
+   "check_on_present": {
+    "F1116.35": "topmostSubform[0].Page1[0].LineC-D_ReadOrder[0].c1_1[0]"
+   }
+  }
+ }
+}

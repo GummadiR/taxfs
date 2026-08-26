@@ -1,0 +1,77 @@
+{
+ "name": "return2-w2-1099int",
+ "description": "Single filer, W-2 + 1099-INT. Balance due federally, small IL refund.",
+ "note": "Expected outputs are computed from the PLACEHOLDER fixture rule-data (rules/fixtures/2025.*.json). They are regression anchors for the kernel STRUCTURE, not real tax. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2-1:wages",
+   "concept": "income.wages",
+   "value": "50000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2-1:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "4000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2-1:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "2400",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:int-1:interest",
+   "concept": "income.interest",
+   "value": "1200",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "50000",
+  "fed.interest.total": "1200",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "51200",
+  "fed.adjustments.total": "0",
+  "fed.agi": "51200",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.taxable_income": "36200",
+  "fed.tax.ordinary": "4144",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "4144",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "4144",
+  "fed.withholding.total": "4000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "4000",
+  "fed.tax.liability.total": "4144",
+  "fed.refund_or_due": "-144",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "51200",
+  "il.exemption.total": "2775",
+  "il.net_income": "48425",
+  "il.tax": "2397",
+  "il.withholding.total": "2400",
+  "il.estimated.total": "0",
+  "il.payments.total": "2400",
+  "il.refund_or_due": "3",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

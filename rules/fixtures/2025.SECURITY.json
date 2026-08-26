@@ -1,0 +1,8 @@
+{
+  "release": "2025.SECURITY.0.0.1-PLACEHOLDER",
+  "notice": "Security/retention parameters (workstream J). Every figure is PLACEHOLDER — retention obligations and identifier-structure rules must be verified before real taxpayer data (K reviews the WISP).",
+  "retention_years": { "value": "7", "status": "PLACEHOLDER — verify" },
+  "ssn_invalid_areas": { "value": ["000", "666"], "status": "PLACEHOLDER — verify" },
+  "ssn_area_max": { "value": "899", "status": "PLACEHOLDER — verify" },
+  "ein_invalid_prefixes": { "value": ["00", "07", "08", "09", "17", "18", "19", "28", "29", "49", "69", "70", "78", "79", "89"], "status": "PLACEHOLDER — verify" }
+}

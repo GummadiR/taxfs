@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "config_id": "2025.SYSTEM.IL",
+    "tax_year": 2025,
+    "jurisdiction": "IL",
+    "kind": "PLATFORM-CONFIG",
+    "notice": "Platform critic-tuning + workstream config — NOT IL-published tax figures. Kept separate from the source-verified rule-data (2025.IL.1.0.json). sch_m_subtraction_concepts is the kernel concept-ID mapping for IL Schedule M subtractions (SS + qualified retirement), derived from the verified file's Schedule M description — it is a platform mapping, not a published figure. audit_params are audit-heuristic tuning.",
+    "status": "PLATFORM-CONFIG — heuristics/mappings, not source-verified tax figures"
+  },
+  "audit_params": {
+    "round_number_multiple": "1000",
+    "round_number_min_count": "3",
+    "effective_rate_max": "0.10"
+  },
+  "sch_m_subtraction_concepts": ["income.retirement", "income.social_security"]
+}

@@ -1,0 +1,58 @@
+{
+ "name": "return33-ftc-904j-election",
+ "description": "P57 §904(j) de minimis election: 450 of foreign tax, under the 600 joint ceiling, credited IN FULL with no Form 1116 and no §904 limitation.",
+ "note": "Hand-verified: taxable 90,000 -> tax 2,000+7,200+2,200=11,400. Credit 450 in full (no limitation applies). Liability 10,950; wh 20,000 -> refund 9,050. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "120000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "20000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "5000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1099:ftax",
+   "concept": "foreign.tax_paid",
+   "value": "450",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:elect:904j",
+   "concept": "foreign.de_minimis_election",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.credit.foreign_tax": "450",
+  "fed.agi": "120000",
+  "fed.taxable_income": "90000",
+  "fed.tax.total": "11400",
+  "fed.tax.liability.total": "10950",
+  "fed.refund_or_due": "9050"
+ }
+}

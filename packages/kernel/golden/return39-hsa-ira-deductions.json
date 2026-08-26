@@ -1,0 +1,74 @@
+{
+ "name": "return39-hsa-ira-deductions",
+ "description": "P98: family-HSA (employer 5,000 + direct 2,000 -> 2,000 deducts) and a fully deductible Traditional IRA 7,000 (no one covered at work).",
+ "note": "Hand-verified: limit family 8,550; total 7,000 within; direct 2,000 all fits the room (8,550-5,000). No coverage -> §219(g) inapplicable -> IRA 7,000 deducts. AGI = 120,000 - 2,000 - 7,000 = 111,000. PLACEHOLDER rules.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "120000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "16000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "5500",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:hsa:employer",
+   "concept": "contrib.hsa.employer",
+   "value": "5000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:hsa:direct",
+   "concept": "contrib.hsa.direct",
+   "value": "2000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:hsa:coverage",
+   "concept": "contrib.hsa.family_coverage",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:ira:trad",
+   "concept": "contrib.ira.traditional.tp",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.hsa.limit": "8550",
+  "fed.hsa.deduction": "2000",
+  "fed.ira.deduction": "7000",
+  "fed.agi": "111000",
+  "fed.taxable_income": "96000",
+  "fed.refund_or_due": "-1040"
+ }
+}

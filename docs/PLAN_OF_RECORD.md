@@ -5,8 +5,10 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 2 (Blueprint §7.2) — built; live-project provisioning pending an
-operator permission click.** Phase 1 accepted (operator: "proceed",
+**Phase 3 (Blueprint §7.3) — core ported and green; `gates` (with
+graph-derived tie-outs) and `forms` (+ field-map harness) in progress.
+Phase 2 built; live-project provisioning pending an operator permission
+click.** Phase 1 accepted (operator: "proceed",
 2026-08-26), including its three deviation flags and region = us-east-2.
 
 ## In scope now
@@ -61,9 +63,23 @@ operator permission click.** Phase 1 accepted (operator: "proceed",
 3. G9 endpoint-level scan test arrives with the first upload endpoints
    (Phase 4), per the §9.1 note in GATE-PROOFS.md.
 
+## Phase 3 progress
+
+- Ported verbatim (namespace-renamed to @taxfs): `shared` (Money, concepts,
+  rules loaders, AHC harness), `kernel`, `kernel2`, all 42 goldens, the
+  divergence suite, `rules/` fixtures. Kernel test files renamed by SUBJECT
+  (Blueprint §8) — no wave numbers.
+- Two real defects found by TaxFS walls during the port (GATE-PROOFS.md):
+  kernel2 index arithmetic (money-lint) and the hardcoded §219(g)(2)(B)
+  $200 floor in both kernels (values audit) — the floor is now cited rule
+  data. Goldens and divergence unchanged and green.
+- Remaining in phase: `gates` port with tie-outs consuming the kernel's
+  emitted dependency graph (§1.2/§3.2), `forms` + field-map verification
+  harness (G10 negative test).
+
 ## Deferred to their phases (not started)
 
-- Phase 3: verbatim ports — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Phase 4+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 

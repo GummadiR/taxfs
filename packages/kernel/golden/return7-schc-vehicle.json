@@ -1,0 +1,93 @@
+{
+ "name": "return7-schc-vehicle",
+ "description": "Single filer, one Schedule C business with standard-mileage vehicle: receipts $50,000, office $3,000, 10,000 business miles x $0.70 = $7,000 -> net profit $40,000. Hand-verified: SE net earnings 40000x0.9235=36940, SE tax 36940x0.153=5651.82->5652, deduction 2826.",
+ "note": "Expected outputs computed from PLACEHOLDER fixture rule-data. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:alpha:gross",
+   "concept": "schc.alpha.gross_receipts",
+   "value": "50000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:office",
+   "concept": "schc.alpha.expense.office",
+   "value": "3000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:alpha:miles",
+   "concept": "schc.alpha.vehicle.business_miles",
+   "value": "10000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:est:fed",
+   "concept": "payments.fed.estimated",
+   "value": "8000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:est:il",
+   "concept": "payments.il.estimated",
+   "value": "2000",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "0",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.alpha.vehicle.deduction": "7000",
+  "schc.alpha.net_profit": "40000",
+  "fed.schc.net_profit.total": "40000",
+  "fed.se_tax.total": "5652",
+  "fed.se_tax.deduction": "2826",
+  "fed.total_income": "40000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "37174",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "4435",
+  "fed.taxable_income": "17739",
+  "fed.tax.ordinary": "1929",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "1929",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "1929",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "8000",
+  "fed.payments.total": "8000",
+  "fed.tax.liability.total": "7581",
+  "fed.refund_or_due": "419",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "37174",
+  "il.exemption.total": "2775",
+  "il.net_income": "34399",
+  "il.tax": "1703",
+  "il.withholding.total": "0",
+  "il.estimated.total": "2000",
+  "il.payments.total": "2000",
+  "il.refund_or_due": "297",
+  "fed.sch1.additional_income.total": "40000",
+  "fed.sch1.adjustments_total": "2826",
+  "fed.sch2.total": "5652"
+ }
+}

@@ -1,0 +1,72 @@
+{
+ "name": "return30-schedule-a-salt",
+ "description": "P67 Schedule A: MFJ wages 228,946; property tax 17,144 and IL withholding 11,193 are picked up AUTOMATICALLY as SALT (28,337, under the 40,000 cap), plus mortgage interest 3,664 and charity 960 -> Schedule A 32,961, which BEATS the 30,000 standard deduction.",
+ "note": "Hand-verified: taxable 228,946-32,961=195,985. Tax 2,000+7,200+22,000+(15,985 x 24%=3,836)=35,036; wh 32,282 -> owe 2,754. IL net 228,946-5,552=223,394 x 4.95%=11,058, less ICR 857 -> 10,201; wh 11,193 -> refund 992. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "228946",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "32282",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "11193",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:icr:ptax",
+   "concept": "il.property_tax.residence",
+   "value": "17144",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:1098:int",
+   "concept": "deduction.sch_a.mortgage_interest",
+   "value": "3664",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:don:char",
+   "concept": "deduction.sch_a.charitable",
+   "value": "960",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.sch_a.salt.before_cap": "28337",
+  "fed.sch_a.salt.allowed": "28337",
+  "fed.sch_a.interest": "3664",
+  "fed.sch_a.total": "32961",
+  "fed.agi": "228946",
+  "fed.deduction.applied": "32961",
+  "fed.taxable_income": "195985",
+  "fed.tax.total": "35036",
+  "fed.tax.liability.total": "35036",
+  "fed.refund_or_due": "-2754",
+  "il.tax": "11058",
+  "il.refund_or_due": "992"
+ }
+}

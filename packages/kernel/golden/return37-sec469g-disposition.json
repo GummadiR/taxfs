@@ -1,0 +1,92 @@
+{
+ "name": "return37-sec469g-disposition",
+ "description": "P58 §469(g)(1): an S-corp interest disposed of in a fully taxable transaction. The 3,203 current-year loss is allowed on basis, and the 905 of prior-year suspended passive loss held on the nonpassive activity is RELEASED -> 4,108 total.",
+ "note": "Hand-verified: allowed_net -4,108 (3,203 current + 905 released). AGI 150,000-4,108=145,892; taxable 115,892 -> tax 2,000+7,200+(35,892 x 24%=7,896)=17,096; wh 20,000 -> refund 2,904. IL net 140,342 x 4.95%=6,947; wh 7,000 -> refund 53. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "150000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "20000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "7000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:k1:box1",
+   "concept": "k1.acme.box1",
+   "value": "-3203",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:scorp",
+   "concept": "k1.acme.is_scorp",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:mp",
+   "concept": "k1.acme.material_participation",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:basis",
+   "concept": "k1.acme.basis_opening",
+   "value": "100000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:carry",
+   "concept": "k1.acme.passive_carryover",
+   "value": "905",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:k1:disposed",
+   "concept": "k1.acme.disposed_entire_interest",
+   "value": "1",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "k1.acme.allowed_net": "-4108",
+  "fed.sche.k1_total": "-4108",
+  "fed.agi": "145892",
+  "fed.taxable_income": "115892",
+  "fed.tax.total": "17096",
+  "fed.refund_or_due": "2904",
+  "il.tax": "6947",
+  "il.refund_or_due": "53"
+ }
+}

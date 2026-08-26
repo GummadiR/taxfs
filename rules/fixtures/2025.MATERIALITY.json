@@ -1,0 +1,14 @@
+{
+  "_meta": {
+    "kind": "MATERIALITY-POLICY",
+    "policy_version": "2025.MATERIALITY.1.0",
+    "tax_year": 2025
+  },
+  "parameters": {
+    "yoy_variance_ratio": "0.20",
+    "yoy_variance_floor": "1000",
+    "missing_source_floor": "100",
+    "critical_value_floor": "1000"
+  },
+  "notes": "Owner policy, not statute: a YoY line variance is material when it exceeds BOTH 20% and $1,000 (Gate 9); a prior-year payer absent this year is flagged when its prior amount was >= $100 (Gate 3); extracted values >= $1,000 are critical (type-to-verify at intake). Gate runs cite policy_version."
+}

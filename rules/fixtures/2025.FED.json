@@ -1,0 +1,1085 @@
+{
+ "rule_version": "2025.FED.0.0.1-PLACEHOLDER",
+ "tax_year": 2025,
+ "jurisdiction": "FED",
+ "status": "draft",
+ "notice": "EVERY figure in this file is a structural placeholder. Nothing here computes real tax until a signed rule set exists (workstream B authoring + J compliance gate). Values are deliberately round numbers, NOT current-year IRS figures.",
+ "parameters": {
+  "standard_deduction": {
+   "single": {
+    "value": "15000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "mfj": {
+    "value": "30000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "mfs": {
+    "value": "15000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "hoh": {
+    "value": "22500",
+    "status": "PLACEHOLDER — verify"
+   },
+   "additional_age65_or_blind_single": {
+    "value": "2000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "additional_age65_or_blind_married_per_person": {
+    "value": "1600",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "early_distribution_additional_tax": {
+   "rate": {
+    "value": "0.10",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "schedule_a": {
+   "medical_agi_floor_pct": {
+    "value": "0.075",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_cap": {
+    "value": "40000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_cap_mfs": {
+    "value": "20000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_phasedown_agi": {
+    "value": "500000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_phasedown_agi_mfs": {
+    "value": "250000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_phasedown_rate": {
+    "value": "0.30",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_cap_floor": {
+    "value": "10000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "salt_cap_floor_mfs": {
+    "value": "5000",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "foreign_tax_credit_de_minimis": {
+   "limit_mfj": {
+    "value": "600",
+    "status": "PLACEHOLDER — verify"
+   },
+   "limit_other": {
+    "value": "300",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "child_dependent_care_credit": {
+   "max_expenses_one_person": {
+    "value": "3000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "max_expenses_two_or_more": {
+    "value": "6000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "rate_max": {
+    "value": "0.35",
+    "status": "PLACEHOLDER — verify"
+   },
+   "rate_min": {
+    "value": "0.20",
+    "status": "PLACEHOLDER — verify"
+   },
+   "phasedown_agi_start": {
+    "value": "15000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "phasedown_agi_step": {
+    "value": "2000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "phasedown_rate_per_step": {
+    "value": "0.01",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "brackets": {
+   "single": [
+    {
+     "up_to": {
+      "value": "10000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.10",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "40000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.12",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "90000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.22",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "180000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.24",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "230000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.32",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "580000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.35",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.37",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "mfj": [
+    {
+     "up_to": {
+      "value": "20000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.10",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "80000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.12",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "180000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.22",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "360000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.24",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "460000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.32",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "1160000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.35",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.37",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "mfs": [
+    {
+     "up_to": {
+      "value": "10000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.10",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "40000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.12",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "90000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.22",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "180000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.24",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "230000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.32",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "580000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.35",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.37",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "hoh": [
+    {
+     "up_to": {
+      "value": "14000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.10",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "55000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.12",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "90000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.22",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "180000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.24",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "230000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.32",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "580000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.35",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.37",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ]
+  },
+  "capital_gains_brackets": {
+   "single": [
+    {
+     "up_to": {
+      "value": "48000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "530000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.15",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.20",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "mfj": [
+    {
+     "up_to": {
+      "value": "96000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "600000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.15",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.20",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "mfs": [
+    {
+     "up_to": {
+      "value": "48000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "300000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.15",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.20",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "hoh": [
+    {
+     "up_to": {
+      "value": "64000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": {
+      "value": "560000",
+      "status": "PLACEHOLDER — verify"
+     },
+     "rate": {
+      "value": "0.15",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to": null,
+     "rate": {
+      "value": "0.20",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ]
+  },
+  "authority_grades": {
+   "deduction.itemized.total": {
+    "value": "reasonable_basis",
+    "status": "PLACEHOLDER — verify"
+   },
+   "credits.sch3.total": {
+    "value": "substantial_authority",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "credit_finder": {
+   "saver_credit_agi_max": {
+    "value": "40000",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "self_employment": {
+   "ss_wage_base": {
+    "value": "176100",
+    "status": "PLACEHOLDER — verify"
+   },
+   "ss_rate": {
+    "value": "0.124",
+    "status": "PLACEHOLDER — verify"
+   },
+   "medicare_rate": {
+    "value": "0.029",
+    "status": "PLACEHOLDER — verify"
+   },
+   "net_earnings_factor": {
+    "value": "0.9235",
+    "status": "PLACEHOLDER — verify"
+   },
+   "se_tax_floor": {
+    "value": "400",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "schedule_c": {
+   "meals_deductible_rate": {
+    "value": "0.50",
+    "status": "PLACEHOLDER — verify"
+   },
+   "startup_expense_cap": {
+    "value": "5000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "startup_phaseout_threshold": {
+    "value": "50000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "startup_amortization_months": {
+    "value": "180",
+    "status": "PLACEHOLDER — verify"
+   },
+   "homeoffice_simplified_rate": {
+    "value": "5",
+    "status": "PLACEHOLDER — verify"
+   },
+   "homeoffice_simplified_sqft_cap": {
+    "value": "300",
+    "status": "PLACEHOLDER — verify"
+   },
+   "standard_mileage_rate": {
+    "value": "0.70",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "depreciation": {
+   "sec179_cap": {
+    "value": "2500000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "sec179_phaseout_threshold": {
+    "value": "4000000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "bonus_rate": {
+    "value": "0.40",
+    "status": "PLACEHOLDER — verify"
+   },
+   "macrs_hy": {
+    "5": [
+     {
+      "value": "0.20",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.32",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.192",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.1152",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.1152",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.0576",
+      "status": "PLACEHOLDER — verify"
+     }
+    ],
+    "7": [
+     {
+      "value": "0.1429",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.2449",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.1749",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.1249",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.0893",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.0892",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.0893",
+      "status": "PLACEHOLDER — verify"
+     },
+     {
+      "value": "0.0446",
+      "status": "PLACEHOLDER — verify"
+     }
+    ]
+   }
+  },
+  "sec469i": {
+   "allowance": {
+    "value": "25000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "allowance_mfs": {
+    "value": "12500",
+    "status": "PLACEHOLDER — verify"
+   },
+   "phaseout_start": {
+    "value": "100000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "phaseout_rate": {
+    "value": "0.5",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "schedule_d": {
+   "capital_loss_cap": {
+    "value": "3000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "capital_loss_cap_mfs": {
+    "value": "1500",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "qbi": {
+   "rate": {
+    "value": "0.20",
+    "status": "PLACEHOLDER — verify"
+   },
+   "threshold": {
+    "single": {
+     "value": "197300",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfj": {
+     "value": "394600",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfs": {
+     "value": "197300",
+     "status": "PLACEHOLDER — verify"
+    },
+    "hoh": {
+     "value": "197300",
+     "status": "PLACEHOLDER — verify"
+    }
+   }
+  },
+  "ptc": {
+   "fpl_base": {
+    "value": "15000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "fpl_per_additional": {
+    "value": "5000",
+    "status": "PLACEHOLDER — verify"
+   },
+   "cliff_pct": {
+    "value": "400",
+    "status": "PLACEHOLDER — verify"
+   },
+   "applicable_points": [
+    {
+     "at_pct": {
+      "value": "150",
+      "status": "PLACEHOLDER — verify"
+     },
+     "figure": {
+      "value": "0.04",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "at_pct": {
+      "value": "200",
+      "status": "PLACEHOLDER — verify"
+     },
+     "figure": {
+      "value": "0.06",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "at_pct": {
+      "value": "300",
+      "status": "PLACEHOLDER — verify"
+     },
+     "figure": {
+      "value": "0.08",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "at_pct": {
+      "value": "400",
+      "status": "PLACEHOLDER — verify"
+     },
+     "figure": {
+      "value": "0.085",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ],
+   "repayment_caps": [
+    {
+     "up_to_pct": {
+      "value": "200",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_single": {
+      "value": "375",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_other": {
+      "value": "750",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to_pct": {
+      "value": "300",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_single": {
+      "value": "975",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_other": {
+      "value": "1950",
+      "status": "PLACEHOLDER — verify"
+     }
+    },
+    {
+     "up_to_pct": {
+      "value": "400",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_single": {
+      "value": "1625",
+      "status": "PLACEHOLDER — verify"
+     },
+     "cap_other": {
+      "value": "3250",
+      "status": "PLACEHOLDER — verify"
+     }
+    }
+   ]
+  },
+  "additional_medicare": {
+   "rate": {
+    "value": "0.009",
+    "status": "PLACEHOLDER — verify"
+   },
+   "regular_wh_rate": {
+    "value": "0.0145",
+    "status": "PLACEHOLDER — verify"
+   },
+   "threshold": {
+    "single": {
+     "value": "200000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfj": {
+     "value": "250000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfs": {
+     "value": "125000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "hoh": {
+     "value": "200000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "qss": {
+     "value": "250000",
+     "status": "PLACEHOLDER — verify"
+    }
+   }
+  },
+  "niit": {
+   "rate": {
+    "value": "0.038",
+    "status": "PLACEHOLDER — verify"
+   },
+   "threshold": {
+    "single": {
+     "value": "200000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfj": {
+     "value": "250000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "mfs": {
+     "value": "125000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "hoh": {
+     "value": "200000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "qss": {
+     "value": "250000",
+     "status": "PLACEHOLDER — verify"
+    }
+   }
+  },
+  "residential_clean_energy": {
+   "rate": {
+    "value": "0.30",
+    "status": "PLACEHOLDER — verify"
+   }
+  },
+  "retirement_contributions": {
+   "hsa": {
+    "limit_self_only": {
+     "value": "4300",
+     "status": "PLACEHOLDER — verify"
+    },
+    "limit_family": {
+     "value": "8550",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up": {
+     "value": "1000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_age": 55
+   },
+   "ira": {
+    "limit": {
+     "value": "7000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up": {
+     "value": "1000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_age": 50,
+    "reduced_limit_floor": {
+     "value": "200",
+     "status": "PLACEHOLDER — verify"
+    },
+    "deduction_phaseout": {
+     "single": {
+      "start": {
+       "value": "79000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "89000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "hoh": {
+      "start": {
+       "value": "79000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "89000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "mfj": {
+      "start": {
+       "value": "126000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "146000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "qss": {
+      "start": {
+       "value": "126000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "146000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "mfs": {
+      "start": {
+       "value": "0",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "10000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "mfj_spouse_covered": {
+      "start": {
+       "value": "236000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "246000",
+       "status": "PLACEHOLDER — verify"
+      }
+     }
+    },
+    "roth_phaseout": {
+     "single": {
+      "start": {
+       "value": "150000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "165000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "hoh": {
+      "start": {
+       "value": "150000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "165000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "mfj": {
+      "start": {
+       "value": "236000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "246000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "qss": {
+      "start": {
+       "value": "236000",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "246000",
+       "status": "PLACEHOLDER — verify"
+      }
+     },
+     "mfs": {
+      "start": {
+       "value": "0",
+       "status": "PLACEHOLDER — verify"
+      },
+      "end": {
+       "value": "10000",
+       "status": "PLACEHOLDER — verify"
+      }
+     }
+    }
+   },
+   "elective_deferral": {
+    "limit": {
+     "value": "23500",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_50": {
+     "value": "7500",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_60_63": {
+     "value": "11250",
+     "status": "PLACEHOLDER — verify"
+    }
+   },
+   "simple": {
+    "limit": {
+     "value": "16500",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_50": {
+     "value": "3500",
+     "status": "PLACEHOLDER — verify"
+    },
+    "catch_up_60_63": {
+     "value": "5250",
+     "status": "PLACEHOLDER — verify"
+    }
+   },
+   "sep": {
+    "compensation_rate": {
+     "value": "0.25",
+     "status": "PLACEHOLDER — verify"
+    },
+    "annual_additions_limit": {
+     "value": "70000",
+     "status": "PLACEHOLDER — verify"
+    },
+    "min_compensation": {
+     "value": "750",
+     "status": "PLACEHOLDER — verify"
+    },
+    "nondeductible_excise_rate": {
+     "value": "0.10",
+     "status": "PLACEHOLDER — verify"
+    }
+   },
+   "excess_contribution_excise": {
+    "rate": {
+     "value": "0.06",
+     "status": "PLACEHOLDER — verify"
+    }
+   }
+  }
+ },
+ "audit_params": {
+  "round_number_multiple": {
+   "value": "1000",
+   "status": "PLACEHOLDER — verify"
+  },
+  "round_number_min_count": {
+   "value": "3",
+   "status": "PLACEHOLDER — verify"
+  },
+  "effective_rate_max": {
+   "value": "0.50",
+   "status": "PLACEHOLDER — verify"
+  }
+ }
+}

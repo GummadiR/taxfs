@@ -1,0 +1,89 @@
+{
+ "name": "entity2-partnership-1065",
+ "description": "Synthetic 1065 partnership: gross 100,000; salaries 20,000 + rents 12,000; guaranteed payment 30,000 to m1 (deducted on page 1, back into the Sch K reconciliation, K-1 box 4 to m1 only); LT gain 10,001 (odd — pins non-even 60/40 rounding: 6,001/4,000); liabilities 20,000 -> 50,000 (Δ30,000 §752 shares 18,000/12,000).",
+ "note": "Hand-verified: ordinary = 100,000 − 62,000 = 38,000 (box1 22,800/15,200); k_total = 38,000 + 10,001 + GP 30,000 = 78,001; IL replacement tax = 78,001 × 0.015 = 1,170.015 -> 1,170 (partnership rate, PLACEHOLDER).",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:pt:scorp",
+   "concept": "entity.pt.is_scorp",
+   "value": "0",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:pt:gross",
+   "concept": "entity.pt.gross_receipts",
+   "value": "100000",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:pt:ded-sal",
+   "concept": "entity.pt.deduction.salaries_wages",
+   "value": "20000",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:pt:ded-rent",
+   "concept": "entity.pt.deduction.rents",
+   "value": "12000",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:pt:k-lt",
+   "concept": "entity.pt.k.lt_gain",
+   "value": "10001",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:pt:liab-beg",
+   "concept": "entity.pt.liabilities_beginning",
+   "value": "20000",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:pt:liab-end",
+   "concept": "entity.pt.liabilities_ending",
+   "value": "50000",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:pt:share-m1",
+   "concept": "entity.pt.member.m1.share",
+   "value": "0.6",
+   "jurisdiction": ["FED"]
+  },
+  {
+   "fact_id": "f:pt:gp-m1",
+   "concept": "entity.pt.member.m1.guaranteed_payment",
+   "value": "30000",
+   "jurisdiction": ["FED", "IL"]
+  },
+  {
+   "fact_id": "f:pt:share-m2",
+   "concept": "entity.pt.member.m2.share",
+   "value": "0.4",
+   "jurisdiction": ["FED"]
+  }
+ ],
+ "expected": {
+  "entity.pt.ordinary_income": "38000",
+  "entity.pt.k_total": "78001",
+  "entity.pt.il.base_income": "78001",
+  "entity.pt.il.replacement_tax": "1170",
+  "k1.pt-m1.box1": "22800",
+  "k1.pt-m2.box1": "15200",
+  "k1.pt-m1.is_scorp": "0",
+  "k1.pt-m2.is_scorp": "0",
+  "k1.pt-m1.capital_gain": "6001",
+  "k1.pt-m2.capital_gain": "4000",
+  "k1.pt-m1.guaranteed_payment": "30000",
+  "k1.pt-m1.liab_change": "18000",
+  "k1.pt-m2.liab_change": "12000",
+  "entity.pt.member.m1.k1p_line20": "22800",
+  "entity.pt.member.m2.k1p_line20": "15200",
+  "entity.pt.member.m1.k1p_line27": "6001",
+  "entity.pt.member.m2.k1p_line27": "4000",
+  "entity.pt.member.m1.k1p_line29": "30000"
+ }
+}

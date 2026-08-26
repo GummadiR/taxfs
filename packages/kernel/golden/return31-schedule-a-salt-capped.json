@@ -1,0 +1,51 @@
+{
+ "name": "return31-schedule-a-salt-capped",
+ "description": "P67 §164(b)(6): MFJ with property tax 35,000 + IL withholding 20,000 = 55,000 of SALT, CAPPED at 40,000. No other Schedule A item — the schedule runs anyway because SALT alone beats the standard deduction.",
+ "note": "Hand-verified: SALT 55,000 -> cap 40,000 (AGI under the 500,000 phase-down). Deduction 40,000 vs standard 30,000. Taxable 228,946-40,000=188,946. Tax 2,000+7,200+22,000+(8,946 x 24%=2,147)=33,347. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "228946",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "32282",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "20000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:icr:ptax",
+   "concept": "il.property_tax.residence",
+   "value": "35000",
+   "jurisdiction": [
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.sch_a.salt.before_cap": "55000",
+  "fed.sch_a.salt.allowed": "40000",
+  "fed.sch_a.total": "40000",
+  "fed.agi": "228946",
+  "fed.deduction.applied": "40000",
+  "fed.taxable_income": "188946",
+  "fed.tax.total": "33347"
+ }
+}

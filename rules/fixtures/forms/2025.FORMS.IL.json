@@ -1,0 +1,422 @@
+{
+ "release": "2025.FORMS.IL.0.0.1-PLACEHOLDER",
+ "jurisdiction": "IL",
+ "tax_year": 2025,
+ "notice": "Every line id, label, IL field name, and attachment condition is a STRUCTURAL PLACEHOLDER — verify against current-year IL DoR specifications before any real use.",
+ "forms": [
+  {
+   "form_id": "IL1040",
+   "revision": "IL1040-2025.0-PLACEHOLDER",
+   "source_schema_ref": "ildor://2025/IL-1040 (PLACEHOLDER — procure real IL DoR spec)",
+   "pdf_template_ref": "pdf-template:IL1040:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "always"
+   },
+   "attachment_order": 0,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "IL1040.1",
+     "label": "Federal adjusted gross income",
+     "il_field": "IL1040_AGIAmt",
+     "datatype": "money",
+     "from_concept": "fed.agi",
+     "sign_convention": "as_is",
+     "must_equal": {
+      "form_id": "1040",
+      "line_id": "1040.11"
+     },
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.7",
+     "label": "Subtractions (Schedule M)",
+     "il_field": "IL1040_SubtractionsAmt",
+     "datatype": "money",
+     "from_concept": "il.sch_m.subtractions",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "must_equal": {
+      "form_id": "SCHM",
+      "line_id": "SCHM.42"
+     },
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.9",
+     "label": "Illinois base income",
+     "il_field": "IL1040_BaseIncomeAmt",
+     "datatype": "money",
+     "from_concept": "il.base_income",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.10",
+     "label": "Exemption allowance",
+     "il_field": "IL1040_ExemptionAmt",
+     "datatype": "money",
+     "from_concept": "il.exemption.total",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.11",
+     "label": "Net income",
+     "il_field": "IL1040_NetIncomeAmt",
+     "datatype": "money",
+     "from_concept": "il.net_income",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.12",
+     "label": "Income tax (flat rate)",
+     "il_field": "IL1040_TaxAmt",
+     "datatype": "money",
+     "from_concept": "il.tax",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.25",
+     "label": "Illinois income tax withheld",
+     "il_field": "IL1040_WithholdingAmt",
+     "datatype": "money",
+     "from_concept": "il.withholding.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "must_equal": {
+      "form_id": "SCHILWIT",
+      "line_id": "SCHILWIT.5"
+     },
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.26",
+     "label": "Estimated payments",
+     "il_field": "IL1040_EstimatedPaymentsAmt",
+     "datatype": "money",
+     "from_concept": "il.estimated.total",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.31",
+     "label": "Total payments",
+     "il_field": "IL1040_TotalPaymentsAmt",
+     "datatype": "money",
+     "from_concept": "il.payments.total",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.37",
+     "label": "Overpayment (refund, net of any IL-2210 penalty)",
+     "il_field": "IL1040_RefundAmt",
+     "datatype": "money",
+     "from_concept": "il.net_amount_due",
+     "sign_convention": "positive_only",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.41",
+     "label": "Amount you owe (total tax + IL-2210 penalty)",
+     "il_field": "IL1040_BalanceDueAmt",
+     "datatype": "money",
+     "from_concept": "il.net_amount_due",
+     "sign_convention": "abs_of_negative",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.16",
+     "label": "Property tax credit (Schedule ICR line 13)",
+     "il_field": "IL1040_ICRCreditAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "must_equal": {
+      "form_id": "SCHICR",
+      "line_id": "ICR.13"
+     },
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.15",
+     "label": "Income tax paid to another state while an Illinois resident (Sch CR)",
+     "il_field": "IL1040_OtherStateCreditAmt",
+     "datatype": "money",
+     "from_concept": "il.credit.tax_paid_other_states",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.18",
+     "label": "Total nonrefundable credits (Sch CR + Schedule ICR; 1299-C is a recorded gap)",
+     "il_field": "IL1040_TotalCreditsAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.21",
+     "label": "Use tax on out-of-state purchases",
+     "il_field": "IL1040_UseTaxAmt",
+     "datatype": "money",
+     "from_concept": "il.use_tax",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.23",
+     "label": "Total tax (line 19 + use tax)",
+     "il_field": "IL1040_TotalTaxAmt",
+     "datatype": "money",
+     "from_concept": "il.total_tax",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.28",
+     "label": "Pass-through entity tax credit (Sch K-1-P/K-1-T)",
+     "il_field": "IL1040_PTECreditAmt",
+     "datatype": "money",
+     "from_concept": "payments.il.pte_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.34",
+     "label": "Late-payment penalty for underpayment of estimated tax (IL-2210)",
+     "il_field": "IL1040_EstPenaltyAmt",
+     "datatype": "money",
+     "from_concept": "penalty.il.estimated_tax",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.19",
+     "label": "Tax after nonrefundable credits",
+     "il_field": "IL1040_TaxAfterCreditsAmt",
+     "datatype": "money",
+     "from_concept": "il.tax_after_credits",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.2",
+     "label": "Federally tax-exempt interest and dividend income (fed 1040 line 2a)",
+     "il_field": "IL1040_TaxExemptInterestAmt",
+     "datatype": "money",
+     "from_concept": "il.tax_exempt_interest.addback",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "IL1040.3",
+     "label": "Other additions (Schedule M)",
+     "il_field": "IL1040_OtherAdditionsAmt",
+     "datatype": "money",
+     "from_concept": "il.sch_m.additions",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify",
+     "optional": true
+    },
+    {
+     "line_id": "IL1040.4",
+     "label": "Total income. Add lines 1 through 3",
+     "il_field": "IL1040_TotalIncomeAmt",
+     "datatype": "money",
+     "from_concept": "il.total_income",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.10a",
+     "label": "Exemption amount for yourself and your spouse",
+     "il_field": "IL1040_ExemptionBaseAmt",
+     "datatype": "money",
+     "from_concept": "il.exemption.base_persons",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.24",
+     "label": "Total tax from Page 1, Line 23",
+     "il_field": "IL1040_TotalTaxPage2Amt",
+     "datatype": "money",
+     "from_concept": "il.total_tax",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.32",
+     "label": "If Line 31 is greater than Line 24, subtract Line 24 from Line 31",
+     "il_field": "IL1040_OverpaymentAmt",
+     "datatype": "money",
+     "from_concept": "il.refund_or_due",
+     "sign_convention": "positive_only",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "IL1040.33",
+     "label": "If Line 24 is greater than Line 31, subtract Line 31 from Line 24",
+     "il_field": "IL1040_AmountOwedAmt",
+     "datatype": "money",
+     "from_concept": "il.refund_or_due",
+     "sign_convention": "abs_of_negative",
+     "omit_when_zero": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  },
+  {
+   "form_id": "SCHM",
+   "revision": "SCHM-2025.0-PLACEHOLDER",
+   "source_schema_ref": "ildor://2025/Schedule-M (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:SCHM:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_nonzero",
+    "concept": "il.sch_m.subtractions"
+   },
+   "attachment_order": 10,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHM.42",
+     "label": "Total Subtractions (Step 3, line 42 → IL-1040 line 7)",
+     "il_field": "SCHM_TotalSubtractionsAmt",
+     "datatype": "money",
+     "from_concept": "il.sch_m.subtractions",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    }
+   ],
+   "gap_note": "Corrected P11 (CPA review): the 2025 Schedule M line 11 is in Step 2 ADDITIONS (\"Total Additions\" is line 12); the subtractions total feeding IL-1040 line 7 is Step 3 line 42. line_id renamed SCHM.11 -> SCHM.42, verified against the official PDF."
+  },
+  {
+   "form_id": "SCHILWIT",
+   "revision": "SCHILWIT-2025.0-PLACEHOLDER",
+   "source_schema_ref": "ildor://2025/Schedule-IL-WIT (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:SCHILWIT:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_present",
+    "concept": "payments.il.withholding"
+   },
+   "attachment_order": 20,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "SCHILWIT.5",
+     "label": "Total Illinois withholding",
+     "il_field": "SCHILWIT_TotalWithholdingAmt",
+     "datatype": "money",
+     "from_concept": "il.withholding.total",
+     "sign_convention": "as_is",
+     "status": "PLACEHOLDER — verify"
+    }
+   ]
+  },
+  {
+   "form_id": "SCHICR",
+   "revision": "SCHICR-2025.0-PLACEHOLDER",
+   "source_schema_ref": "ildor://2025/Schedule-ICR (PLACEHOLDER)",
+   "pdf_template_ref": "pdf-template:SCHICR:2025-PLACEHOLDER",
+   "required_when": {
+    "kind": "concept_nonzero",
+    "concept": "il.property_tax.residence"
+   },
+   "attachment_order": 15,
+   "status": "PLACEHOLDER — verify",
+   "lines": [
+    {
+     "line_id": "ICR.1",
+     "label": "Tax from IL-1040 line 14",
+     "il_field": "ICR_TaxAmt",
+     "datatype": "money",
+     "from_concept": "il.tax",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "ICR.3",
+     "label": "Line 1 minus line 2 (other-state credit not modeled)",
+     "il_field": "ICR_TaxAfterL2Amt",
+     "datatype": "money",
+     "from_concept": "il.tax",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "ICR.4a",
+     "label": "Illinois property tax paid on principal residence",
+     "il_field": "ICR_PropertyTaxPaidAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_paid",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "ICR.4f",
+     "label": "Line 4a minus 4e (business-use portion not modeled)",
+     "il_field": "ICR_PropertyTaxNetAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_paid",
+     "sign_convention": "as_is",
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "ICR.5",
+     "label": "Lesser of line 3 and line 4g",
+     "il_field": "ICR_PropertyCreditAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    },
+    {
+     "line_id": "ICR.13",
+     "label": "Total nonrefundable credit (lines 5 + 8 + 11; B and C not modeled)",
+     "il_field": "ICR_TotalCreditAmt",
+     "datatype": "money",
+     "from_concept": "il.icr.property_tax_credit",
+     "sign_convention": "as_is",
+     "omit_when_zero": true,
+     "optional": true,
+     "status": "PLACEHOLDER — verify"
+    }
+   ],
+   "gap_note": "Minimal ICR printing (P11): Section A only — K-12 (Section B) and volunteer emergency worker (Section C) credits are not modeled; line 4g (uncapped 5% intermediate) is not kernel-emitted, left for the filer per instructions; 4e business-use portion not modeled (4f prints = 4a)."
+  }
+ ]
+}

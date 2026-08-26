@@ -1,0 +1,65 @@
+{
+ "name": "return13-se-floor",
+ "description": "Critique-fix F1 regression: Schedule C net profit 400 -> net earnings 369 (< the §6017 $400 floor) -> NO SE tax and NO half-SE deduction.",
+ "note": "Expected computed from PLACEHOLDER fixture rule-data. Hand-verified: 400 x 0.9235 = 369.4 -> 369 < 400 floor; se_tax facts absent; AGI 400. PLACEHOLDER — verify.",
+ "filing_status": "single",
+ "il_exemption_count": 1,
+ "facts": [
+  {
+   "fact_id": "f:biz:gross",
+   "concept": "schc.solo.gross_receipts",
+   "value": "500",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:biz:office",
+   "concept": "schc.solo.expense.office",
+   "value": "100",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "0",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "schc.solo.net_profit": "400",
+  "fed.schc.net_profit.total": "400",
+  "fed.total_income": "400",
+  "fed.adjustments.total": "0",
+  "fed.agi": "400",
+  "fed.deduction.standard": "15000",
+  "fed.deduction.applied": "15000",
+  "fed.qbi.deduction": "0",
+  "fed.taxable_income": "0",
+  "fed.tax.ordinary": "0",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "0",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "0",
+  "fed.withholding.total": "0",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "0",
+  "fed.tax.liability.total": "0",
+  "fed.refund_or_due": "0",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "400",
+  "il.exemption.total": "2775",
+  "il.net_income": "0",
+  "il.tax": "0",
+  "il.withholding.total": "0",
+  "il.estimated.total": "0",
+  "il.payments.total": "0",
+  "il.refund_or_due": "0",
+  "fed.sch1.additional_income.total": "400",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

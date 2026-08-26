@@ -1,0 +1,76 @@
+{
+ "name": "return9-hoh-itemized",
+ "description": "Head of household, W-2 $70k + itemized deductions $25,000 beating the HOH standard deduction ($22,500 stub). IL exemptions 2 (HOH + dependent).",
+ "note": "Expected computed from PLACEHOLDER fixture rule-data. PLACEHOLDER — verify.",
+ "filing_status": "hoh",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "70000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "3400",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:scha:itemized",
+   "concept": "deduction.itemized.total",
+   "value": "25000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.wages.total": "70000",
+  "fed.interest.total": "0",
+  "fed.dividends.ordinary.total": "0",
+  "fed.dividends.qualified.total": "0",
+  "fed.capital_gain.net.total": "0",
+  "fed.retirement.total": "0",
+  "fed.total_income": "70000",
+  "fed.adjustments.total": "0",
+  "fed.agi": "70000",
+  "fed.deduction.standard": "22500",
+  "fed.deduction.applied": "25000",
+  "fed.taxable_income": "45000",
+  "fed.tax.ordinary": "5120",
+  "fed.tax.capgain": "0",
+  "fed.tax.total": "5120",
+  "fed.credits.total": "0",
+  "fed.tax_after_credits": "5120",
+  "fed.withholding.total": "7000",
+  "fed.estimated.total": "0",
+  "fed.payments.total": "7000",
+  "fed.tax.liability.total": "5120",
+  "fed.refund_or_due": "1880",
+  "il.sch_m.subtractions": "0",
+  "il.base_income": "70000",
+  "il.exemption.total": "5550",
+  "il.net_income": "64450",
+  "il.tax": "3190",
+  "il.withholding.total": "3400",
+  "il.estimated.total": "0",
+  "il.payments.total": "3400",
+  "il.refund_or_due": "210",
+  "fed.sch1.adjustments_total": "0"
+ }
+}

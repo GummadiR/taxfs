@@ -1,0 +1,76 @@
+{
+ "name": "return32-foreign-ltcg-declared",
+ "description": "P68 foreign long-term gain DECLARED: 8,000,000 foreign units at 80/USD = 100,000, all long-term, with 800,000 units (10,000) of foreign tax. Lands on Sch D Part II and is taxed preferentially; Form 1116 §904(b)(2)(B) scales it.",
+ "note": "Hand-verified: AGI 220,000; taxable 190,000. QDCGT ordinary 90,000 -> 11,400; preferential 100,000 with 6,000 in the 0% band and 94,000 x 15%=14,100 -> tax 25,500. FTC limit = 25,500 x (40,541/190,000) = 5,441 < 10,000 paid. Liability 20,059; wh 20,000 -> owe 59. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "120000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "20000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "5000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:15cb:income",
+   "concept": "foreign.income.passive.foreign_currency",
+   "value": "8000000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:15cb:ltcg",
+   "concept": "foreign.income.passive.ltcg.foreign_currency",
+   "value": "8000000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:15cb:tax",
+   "concept": "foreign.tax_paid.foreign_currency",
+   "value": "800000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:15cb:fx",
+   "concept": "foreign.fx.units_per_usd",
+   "value": "80",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.schd.lt_net": "100000",
+  "fed.schd.net_capital_gain": "100000",
+  "fed.credit.foreign_tax": "5441",
+  "fed.agi": "220000",
+  "fed.taxable_income": "190000",
+  "fed.tax.total": "25500",
+  "fed.tax.liability.total": "20059",
+  "fed.refund_or_due": "-59"
+ }
+}

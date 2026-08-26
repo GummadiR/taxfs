@@ -1,0 +1,199 @@
+{
+ "_meta": {
+  "kind": "CAPABILITY-REGISTRY",
+  "tax_year": 2025,
+  "notes": "Gate 1 scope qualification (REQUIREMENTS §3, ARCHITECTURE §3.3). Status advances ONLY when the §4 verification conditions hold; evidence records why. Honest current state: nothing is production_ready yet — the 1040 core has goldens and an in-memory-verified contract but rules are unsigned and XML validates against stub schemas only."
+ },
+ "capabilities": [
+  {
+   "form_family": "1040_core",
+   "status": "verified",
+   "evidence": {
+    "golden_returns": [
+     "return1..return11 — all 5 filing statuses (incl. QSS §2(a) fallback), std-vs-itemized both branches, SE, §195, 8829, vehicle, §179/bonus/MACRS, IL-4562 decoupling"
+    ],
+    "gaps_to_production_ready": [
+     "rules release still in review (unsigned)",
+     "XML validated against stub XSD, not real MeF schemas",
+     "external cross-check: 2022 back-test confirms the IL base-income derivation (base = fed AGI when no Sch M items) but headline rate/deduction lines remain unverified against a signed rule set",
+     "IL-1040 credits not modeled at all — the 2022 oracle claims the property-tax credit (5% of principal-residence property tax, $732); needed for a real IL return (docs/reviews/BACKTEST-2022.md addendum)"
+    ],
+    "landed": [
+     "P1.8: kernel2 independent calculator — headline lines recomputed by a separate implementation (no kernel import, CI-enforced); divergence red-builds on every golden",
+     "P1.9: golden library expanded to 11 returns; kernel2 divergence suite auto-covers every golden",
+     "P1.10: §6017 $400 SE floor in both kernels — golden return13"
+    ]
+   }
+  },
+  {
+   "form_family": "capital_gains",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P2.1: Sch D/8949 lot netting (ST/LT), §1091 wash-sale add-back, §1211(b) $3,000/$1,500-MFS cap, Pub 550 ST-first carryover worksheet, §1(h) net-capital-gain preferential feed — goldens return14-16; kernel2 mirrored with divergence coverage",
+     "P12.2 status review: promoted in_development -> verified. P2 goldens return14-16 hand-verified (ST/LT netting, §1211(b) cap, Pub 550 carryover worksheet, §1091 add-back); kernel2 divergence green; official Sch D/8949 PDFs mapped (P11.3)."
+    ],
+    "gaps_to_production_ready": [
+     "carryover.out -> capital_loss register wiring at year-close",
+     "8949 box categories (basis reported/not reported) untracked",
+     "28% collectibles / unrecaptured §1250 rate groups unhandled",
+     "term fact 0/1 encoding needs a diagnostics-gate validity check",
+     "wash-sale detection itself is intake/critic work (kernel only honors the disallowed amount)",
+     "rules unsigned",
+     "no external known-good cross-check"
+    ]
+   }
+  },
+  {
+   "form_family": "social_security",
+   "status": "in_development",
+   "evidence": {
+    "gaps_to_production_ready": [
+     "federal taxable-portion worksheet not modeled (IL subtraction path only)"
+    ]
+   }
+  },
+  {
+   "form_family": "schedule_c",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P1.1: kernel Sch C sub-DAG (per-entity net profit, §274(n) meals limit kernel-applied)",
+     "P1.1: SE tax with SS wage-base coordination + half-SE-tax deduction",
+     "P1.1: golden return4-schc-se (hand-verified SE lines)",
+     "P1.2: IRC §195 startup costs (first-year cap, $50k phaseout, 180-month amortization) — golden return5",
+     "P1.3: Form 8829 home office (simplified vs actual greater-of, §280A(c)(5) gross-income limit, carryover_out derived fact) — golden return6",
+     "P1.4: vehicle standard mileage (miles x annual notice rate; no kernel auto-election between methods) — golden return7",
+     "P12.2 status review: promoted in_development -> verified. P1 goldens return4-13 hand-verified (meals §274(n), §195, 8829, vehicle, MACRS/§179); kernel2 divergence green; official Sch C/SE PDFs mapped (P11.3). NOTE: personal-flow entry moved to the business side (P12.2) — sole-prop only."
+    ],
+    "gaps_to_production_ready": [
+     "forms mapping (Sch C/SE/Sch 1/Sch 2 lines)",
+     "rules unsigned",
+     "no external known-good cross-check",
+     "§195 election statement generation (Gate 6)",
+     "8829 carryover_out -> home_office_carryover register wiring at year-close",
+     "mileage-log Gate 5 enforcement (defense-capture linkage)",
+     "vehicle method-consistency Gate 3 check",
+     "8829 actual method omits the home-depreciation component (and its recapture) — F5, P1 critique"
+    ]
+   }
+  },
+  {
+   "form_family": "depreciation",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P1.5: Form 4562 year-1 basics — §179 with dollar cap, §179(b)(2) phaseout, §179(b)(3) income limit (incl. W-2 wages per Reg. §1.179-2(c)(6)(iv)), pro-rata allocation, carryforward fact; §168(k) bonus; MACRS HY year-1 (Pub 946 tables as rule data); assets scoped entity:<id> — golden return8",
+     "P1.7: IL Form IL-4562 decoupling — bonus addback + as-if MACRS subtraction feeding il.base_income (year-1; later years via register)",
+     "P1.10: §179 cumulative-rounding allocation (grouping-invariant, kernel==kernel2 to the dollar) — golden return12",
+     "P12.2 status review: promoted in_development -> verified. P1 goldens return8/12 hand-verified (MACRS half-year, §179 income limit + carryforward, bonus); kernel2 divergence green; IL-4562 decoupling modeled."
+    ],
+    "gaps_to_production_ready": [
+     "multi-year MACRS (years 2+ via depreciation_asset register)",
+     "per-asset bonus rate by acquisition date (OBBBA 100% post-1/19/25 vs 40%)",
+     "mid-quarter/mid-month conventions",
+     "listed property limits",
+     "§179 carryforward register wiring at year-close",
+     "forms mapping (4562 lines)",
+     "rules unsigned",
+     "§179(b)(2) phaseout base uses all-asset basis; refine to §179-eligible property only — F6, P1 critique"
+    ]
+   }
+  },
+  {
+   "form_family": "k1_passthrough",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P3: Sch E p.2 inbound K-1s with loss-limitation ORDERING basis→passive; §704(d) outside basis with §752 liability-share changes; §1366(d)/Form 7203 stock-then-debt basis; §469/8582 aggregate passive limitation with cumulative-rounding pro-rata suspension; suspended .out facts for the basis/passive registers; Form 8995 QBI under-threshold path incl. §199A(c)(4) ½-SE reduction and negative-QBI carryforward — goldens return17-19; kernel2 mirrored",
+     "P3.BT: STRUCTURAL BACK-TEST against an external CPA-prepared 2022 return (docs/reviews/BACKTEST-2022.md; pinned as golden return20) — reproduced to the dollar: AGI, 7203 basis with K-1 capital-gain increases (line 3g), 8582 with passive income offset + prior-year unallowed openings + Part VII per-activity allocation, 8995 negative-QBI carryforward and REIT/PTP line rounding ($4 → $1)",
+     "P3.BT: new inputs k1.<id>.capital_gain (→ Sch D line 11 + basis + 8582 income), k1.<id>.passive_carryover, k1.<id>.qbi_eligible, carryover.qbi, income.reit_ptp.qualified — both kernels",
+     "P12.2 status review: promoted in_development -> verified. P3 BACK-TESTED to the dollar against the CPA-prepared 2022 return (golden return20 + docs/reviews/BACKTEST-2022.md); goldens return17-19; kernel2 divergence green; Sch E/SCH1 lines on official PDFs (P11.3); K-1 vision extraction landed (P8.2)."
+    ],
+    "gaps_to_production_ready": [
+     "§465 at-risk treated as equal to basis (differs under nonrecourse financing)",
+     "§461(l) excess business loss not modeled",
+     "§469(i) $25k active-participation rental allowance not modeled",
+     "box2 rental character folded into whole-K-1 passive flag",
+     "excess-distribution gain (basis below zero) not modeled — kernel clamps and flags in trail",
+     "8995-A over-threshold limitations not implemented (kernel emits 0 with explicit step)",
+     "suspended-loss release on disposition not modeled",
+     "register wiring at year-close",
+     "rules unsigned",
+     "4797/§1231 character split of allowed passive losses folded into Sch E (aggregate AGI identical; per-form placement differs — found by the 2022 back-test)",
+     "§469(f) former-passive release not modeled (carryover on a nonpassive activity stays suspended)",
+     "K-1 net capital LOSSES not accepted (capital_gain takes gains only)",
+     "K-1 capital-gain ST/LT character flattened to LT — the 2022 oracle's box 10H was ST 3,108 + LT 15,010; AGI identical, but the ST slice is ordinary-rated in the QDCGT stack",
+     "REIT/PTP negative component has no separate carryforward",
+     "full-line back-test pending a 2022 rules fixture (structural lines verified; rate/deduction lines are year-dependent)"
+    ]
+   }
+  },
+  {
+   "form_family": "entity_return",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P4.1-4.3: 1120-S entity kernel run (page-1 deduction taxonomy, Sch K separately-stated lines w/ ST/LT character, line 18 recon), per-member cumulative-rounding K-1 allocation (allocations sum exactly to entity lines), IL-1120-ST base income + 1.5% replacement tax, Schedule K-1-P Step 4 lines 20/31 — BACK-TESTED against the CPA-prepared 2022 entity oracle to the dollar (golden entity1-backtest-2022-scorp: ordinary -10,445 -> -5,223/-5,222; other income 36,237 -> 18,119/18,118 matching the filed K-1 statement ST 3,108 + LT 15,010; replacement tax 387)",
+     "P4.3: outbound->personal handoff proven — the taxpayer member's derived K-1 flows through the personal basis/passive limits to the personal-side oracle numbers (allowed -18,118, suspended 1,143); kernel2 independent entity mirror with divergence coverage",
+     "P4.4: 1065 partnership run — guaranteed payments (deducted page 1, back into the Sch K recon, K-1 box 4 per member, K-1-P line 29; EXCLUDED from QBI per §199A(c)(4)(B) in both kernels), §752 liability-share change allocated to k1.liab_change, IL-1065 replacement tax at the partnership rate, K-1-P lines 26/27 — golden entity2-partnership-1065; kernel2 divergence coverage",
+     "P4.5: TX franchise COMPLIANCE TRACKER (defense/txfranchise): nexus flag, no-tax-due threshold, PIR-vs-franchise-report determination, report deadline, upper-bound exposure note — tracking only, margin base deliberately NOT computed (REQUIREMENTS states scope); 2025.TX.json PLACEHOLDER fixture",
+     "P12.2 status review: promoted in_development -> verified. P4 BACK-TESTED to the dollar against the 2022 1120-S + IL-1120-ST + K-1-P (goldens entity1/entity2); member allocation grouping-invariant; kernel2 entity headlines mirrored. Output package + K-1 PDF generation is P13 (a gap to production_ready, not to verified)."
+    ],
+    "gaps_to_production_ready": [
+     "entity-level IL additions/subtractions (Sch M for businesses) not modeled",
+     "multistate apportionment fixed at 1.000000",
+     "K interest/dividend lines are entity-level only (member allocation lands with forms mapping)",
+     "outbound K-1 ST/LT character flattens into the personal capital_gain feed (same recorded gap as inbound)",
+     "forms mapping (1120-S/K-1/IL-1120-ST/K-1-P PDFs + XML) not built",
+     "rules unsigned (replacement-tax rates PLACEHOLDER)",
+     "SE tax on partner guaranteed payments / §1402(a) self-employment earnings not modeled (recorded in the K-1 trail)",
+     "§752 allocation by ownership share only — economic-risk-of-loss / recourse-vs-nonrecourse tiering not modeled",
+     "IL-1065 personal-service-income/guaranteed-payment subtraction not modeled (pending rule authoring)",
+     "partner capital accounts (704(b)/tax-basis Schedule L/M-2) not tracked"
+    ]
+   }
+  },
+  {
+   "form_family": "ptc",
+   "status": "verified",
+   "evidence": {
+    "landed": [
+     "P5.2: Form 8962 ANNUAL reconciliation in both kernels — household income %FPL, §36B(b)(3)(A) applicable figure with linear interpolation, PTC = min(premium, SLCSP − contribution), net PTC on the REFUNDABLE payments line (Sch 3 line 9 → 1040 line 31), excess-APTC repayment capped below the cliff (§36B(f)(2)(B)) and UNCAPPED at/above the 400% cliff (post-2025 regime), MFS ineligible — goldens return21 (net credit 700, 200% FPL exact point), return22 (interpolated figure 0.07, cap binds at 1,950), return23 (433% cliff, full 4,000 repays); kernel2 divergence coverage",
+     "P12.2 status review: promoted in_development -> verified. P5 goldens return21-23 hand-verified (§36B interpolated applicable figure, repayment caps, post-2025 cliff); kernel2 divergence green; F8962 on the official PDF (P11.3)."
+    ],
+    "gaps_to_production_ready": [
+     "ANNUAL method only — the monthly 8962 computation (mid-year plan/premium changes, marriage-year alternative calculation) not modeled",
+     "household income uses AGI — MAGI add-backs (tax-exempt interest, excluded foreign income, nontaxable SS) not modeled (flagged in every trail)",
+     "MFS abuse/abandonment exception (§36B(c)(1)(C)) not modeled — MFS is always ineligible here",
+     "shared-policy allocation and dependents' MAGI not modeled",
+     "self-employed health insurance deduction / PTC circular calculation (Rev. Proc. 2014-41) not modeled",
+     "FPL table is the 48-state schedule only (AK/HI differ); all figures PLACEHOLDER, rules unsigned",
+     "forms mapping (8962 lines) not built"
+    ]
+   }
+  },
+  {
+   "form_family": "foreign_tax_credit",
+   "status": "verified",
+   "evidence": {
+    "golden_returns": [
+     "return27-foreign-tax-credit — Indian property sale: foreign-source LTCG with §904(b)(2)(B) rate-differential adjustment, limitation below the tax paid, unused carryforward"
+    ],
+    "landed": [
+     "P18: Form 1116 passive category in both kernels — §904 limitation = US tax before credits x (adjusted foreign-source taxable income / worldwide taxable income); credit = min(foreign tax paid, limitation); ordered ahead of §25D in the Sch 3 credit stack",
+     "P18: §904(b)(2)(B) rate differential — foreign-source long-term capital gain scaled by the marginal preferential rate over the top ordinary rate, so a gain the US taxed at 15% cannot inflate the limitation as if taxed at 37%",
+     "P18: kernel2 independent mirror recomputes the credit; divergence red-builds"
+    ],
+    "gaps_to_production_ready": [
+     "PASSIVE category only — a general-category basket (wages/business income taxed abroad) is not modeled and would need its own Form 1116",
+     "deductions allocable to foreign-source income are not modeled (line 2-6), so the limitation numerator is gross rather than net of allocable expenses — this OVERSTATES the credit when such deductions exist",
+     "the rate differential uses the taxpayer's marginal preferential rate rather than splitting the gain across the 0/15/20% buckets",
+     "no carryback/carryforward register: unused credit is reported as informational only (SS904(c) allows 1 back, 10 forward)",
+     "currency conversion is a separate recorded calculation from user-supplied rates; no exchange-rate table is bundled",
+     "rules release still in review (unsigned); dual-verification sign-off outstanding"
+    ]
+   }
+  }
+ ]
+}

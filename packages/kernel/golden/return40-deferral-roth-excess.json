@@ -1,0 +1,58 @@
+{
+ "name": "return40-deferral-roth-excess",
+ "description": "P98: 30,000 of elective deferrals (no catch-up) -> 6,500 excess INCOME on line 1h; spouse Roth 7,000 with MAGI above the joint 246,000 ceiling -> all excess -> 420 excise.",
+ "note": "Hand-verified: 30,000 - 23,500 = 6,500 -> total income 250,000 + 6,500 = 256,500 = MAGI > 246,000 -> Roth room 0 -> excess 7,000 x 6% = 420. PLACEHOLDER rules.",
+ "filing_status": "mfj",
+ "il_exemption_count": 2,
+ "facts": [
+  {
+   "fact_id": "f:w2:wages",
+   "concept": "income.wages",
+   "value": "250000",
+   "jurisdiction": [
+    "FED",
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:w2:fedwh",
+   "concept": "payments.fed.withholding",
+   "value": "40000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:w2:ilwh",
+   "concept": "payments.il.withholding",
+   "value": "12000",
+   "jurisdiction": [
+    "IL"
+   ]
+  },
+  {
+   "fact_id": "f:401k:tp",
+   "concept": "contrib.401k.deferral.tp",
+   "value": "30000",
+   "jurisdiction": [
+    "FED"
+   ]
+  },
+  {
+   "fact_id": "f:roth:sp",
+   "concept": "contrib.ira.roth.sp",
+   "value": "7000",
+   "jurisdiction": [
+    "FED"
+   ]
+  }
+ ],
+ "expected": {
+  "fed.deferral.excess_income": "6500",
+  "fed.total_income": "256500",
+  "fed.ira.excess_contribution": "7000",
+  "tax.ira.excess_excise": "420",
+  "fed.agi": "256500",
+  "fed.tax.liability.total": "42780"
+ }
+}
