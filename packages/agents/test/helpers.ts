@@ -12,7 +12,9 @@ import {
 } from '@taxfs/shared';
 import { loadAuthorityStore, loadQuestionTemplates, type AuthorityStore, type QuestionTemplate } from '@taxfs/agents';
 
-export const AGENT_IDS = ['extraction', 'interview', 'categorization', 'explanation', 'audit_summary'];
+// The §6 roster: extraction (+ the simple-tier route), interview,
+// explanation, discovery. Categorization and audit-summary are dropped.
+export const AGENT_IDS = ['extraction', 'extraction_simple', 'interview', 'explanation', 'discovery'];
 
 const root = (p: string) => fileURLToPath(new URL(`../../../${p}`, import.meta.url));
 

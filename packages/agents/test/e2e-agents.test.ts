@@ -15,10 +15,9 @@ import {
 } from '@taxfs/gates';
 import {
   ReviewPendingStore,
-  runAuditSummary,
+  runDiscovery,
   runExplanation,
   runExtraction,
-  type AuditSummaryInput,
 } from '@taxfs/agents';
 import { loadFedRules, loadIlRules } from '../../kernel/test/helpers.js';
 import { loadAuthority, makeRig, userContent, type AgentRig } from './helpers.js';
@@ -106,15 +105,13 @@ beforeEach(async () => {
         reading_level: 'plain',
       });
     },
-    audit_summary: (req) => {
-      const input = JSON.parse(userContent(req)) as AuditSummaryInput;
+    discovery: (req) => {
+      const input = JSON.parse(userContent(req)) as { signals: { id: string; about_concepts: string[]; detail: string }[] };
       return JSON.stringify({
-        overview_text: 'Informational review items, each tied to public-statistics patterns and the records that address them.',
-        items: input.findings.map((f) => ({
-          finding_id: f.finding_id,
-          plain_risk: 'Round amounts appear more often in estimates than in documented figures.',
-          plain_fix: 'Attaching the exact documented amounts addresses this item.',
-          authority_note: f.authority_grade ? `Authority grade: ${f.authority_grade}.` : 'Informational pattern check.',
+        questions: input.signals.map((sig) => ({
+          id: sig.id,
+          text: `Heads up: ${sig.detail} — is there a document or answer to add?`,
+          about_concepts: sig.about_concepts,
         })),
       });
     },
@@ -202,25 +199,21 @@ describe('extended e2e: extraction → confirm → kernel → gates → explanat
       expect(explanation.result.verbatim.length).toBeGreaterThan(0);
     }
 
-    // Audit summary over the Gate-5 profile: 1:1, in order.
+    // Gate 5 still produces its profile deterministically (the audit-summary
+    // agent is DROPPED per §6 — a template renders findings 1:1); Discovery
+    // is the roster's question-only replacement, exercised over the same
+    // scenario: with every document present it stays quiet.
     const gate5Findings: Finding[] = runs
       .filter((r: GateRun) => r.gate === 5)
       .flatMap((r) => r.findings);
     expect(gate5Findings.length).toBeGreaterThan(0);
-    const summary = await runAuditSummary(rig.deps, {
-      findings: gate5Findings.map((f) => ({
-        finding_id: f.finding_id,
-        severity: f.severity,
-        ...(f.authority_grade ? { authority_grade: f.authority_grade } : {}),
-        message: f.message,
-        ...(f.fix_ref ? { fix_ref: f.fix_ref } : {}),
-        ...(f.defense_artifact_ref ? { defense_artifact_ref: f.defense_artifact_ref } : {}),
-      })),
+    const discovery = await runDiscovery(rig.deps, {
+      tax_year: 2025,
+      sources: await spine.getSources(TP, 2025),
+      facts: await spine.getFacts({ taxpayer_id: TP, tax_year: 2025 }),
+      history: [],
     });
-    expect(summary.status).toBe('ok');
-    if (summary.status === 'ok') {
-      expect(summary.output.items.map((i) => i.finding_id)).toEqual(gate5Findings.map((f) => f.finding_id));
-    }
+    expect(discovery.questions).toEqual([]); // nothing missing → no questions, no agent call
 
     // Every agent call was logged privately (input hash + verdict).
     expect(rig.log.entries.length).toBeGreaterThanOrEqual(4);

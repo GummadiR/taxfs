@@ -33,6 +33,10 @@ export interface PendingFactProposal {
   /** High-visibility AI-extracted marker + source region for the review UI. */
   ai_marker: true;
   region?: { page: number; x: number; y: number; w: number; h: number };
+  /** Dual-pass extraction (§6): two independent passes disagreed on this
+   *  critical field — value AND suggestion cleared; the operator types the
+   *  number from the document, shown both readings. */
+  disagreement?: { pass1: string | null; pass2: string | null };
   status: 'pending' | 'confirmed' | 'rejected';
 }
 

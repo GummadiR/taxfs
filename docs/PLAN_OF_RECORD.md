@@ -5,7 +5,7 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 6 (Blueprint §7.6) — COMPLETE.** Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
+**Phase 7 (Blueprint §7.7) — COMPLETE.** Phase 6 COMPLETE. Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
 real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
 recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
@@ -180,9 +180,32 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   next-year rule release is on disk; its absence renders the REASON, never
   a guessed figure. e2e-asserted.
 
+## Phase 7 (agent upgrades, §6 roster)
+
+- Dual-pass extraction: CRITICAL fields extract twice independently; a
+  disagreement arrives FLAGGED (no value, no suggestion, both readings on
+  the proposal) — the operator types from the document. Non-critical
+  fields keep pass 1. A second pass that cannot parse the document flags
+  every critical field.
+- Discovery agent (new): deterministic detectors (box-12W-without-coverage,
+  prior-year-gap, income swing vs history) phrased as QUESTIONS by the
+  harnessed agent; semantic validation rejects dollar-amount assertions and
+  invented topics (deterministic template fallback — a real signal is never
+  silently dropped); the no-write wall is asserted by a source scan. Zero
+  agent calls when nothing is missing.
+- Complexity routing: document type picks the model tier
+  (extraction_simple = claude-haiku-4-5 for W-2/1099-INT-class forms;
+  extraction = claude-fable-5 for K-1/consolidated/1095-A/foreign), config
+  defaults overridable at deps construction.
+- Regions ride every proposal end-to-end (asserted); the on-page highlight
+  UI lands with the live upload flow in Phase 8's hosted-tester work.
+- Roster per §6: Categorization and Audit-Summary agents REMOVED (the
+  gate-5 profile renders 1:1 by template); the extended e2e now exercises
+  extraction → confirm → kernel → gates → explanation → discovery.
+
 ## Deferred to their phases (not started)
 
-- Phase 7 (agent upgrades), Phase 8 (hardening) per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Phase 8 (hardening for testers) per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 
