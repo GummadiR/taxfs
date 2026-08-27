@@ -5,7 +5,8 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**ALL BLUEPRINT §7 PHASES COMPLETE (1–8).** Phase 6 COMPLETE. Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
+**ALL BLUEPRINT §7 PHASES COMPLETE (1–8), plus Phase 9 (workspace Reset /
+Delete, operator-requested).** Phase 6 COMPLETE. Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
 real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
 recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
@@ -227,6 +228,67 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   live document path — and land together when hosting starts), Vercel
   deployment + Supabase cohabitation (operator-gated), real second-user
   login e2e (needs hosted Supabase auth).
+
+## Phase 9 (workspace lifecycle — Reset and Delete)
+
+Operator-requested (2026-08-27): a workspace handed to a tester has to be
+returnable to a known clean state, and a test workspace has to be removable,
+without anyone opening pgAdmin.
+
+- Migration `0005_workspace_lifecycle.sql`: `reset_workspace()` (empties a
+  workspace, keeps the workspace + members + audit log) and
+  `delete_workspace()` (removes it entirely; audit log survives). Both are
+  **SECURITY INVOKER**, deliberately — they run as the calling user, so RLS
+  applies to every statement inside and the owner check is defence in depth
+  rather than the only wall. A definer function would have been one bug away
+  from cross-tenant deletion.
+- Role ladder, stated at its real strength: a **reviewer** is refused twice
+  (owner check AND no delete policy anywhere) — this is the tester case and a
+  hard database wall. An **editor** is refused by the owner check only; an
+  editor can already delete data rows individually (the spine's supersede path
+  needs it), so this guards the one-click wipe rather than adding a new
+  capability wall. Not overclaimed in the UI text either.
+- UI: an owner-only danger zone on `/workspaces` with a typed-name
+  confirmation, and a per-table report of what was actually removed. The
+  browser identity vault is cleared client-side on both actions — the server
+  physically cannot do it (G9), and a "wipe" that left SSNs in IndexedDB
+  would be a lie.
+- Two defects found while building, both by tests rather than by reading:
+  - `request_budgets` (migration 0004) was missing from the reset list, so
+    deleting a workspace failed on its foreign key. Found by e2e, not by the
+    SQL suite, which had no budget rows. Fixed, and made **Way 2**: the list
+    now lives in `lifecycle_tables()` and a catalog test asserts it covers
+    every table in the schema carrying a `workspace_id`. A future migration
+    that adds a table and forgets the list fails that test instead of
+    surfacing as an FK error in front of the operator.
+  - `budgets_rw` scoped SELECT to `user_id = auth.uid()`, and a DELETE whose
+    WHERE clause names a column also applies the SELECT policies to its
+    target rows (the trap the 0001 header records for UPDATE). An owner's
+    delete therefore removed exactly one row, silently, with no error. Fixed
+    with paired owner read + delete policies; the widened read is scoped to
+    owners of that workspace and guarded by its own test.
+- The `deleteWorkspaceCascade` helper that had sat in `packages/spine/src/pg.ts`
+  since Phase 4 was **dead code — never called, never tested**, and would have
+  hit both defects above. Replaced by `resetWorkspace`/`deleteWorkspace`, which
+  call the guarded SQL functions rather than issuing deletes from the client.
+- Two catalog guards added that the 0001 header already CLAIMED existed:
+  `taxfs_definer` is the only BYPASSRLS role, and it owns only `my_workspaces`
+  and `log_audit`. The claim is now true.
+- `log_audit()` became SECURITY DEFINER. Required: `delete_workspace` removes
+  the caller's own membership row, and the audit trigger for that delete fires
+  after the statement, when the caller is no longer a member — the append
+  policy would refuse the insert and fail the whole delete. An audit trail the
+  actor can cause to fail is a defect regardless; trigger functions cannot be
+  called directly, so this adds no reachable bypass surface (asserted).
+- Launcher: `start.bat` / `start.sh` now ask for the PostgreSQL password once
+  when the stored one is rejected, remember it outside the repo
+  (`%APPDATA%\TaxFS`, `~/.config/taxfs`), and on final failure re-run the
+  bootstrap unsuppressed so the operator sees the real error rather than a
+  checklist. Verified end to end against a server with a non-default password.
+
+Gate chain green on this work: lint, `audit:values`, typecheck, strict
+production build, **807 unit tests** (1 skipped — the live-provider test),
+**22 Playwright specs** against that build.
 
 ## Branch protection (§9.2) — ENFORCED
 

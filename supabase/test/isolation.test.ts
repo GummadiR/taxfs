@@ -55,6 +55,30 @@ describe.skipIf(!TEST_DB_URL)('tenant isolation (G1/G2)', () => {
     expect(r.rows).toEqual([]);
   });
 
+  // The 0001 header asserts "the isolation suite asserts no other role carries
+  // BYPASSRLS". It said so before this test existed; now it is true.
+  it('taxfs_definer is the ONLY role carrying BYPASSRLS (catalog guard)', async () => {
+    const r = await rig.admin.query(
+      `select rolname from pg_roles where rolbypassrls and not rolsuper order by rolname`);
+    expect(r.rows.map((x) => x.rolname)).toEqual(['taxfs_definer']);
+  });
+
+  // Every SECURITY DEFINER function runs with its owner's rights, so each one
+  // owned by the bypassrls role is a potential hole. Both that exist are
+  // deliberate and named here: a change to this list is a change to the
+  // bypass surface, and has to be argued for in review.
+  it('the bypassrls role owns only the two functions it is meant to', async () => {
+    const r = await rig.admin.query(`
+      select p.proname from pg_proc p
+      join pg_roles r on r.oid = p.proowner
+      where r.rolname = 'taxfs_definer' order by p.proname`);
+    expect(r.rows.map((x) => x.proname)).toEqual(['log_audit', 'my_workspaces']);
+  });
+
+  it('log_audit cannot be called outside a trigger, so its definer rights are unreachable', async () => {
+    await expect(b.query(`select log_audit()`)).rejects.toThrow(/trigger/i);
+  });
+
   it('no identity columns exist anywhere (G9, schema level)', async () => {
     const r = await rig.admin.query(`
       select table_name, column_name from information_schema.columns

@@ -933,43 +933,57 @@ export async function listWorkspaces(
 }
 
 /**
- * Remove EVERY row of one workspace — children first, workspaces last, one
- * transaction. Returns the raw_refs of stored documents so the caller can
- * clear the bucket. The audit_log rows are DELIBERATELY left: the trail
- * that the deletion happened is the point of an audit trail.
+ * Workspace lifecycle. Both call the owner-guarded SQL functions from
+ * migration 0005 rather than issuing the deletes here: the wall has to be in
+ * the database (a reviewer with a stolen session must be refused by Postgres,
+ * not by whichever caller remembered to check), and one transaction per
+ * operation means a half-emptied workspace is not a reachable state.
+ *
+ * Both return the storage refs of documents that were stored, so the caller
+ * can clear the bucket in the same operation. The audit log is deliberately
+ * NOT cleared: the record that a wipe happened is the point of a trail.
  */
-export async function deleteWorkspaceCascade(
+export interface LifecycleResult {
+  /** Storage object names the caller should now remove from the bucket. */
+  raw_refs: string[];
+  /** Rows removed, per table — surfaced to the operator, not just discarded. */
+  deleted: Record<string, number>;
+}
+
+async function callLifecycle(
   config: pg.ClientConfig,
   auth_user_id: string,
+  fn: 'reset_workspace' | 'delete_workspace',
   workspace_id: string,
-): Promise<{ raw_refs: string[] }> {
+): Promise<LifecycleResult> {
   const client = new pg.Client(config);
   await client.connect();
   try {
     await client.query(`select set_config('request.jwt.claims', $1, false)`, [
       JSON.stringify({ sub: auth_user_id, role: 'authenticated' }),
     ]);
-    await client.query('begin');
-    try {
-      const refs = await client.query(`select raw_ref from sources where workspace_id = $1`, [workspace_id]);
-      for (const table of [
-        'findings', 'gate_runs', 'fact_dependencies', 'fact_provenance',
-        'calculations', 'tax_facts', 'sources', 'registers', 'filing_contexts',
-        'packages', 'history_lines', 'agent_traces', 'settings',
-        'workspace_members', 'workspaces',
-      ]) {
-        await client.query(
-          `delete from ${table} where workspace_id = $1`,
-          [workspace_id],
-        );
-      }
-      await client.query('commit');
-      return { raw_refs: refs.rows.map((r) => String(r.raw_ref)) };
-    } catch (e) {
-      await client.query('rollback');
-      throw e;
-    }
+    const res = await client.query(`select ${fn}($1) as out`, [workspace_id]);
+    const out = res.rows[0].out as { raw_refs: string[]; deleted: Record<string, number> };
+    return { raw_refs: out.raw_refs ?? [], deleted: out.deleted ?? {} };
   } finally {
     await client.end();
   }
+}
+
+/** Empty a workspace, keeping the workspace itself and its members. */
+export function resetWorkspace(
+  config: pg.ClientConfig,
+  auth_user_id: string,
+  workspace_id: string,
+): Promise<LifecycleResult> {
+  return callLifecycle(config, auth_user_id, 'reset_workspace', workspace_id);
+}
+
+/** Remove a workspace entirely, members included. */
+export function deleteWorkspace(
+  config: pg.ClientConfig,
+  auth_user_id: string,
+  workspace_id: string,
+): Promise<LifecycleResult> {
+  return callLifecycle(config, auth_user_id, 'delete_workspace', workspace_id);
 }

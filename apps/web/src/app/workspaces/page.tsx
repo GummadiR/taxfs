@@ -8,6 +8,8 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { assertNoIdentityLike } from '@/server/guard';
 import { withUserClient } from '@/server/db';
 import { MembersList } from './members-list';
+import { DangerZone, type LifecycleReport } from './danger-zone';
+import { runLifecycle } from '@/server/lifecycle';
 
 async function createWorkspace(formData: FormData) {
   'use server';
@@ -74,6 +76,29 @@ async function removeMember(formData: FormData) {
       String(formData.get('workspace_id')), String(formData.get('user_id')), userId,
     ]));
   redirect('/workspaces');
+}
+
+/**
+ * Reset/Delete, called from the client component. It returns a report rather
+ * than redirecting: the caller has browser-only work to finish afterwards
+ * (clearing the identity vault), and a redirect would unmount it first.
+ * Errors come back as data — including the database's own refusal, which is
+ * the message the operator most needs to see verbatim.
+ */
+async function runLifecycleAction(
+  workspaceId: string,
+  action: 'reset' | 'delete',
+  confirmName: string,
+): Promise<LifecycleReport> {
+  'use server';
+  const userId = await authUserId();
+  if (!userId) redirect('/login');
+  const empty = { action, display_name: '', rows: 0, by_table: [], documents: 0, orphaned_documents: [] };
+  try {
+    return await runLifecycle(userId, workspaceId, action, confirmName);
+  } catch (e) {
+    return { ...empty, error: (e as Error).message };
+  }
 }
 
 async function signOut() {
@@ -147,6 +172,13 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
           <button className="rounded bg-slate-900 px-3 py-2 font-semibold text-white" data-testid="member-add">Add member</button>
         </form>
       </section>
+      <DangerZone
+        owned={memberships.filter((m) => m.role === 'owner').map((m) => ({
+          workspace_id: m.workspace_id,
+          display_name: m.display_name,
+        }))}
+        run={runLifecycleAction}
+      />
       <form action={createWorkspace} className="mt-6 flex gap-2">
         <input name="display_name" required placeholder="New workspace name"
           className="rounded border border-slate-300 p-2 text-sm" data-testid="new-workspace-name" />

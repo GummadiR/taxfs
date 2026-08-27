@@ -23,12 +23,42 @@ echo "[3/5] Preparing your local database..."
 if [ -n "${TAXFS_DATABASE_URL:-}" ]; then
   echo "  Using the database from TAXFS_DATABASE_URL - skipping local setup."
 else
-  boot_output="$(node scripts/bootstrap-db.mjs)"
-  echo "$boot_output" | grep -v '^TAXFS_DATABASE_URL=' || true
-  TAXFS_DATABASE_URL="$(echo "$boot_output" | sed -n 's/^TAXFS_DATABASE_URL=//p')"
-  if [ -z "$TAXFS_DATABASE_URL" ]; then
-    echo "  Database setup did not finish - is PostgreSQL installed and running?"
-    exit 1
+  # The PostgreSQL password is asked for ONCE and remembered outside the repo
+  # (~/.config/taxfs), never in a tracked file. It guards the local database
+  # on this machine and nothing else.
+  cred="${XDG_CONFIG_HOME:-$HOME/.config}/taxfs/pg"
+  if [ -z "${PGPASSWORD:-}" ] && [ -f "$cred" ]; then PGPASSWORD="$(cat "$cred")"; fi
+  export PGPASSWORD="${PGPASSWORD:-postgres}"
+
+  try_boot() {
+    boot_output="$(node scripts/bootstrap-db.mjs 2>/dev/null)" || return 1
+    echo "$boot_output" | grep -v '^TAXFS_DATABASE_URL=' || true
+    TAXFS_DATABASE_URL="$(echo "$boot_output" | sed -n 's/^TAXFS_DATABASE_URL=//p')"
+    [ -n "$TAXFS_DATABASE_URL" ]
+  }
+
+  if ! try_boot; then
+    # Reachable-but-rejected is fixed by asking, not by printing a checklist.
+    echo
+    echo "  PostgreSQL did not accept the stored password."
+    printf '  postgres password: '
+    read -rs PGPASSWORD
+    echo
+    export PGPASSWORD
+    if try_boot; then
+      mkdir -p "$(dirname "$cred")"
+      printf '%s' "$PGPASSWORD" > "$cred"
+      chmod 600 "$cred"
+      echo "  Password saved for next time (in $cred, not in the project)."
+    else
+      echo
+      echo "  --- what the database setup actually reported ---"
+      node scripts/bootstrap-db.mjs || true
+      echo
+      echo "  Database setup did not finish. Is PostgreSQL installed and running?"
+      echo "  If the password was wrong, delete $cred and re-run."
+      exit 1
+    fi
   fi
   export TAXFS_DATABASE_URL
 fi
