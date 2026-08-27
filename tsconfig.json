@@ -40,6 +40,9 @@
       ],
       "@taxfs/agents": [
         "packages/agents/src/index.ts"
+      ],
+      "@taxfs/forms/identity": [
+        "packages/forms/src/identity.ts"
       ]
     }
   },

@@ -7,6 +7,7 @@
  * silent difference. (Hosted object storage arrives with the tester phase.)
  */
 import { createHash } from 'node:crypto';
+import { PDFDocument } from 'pdf-lib';
 import type { Clock } from '@taxfs/shared';
 import { buildPackage } from '@taxfs/forms';
 import { withSpine, withUserClient } from './db';
@@ -22,11 +23,14 @@ class RealClock implements Clock {
   }
 }
 
-export async function buildLockedPackage(userId: string, ws: string): Promise<void> {
+/** Build the current package deterministically (identity-free by
+ *  construction — the server holds no identity fields to fill). Used by the
+ *  lock action AND by artifact regeneration, so the two can never drift. */
+export async function buildCurrentPackage(userId: string, ws: string) {
   const filing = await withUserClient(userId, (client) => filingContext(client, ws));
   if (!filing) throw new Error('complete Get Started first');
   const rel = releases();
-  await withSpine({ userId, workspaceId: ws }, async (spine) => {
+  return withSpine({ userId, workspaceId: ws }, async (spine) => {
     const { gateRuns } = await spine.inspect(ws);
     const latest = new Map<string, string>();
     for (const run of gateRuns) latest.set(`${run.gate}:${run.jurisdiction}`, run.result);
@@ -51,11 +55,41 @@ export async function buildLockedPackage(userId: string, ws: string): Promise<vo
       spine,
       clock: new RealClock(),
     });
-    const artifactHashes = built.artifacts.map((a) => ({
+    return built;
+  });
+}
+
+/**
+ * Content hash for an artifact. Raw bytes for text artifacts (XML and
+ * placeholders are byte-deterministic per the D.7 golden packages); for
+ * FILLED PDFs the hash is over the CANONICAL content — every AcroForm
+ * field's name and value, sorted — because pdf-lib embeds fonts with a
+ * random per-process suffix, so presentation bytes differ across lambdas
+ * while the return's actual content does not. A changed money line changes
+ * a field value and still fails the check loudly.
+ */
+export async function artifactSha256(content: string, content_type: string): Promise<string> {
+  if (content_type !== 'application/pdf') {
+    return createHash('sha256').update(content).digest('hex');
+  }
+  const doc = await PDFDocument.load(Buffer.from(content, 'base64'), { ignoreEncryption: true, updateMetadata: false });
+  const fields = doc
+    .getForm()
+    .getFields()
+    .map((f) => [f.getName(), (f as { getText?: () => string | undefined }).getText?.() ?? (f as { isChecked?: () => boolean }).isChecked?.() ?? null])
+    .sort((a, b) => String(a[0]).localeCompare(String(b[0])));
+  return createHash('sha256').update(JSON.stringify(fields)).digest('hex');
+}
+
+export async function buildLockedPackage(userId: string, ws: string): Promise<void> {
+  const rel = releases();
+  const built = await buildCurrentPackage(userId, ws);
+  {
+    const artifactHashes = await Promise.all(built.artifacts.map(async (a) => ({
       artifact_id: a.artifact_id,
       target: a.target,
-      sha256: createHash('sha256').update(a.content).digest('hex'),
-    }));
+      sha256: await artifactSha256(a.content, a.content_type),
+    })));
     await withUserClient(userId, async (client) => {
       const next = await client.query(
         `select coalesce(max(version), 0) + 1 as v from packages where workspace_id = $1 and tax_year = $2`,
@@ -74,7 +108,41 @@ export async function buildLockedPackage(userId: string, ws: string): Promise<vo
         })],
       );
     });
+  }
+}
+
+/**
+ * Regenerate one locked artifact's bytes on demand and VERIFY them against
+ * the hash frozen at lock. Determinism is the storage; the hash check makes
+ * any drift (facts changed since lock, release changed) a loud error, never
+ * a silently different return. Identity fields are empty by construction.
+ */
+export async function regenerateArtifact(
+  userId: string,
+  ws: string,
+  packageId: string,
+  artifactId: string,
+): Promise<{ content: string; content_type: string }> {
+  const row = await withUserClient(userId, async (client) => {
+    const r = await client.query(
+      `select manifest from packages where workspace_id = $1 and package_id = $2 and status <> 'draft'`,
+      [ws, packageId],
+    );
+    return r.rows[0] as { manifest: { artifact_hashes: { artifact_id: string; sha256: string }[] } } | undefined;
   });
+  if (!row) throw new Error(`locked package ${packageId} not found`);
+  const locked = row.manifest.artifact_hashes.find((h) => h.artifact_id === artifactId);
+  if (!locked) throw new Error(`artifact ${artifactId} is not part of ${packageId}`);
+  const built = await buildCurrentPackage(userId, ws);
+  const artifact = built.artifacts.find((a) => a.artifact_id === artifactId);
+  if (!artifact) throw new Error(`artifact ${artifactId} did not regenerate`);
+  const sha = await artifactSha256(artifact.content, artifact.content_type);
+  if (sha !== locked.sha256) {
+    throw new Error(
+      `artifact ${artifactId} no longer matches the locked package ${packageId} — the facts or releases changed since lock. Re-run the gates and lock a new version; locked history is never silently rewritten.`,
+    );
+  }
+  return { content: artifact.content, content_type: artifact.content_type };
 }
 
 export interface PackageRow {
@@ -83,6 +151,8 @@ export interface PackageRow {
   status: string;
   forms: string[];
   created_at: string;
+  /** Real-PDF artifacts of the locked package (browser fills identity). */
+  pdfs: { artifact_id: string; form_id: string; label: string }[];
 }
 
 export async function listPackages(userId: string, ws: string): Promise<PackageRow[]> {
@@ -92,12 +162,23 @@ export async function listPackages(userId: string, ws: string): Promise<PackageR
          from packages where workspace_id = $1 and tax_year = $2 order by version desc`,
       [ws, TAX_YEAR],
     );
-    return r.rows.map((row) => ({
-      package_id: row.package_id,
-      version: row.version,
-      status: row.status,
-      forms: ((row.manifest?.manifest?.forms ?? []) as { form_id: string }[]).map((f) => f.form_id),
-      created_at: (row.created_at as Date).toISOString(),
-    }));
+    return r.rows.map((row) => {
+      const hashes = (row.manifest?.artifact_hashes ?? []) as { artifact_id: string; target: string }[];
+      const pdfs = hashes
+        .filter((h) => h.artifact_id.startsWith('pdf:'))
+        .map((h) => {
+          const form_id = h.artifact_id.replace(/^pdf:/, '');
+          return { artifact_id: h.artifact_id, form_id, label: form_id === 'IL1040' ? 'IL-1040' : form_id };
+        })
+        .filter((x) => x.form_id === '1040' || x.form_id === 'IL1040');
+      return {
+        package_id: row.package_id,
+        version: row.version,
+        status: row.status,
+        forms: ((row.manifest?.manifest?.forms ?? []) as { form_id: string }[]).map((f) => f.form_id),
+        created_at: (row.created_at as Date).toISOString(),
+        pdfs,
+      };
+    });
   });
 }

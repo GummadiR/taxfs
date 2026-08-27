@@ -5,12 +5,18 @@ import { ensureWorkspace, listWorkspaces, requireDbUrl } from '@/server/db';
 import { setActiveWorkspace } from '@/server/workspace';
 import { localOperatorMode } from '@/server/env';
 import { supabaseServer } from '@/lib/supabase/server';
+import { assertNoIdentityLike } from '@/server/guard';
 
 async function createWorkspace(formData: FormData) {
   'use server';
   const userId = await authUserId();
   if (!userId) redirect('/login');
-  const name = String(formData.get('display_name') ?? '').trim();
+  let name = '';
+  try {
+    name = assertNoIdentityLike(String(formData.get('display_name') ?? '').trim(), 'Workspace name');
+  } catch (e) {
+    redirect(`/workspaces?error=${encodeURIComponent((e as Error).message)}`);
+  }
   if (!name) return;
   const id = 'ws_' + crypto.randomUUID().replaceAll('-', '').slice(0, 20);
   await ensureWorkspace({ connectionString: requireDbUrl() }, {
@@ -40,7 +46,8 @@ async function signOut() {
   redirect('/login');
 }
 
-export default async function WorkspacesPage() {
+export default async function WorkspacesPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const { error } = await searchParams;
   if (!appConfigured()) {
     return (
       <main>
@@ -64,6 +71,7 @@ export default async function WorkspacesPage() {
           <form action={signOut}><button className="text-sm underline">Sign out</button></form>
         )}
       </div>
+      {error ? <p className="mt-2 text-sm text-red-700" role="alert" data-testid="workspace-error">{error}</p> : null}
       <ul className="mt-4 space-y-2" data-testid="workspace-list">
         {memberships.map((m) => (
           <li key={m.workspace_id} className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">

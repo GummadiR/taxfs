@@ -4,6 +4,7 @@ import { withSpine, withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
 import { TAX_YEAR } from '@/server/env';
 import { buildLockedPackage, listPackages } from '@/server/packages';
+import { IdentityPanel } from './identity-panel';
 
 async function buildAndLock() {
   'use server';
@@ -61,6 +62,10 @@ export default async function FileIt() {
           </tbody>
         </table>
       </section>
+      <IdentityPanel
+        workspaceId={ws.workspace_id}
+        pdfs={(rows[0]?.pdfs ?? []).map((p) => ({ ...p, package_id: rows[0]!.package_id }))}
+      />
     </main>
   );
 }

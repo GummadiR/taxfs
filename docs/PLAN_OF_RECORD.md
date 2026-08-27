@@ -5,7 +5,7 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 4 (Blueprint §7.4) — COMPLETE (intake = demo docs + typed entry;
+**Phase 5 (Blueprint §7.5) — COMPLETE.** Phase 4 COMPLETE (intake = demo docs + typed entry;
 real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
 recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
@@ -142,9 +142,36 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   It locks package v1. DB prep runs inside the webServer command
   (Playwright boots the server BEFORE globalSetup — found empirically).
 
+## Phase 5 (client-side identity, §5)
+
+- `@taxfs/forms/identity` (client-safe subpath — the forms barrel touches
+  node:fs and must never enter a browser chunk): the TaxOS-verified 1040 +
+  IL-1040 Step-1 field mappings, P92 comb-digit normalization (federal SSN
+  boxes take digits only; IL shows the dashed form verbatim), P81 IL DOB
+  formatting, LOUD failures (a value that cannot land never silently prints
+  an empty box). 5 byte-level readback tests on the official templates with
+  the SSN typed WITH dashes.
+- Browser vault (`apps/web/src/lib/identity/vault.ts`): Argon2id (hash-wasm,
+  OWASP floor m=19MiB/t=2/p=1) → AES-256-GCM → IndexedDB, per workspace.
+  No server code imports it; the server has no identity field to receive.
+- `/api/artifact`: regenerates locked artifacts deterministically and
+  verifies them against the hash frozen at lock. PDFs hash their CANONICAL
+  content (sorted field name/value pairs) because pdf-lib embeds fonts with
+  a random per-process suffix — found when the hash check itself refused a
+  byte-compare across processes; a changed money line still fails loudly.
+  Non-PDF artifacts hash raw bytes (byte-deterministic per D.7).
+- G9 endpoint wall: SSN-shaped values in free-text server inputs are
+  refused before storage (workspaces name guard; amounts are numeric-only).
+- E2E proof (14 specs): browser-filled 1040 carries comb digits + name in
+  the exact AcroForm fields; the server-served artifact is identity-BLANK
+  with the money lines present; the vault survives reload behind the
+  passphrase and refuses a wrong one; an SSN-shaped server input is
+  refused; and a whole-database sweep (every text/jsonb column in public +
+  storage) finds no trace of the synthetic identity after the full journey.
+
 ## Deferred to their phases (not started)
 
-- Phase 5+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Phase 6+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 

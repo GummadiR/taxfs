@@ -9,7 +9,8 @@
     "pdf-lib": "1.17.1"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./identity": "./src/identity.ts"
   },
   "devDependencies": {
     "@taxfs/kernel": "workspace:*",

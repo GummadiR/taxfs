@@ -59,6 +59,9 @@ importers:
       '@taxfs/spine':
         specifier: workspace:*
         version: link:../../packages/spine
+      hash-wasm:
+        specifier: 4.12.0
+        version: 4.12.0
       next:
         specifier: 16.3.2
         version: 16.3.2(@playwright/test@1.56.0)(@types/node@24.3.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -87,6 +90,9 @@ importers:
       '@types/react-dom':
         specifier: 19.2.0
         version: 19.2.0(@types/react@19.2.0)
+      pdf-lib:
+        specifier: 1.17.1
+        version: 1.17.1
       tailwindcss:
         specifier: 4.1.12
         version: 4.1.12
@@ -1487,6 +1493,9 @@ packages:
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
     engines: {node: '>=8'}
+
+  hash-wasm@4.12.0:
+    resolution: {integrity: sha512-+/2B2rYLb48I/evdOIhP+K/DD2ca2fgBjp6O+GBEnCDk2e4rpeXIK8GvIyRPjTezgmWn9gmKwkQjjx6BtqDHVQ==}
 
   iceberg-js@0.8.1:
     resolution: {integrity: sha512-1dhVQZXhcHje7798IVM+xoo/1ZdVfzOMIc8/rgVSijRK38EDqOJoGula9N/8ZI5RD8QTxNQtK/Gozpr+qUqRRA==}
@@ -3169,6 +3178,8 @@ snapshots:
   graphemer@1.4.0: {}
 
   has-flag@4.0.0: {}
+
+  hash-wasm@4.12.0: {}
 
   iceberg-js@0.8.1: {}
 

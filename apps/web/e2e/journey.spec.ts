@@ -83,3 +83,121 @@ test.describe('return journey (local operator, real database)', () => {
     await expect(page.getByTestId('package-list')).toContainText('locked');
   });
 });
+
+test.describe('client-side identity (§5) — print-package proof', () => {
+  test.skip(!HAS_DB, 'needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  const SSN = '123-45-6789'; // synthetic, typed WITH dashes (the P92 shape)
+
+  test('identity fills the downloaded 1040 IN THE BROWSER — comb digits, name, ticks', async ({ page }) => {
+    await page.goto('/file-it');
+    await page.getByTestId('taxpayer-first').fill('Testfirst');
+    await page.getByTestId('taxpayer-last').fill('Testcase');
+    await page.getByTestId('taxpayer-ssn').fill(SSN);
+    await page.getByTestId('identity-address').fill('1 Synthetic Way');
+    await page.getByTestId('identity-city').fill('Springfield');
+    await page.getByTestId('identity-passphrase').fill('correct-horse-battery');
+    await page.getByTestId('identity-save').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Saved');
+
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByTestId('download-1040').click();
+    const download = await downloadPromise;
+    const path = await download.path();
+    const { readFileSync } = await import('node:fs');
+    const { PDFDocument } = await import('pdf-lib');
+    const doc = await PDFDocument.load(new Uint8Array(readFileSync(path)), { ignoreEncryption: true });
+    const form = doc.getForm();
+    // Byte-level: the browser-filled bytes carry the identity in the exact fields.
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_16[0]').getText()).toBe('123456789');
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_14[0]').getText()).toBe('Testfirst');
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_15[0]').getText()).toBe('Testcase');
+  });
+
+  test('the SERVER-SERVED artifact is identity-blank (the split holds)', async ({ page }) => {
+    await page.goto('/file-it');
+    const downloadPromise = page.waitForEvent('download');
+    await page.getByTestId('download-blank-1040').click();
+    const download = await downloadPromise;
+    const path = await download.path();
+    const { readFileSync } = await import('node:fs');
+    const { PDFDocument } = await import('pdf-lib');
+    const doc = await PDFDocument.load(new Uint8Array(readFileSync(path)), { ignoreEncryption: true });
+    const form = doc.getForm();
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_16[0]').getText() ?? '').toBe('');
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_14[0]').getText() ?? '').toBe('');
+    // The money lines ARE there — blank identity, real return. The paper
+    // format is the plain kernel string (whole dollars, no thousands comma).
+    const texts = form
+      .getFields()
+      .map((field) => (field as { getText?: () => string | undefined }).getText?.() ?? '');
+    expect(texts.some((t) => t === '50000')).toBe(true);
+  });
+
+  test('the vault survives a reload behind the passphrase; a wrong one is refused', async ({ page }) => {
+    // Each Playwright test is a FRESH browser context (fresh IndexedDB) —
+    // which itself proves the vault is per-browser, never server-side. So
+    // this test saves, reloads the page in the SAME context, and unlocks.
+    await page.goto('/file-it');
+    await page.getByTestId('taxpayer-first').fill('Testfirst');
+    await page.getByTestId('taxpayer-ssn').fill(SSN);
+    await page.getByTestId('identity-passphrase').fill('correct-horse-battery');
+    await page.getByTestId('identity-save').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Saved');
+
+    await page.reload();
+    await expect(page.getByTestId('taxpayer-ssn')).toHaveValue(''); // gone from the DOM until unlocked
+    await page.getByTestId('identity-passphrase').fill('wrong-passphrase');
+    await page.getByTestId('identity-load').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Wrong passphrase');
+    await expect(page.getByTestId('taxpayer-ssn')).toHaveValue('');
+
+    await page.getByTestId('identity-passphrase').fill('correct-horse-battery');
+    await page.getByTestId('identity-load').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Loaded');
+    await expect(page.getByTestId('taxpayer-ssn')).toHaveValue(SSN);
+    await expect(page.getByTestId('taxpayer-first')).toHaveValue('Testfirst');
+  });
+});
+
+test.describe('G9 — no identity ever reaches the server', () => {
+  test.skip(!HAS_DB, 'needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('an SSN-shaped value in a server input is REFUSED', async ({ page }) => {
+    await page.goto('/workspaces');
+    await page.getByTestId('new-workspace-name').fill('Family 123-45-6789');
+    await page.getByRole('button', { name: 'Create workspace' }).click();
+    await expect(page.getByTestId('workspace-error')).toContainText('never stores identity');
+  });
+
+  test('after the whole journey, NO table anywhere contains the synthetic SSN', async () => {
+    const pg = (await import('pg')).default;
+    const url = new URL(process.env.TAXFS_TEST_DATABASE_URL!);
+    url.pathname = '/taxfs_e2e';
+    const admin = new pg.Client({ connectionString: url.href });
+    await admin.connect();
+    try {
+      const cols = await admin.query(`
+        select table_schema, table_name, column_name from information_schema.columns
+        where table_schema in ('public', 'storage')
+          and data_type in ('text', 'character varying', 'jsonb', 'json')`);
+      const needles = ['123-45-6789', '123456789', '987-65-4321', 'Testfirst', 'Testcase'];
+      const hits: string[] = [];
+      for (const c of cols.rows) {
+        for (const needle of needles) {
+          const r = await admin.query(
+            `select count(*)::int as n from ${c.table_schema}.${c.table_name}
+              where ${c.column_name}::text like '%' || $1 || '%'`,
+            [needle],
+          );
+          if (r.rows[0].n > 0) hits.push(`${c.table_schema}.${c.table_name}.${c.column_name} contains ${needle}`);
+        }
+      }
+      expect(hits).toEqual([]);
+    } finally {
+      await admin.end();
+    }
+  });
+});

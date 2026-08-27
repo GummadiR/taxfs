@@ -10,3 +10,4 @@ export * from './package';
 export * from './bizdefs';
 export * from './bizpackage';
 export * from './schema-catalog';
+export * from './identity';
