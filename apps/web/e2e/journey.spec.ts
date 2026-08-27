@@ -201,3 +201,34 @@ test.describe('G9 — no identity ever reaches the server', () => {
     }
   });
 });
+
+test.describe('tax history (§7.6)', () => {
+  test.skip(!HAS_DB, 'needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('prior years sit beside the computed current year; no projection without a cited release', async ({ page }) => {
+    await page.goto('/history');
+    await page.getByTestId('history-demo').click();
+    await expect(page.getByTestId('history-table')).toBeVisible();
+    // The demo 2024 column and THIS return's computed column, side by side.
+    await expect(page.getByTestId('history-table')).toContainText('2024');
+    await expect(page.getByTestId('history-table')).toContainText('2025 (this return)');
+    await expect(page.getByTestId('history-table')).toContainText('48,000'); // 2024 AGI (demo)
+    await expect(page.getByTestId('history-table')).toContainText('51,200'); // 2025 total income: 50,000 wages + 1,200 interest
+    // Charts render for populated lines; table stays primary.
+    await expect(page.getByTestId('history-charts').locator('figure').first()).toBeVisible();
+    // Projection honesty: no 2026 release on disk → the reason, never a guess.
+    await expect(page.getByTestId('projection-note')).toContainText('never projects on guessed figures');
+  });
+
+  test('a typed prior-year line lands in the table', async ({ page }) => {
+    await page.goto('/history');
+    await page.getByTestId('history-year').selectOption('2023');
+    await page.getByTestId('history-line').selectOption('agi');
+    await page.getByTestId('history-value').fill('45000');
+    await page.getByRole('button', { name: 'Add', exact: true }).click();
+    await page.waitForURL(/\/history/);
+    await expect(page.getByTestId('history-table')).toContainText('2023');
+    await expect(page.getByTestId('history-table')).toContainText('45,000');
+  });
+});

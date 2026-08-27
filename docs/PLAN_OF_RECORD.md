@@ -5,7 +5,7 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 5 (Blueprint §7.5) — COMPLETE.** Phase 4 COMPLETE (intake = demo docs + typed entry;
+**Phase 6 (Blueprint §7.6) — COMPLETE.** Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
 real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
 recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
@@ -169,9 +169,20 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   refused; and a whole-database sweep (every text/jsonb column in public +
   storage) finds no trace of the synthetic identity after the full journey.
 
+## Phase 6 (history + comparison)
+
+- `/history`: §4 history_lines rows (typed prior-year entry + a synthetic
+  demo import; PDF import of a real prior-year return arrives with the
+  extraction phase) beside THIS return's computed headline lines (read from
+  the kernel's derived facts, never re-entered). Table-first; per-line
+  single-series bar charts (validated hue, direct labels, native tooltips).
+- Projection honesty: a next-year column may exist ONLY when the cited
+  next-year rule release is on disk; its absence renders the REASON, never
+  a guessed figure. e2e-asserted.
+
 ## Deferred to their phases (not started)
 
-- Phase 6+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Phase 7 (agent upgrades), Phase 8 (hardening) per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 
