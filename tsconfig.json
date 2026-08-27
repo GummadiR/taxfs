@@ -37,6 +37,9 @@
       ],
       "@taxfs/forms": [
         "packages/forms/src/index.ts"
+      ],
+      "@taxfs/agents": [
+        "packages/agents/src/index.ts"
       ]
     }
   },

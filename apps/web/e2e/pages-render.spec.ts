@@ -7,6 +7,8 @@
 import { test, expect } from '@playwright/test';
 
 const ROUTES = ['/', '/login', '/workspaces'];
+// App section routes redirect to '/' when unconfigured and render when a DB
+// exists — either way they must never 500; covered by the journey suite.
 
 for (const route of ROUTES) {
   test(`renders ${route} with HTTP 200 and no client errors`, async ({ page }) => {
@@ -24,8 +26,9 @@ for (const route of ROUTES) {
 
 test('styles actually applied (stylesheet parsed, not just served)', async ({ page }) => {
   await page.goto('/');
-  // max-w-5xl on <body>: if the stylesheet failed to parse, this computed
-  // style is absent even though the HTML renders.
-  const maxWidth = await page.evaluate(() => getComputedStyle(document.body).maxWidth);
-  expect(maxWidth).not.toBe('none');
+  // The shell's max-w-5xl container: if the stylesheet failed to parse,
+  // the computed constraint is absent even though the HTML renders.
+  const maxWidth = await page.locator('div.max-w-5xl').first()
+    .evaluate((el) => getComputedStyle(el).maxWidth);
+  expect(maxWidth).toBe('1024px');
 });

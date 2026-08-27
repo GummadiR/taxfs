@@ -5,7 +5,9 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 4 (Blueprint §7.4) — in progress: Spine v2 done; app next.**
+**Phase 4 (Blueprint §7.4) — COMPLETE (intake = demo docs + typed entry;
+real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
+recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
 free-project cap reached; cohabiting in the live `aantic-ai` project is
 under discussion, see the service-role caveat raised in session).
@@ -112,9 +114,33 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
 - The SHARED behavior-level contract suite passes 16/16 against PgSpine v2
   on the real migrations (two backends, one suite), in CI via the postgres
   service container.
-- Remaining in phase: stateless server per §1.3.1, nav view wiring, upload →
-  scrub → extract → confirm → facts, Review with drilldown, Gates board,
-  File It (ephemeral drafts; locked packages as rows).
+- The app (apps/web, thin — domain code stays in packages): stateless
+  server layer per §1.3.1 (per-request spine/connection, closed in finally;
+  static releases are the only module-scope cache; nav_status view feeds
+  the dashboard), Get Started (settings + filing_contexts rows), Documents
+  (deterministic demo docs + typed entry — every extracted value enters
+  unconfirmed and crosses the confirm door; typing IS confirmation per
+  E.6), Review (confirm per fact, full lineage drilldown), Gates Board
+  (orchestrator runAll over PgSpine), File It (drafts never persisted;
+  locked packages as §4 rows with manifest + artifact SHA-256 hashes;
+  bytes regenerate deterministically and verify against the locked hash —
+  hosted object storage arrives with the tester phase).
+- LOCAL OPERATOR mode: TAXFS_LOCAL_OPERATOR=1 + restricted-role database
+  URL — the operator's machine and the e2e suite run the SAME spine, same
+  role, same RLS walls; only the identity source differs. Refuses to boot
+  when Supabase auth is also configured, so it can never become an auth
+  bypass on a hosted deployment.
+- The workspace cookie has an explicit one-year lifetime and is membership-
+  verified on every request (P89 class).
+- `agents` ported verbatim (63 evals green; the §6 re-aim — dual-pass
+  extraction, Discovery, dropping Categorization/Audit-Summary — is Phase 7
+  scope; live uploads + scrub land there too).
+- E2E journey (9 specs, serial) against the PRODUCTION build over a fresh
+  taxfs_e2e database with the real migrations: create workspace → filing
+  choices → add documents → values wait unconfirmed → confirm each → gates
+  0–6 green both jurisdictions → AGI drilldown shows rounded steps → File
+  It locks package v1. DB prep runs inside the webServer command
+  (Playwright boots the server BEFORE globalSetup — found empirically).
 
 ## Deferred to their phases (not started)
 

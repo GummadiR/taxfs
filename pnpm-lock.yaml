@@ -41,12 +41,30 @@ importers:
       '@supabase/supabase-js':
         specifier: 2.112.4
         version: 2.112.4
+      '@taxfs/agents':
+        specifier: workspace:*
+        version: link:../../packages/agents
+      '@taxfs/forms':
+        specifier: workspace:*
+        version: link:../../packages/forms
+      '@taxfs/gates':
+        specifier: workspace:*
+        version: link:../../packages/gates
+      '@taxfs/kernel':
+        specifier: workspace:*
+        version: link:../../packages/kernel
       '@taxfs/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@taxfs/spine':
+        specifier: workspace:*
+        version: link:../../packages/spine
       next:
         specifier: 16.3.2
         version: 16.3.2(@playwright/test@1.56.0)(@types/node@24.3.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      pg:
+        specifier: 8.16.3
+        version: 8.16.3
       react:
         specifier: 19.2.0
         version: 19.2.0
@@ -60,6 +78,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: 4.1.12
         version: 4.1.12
+      '@types/pg':
+        specifier: 8.15.4
+        version: 8.15.4
       '@types/react':
         specifier: 19.2.0
         version: 19.2.0
@@ -69,6 +90,19 @@ importers:
       tailwindcss:
         specifier: 4.1.12
         version: 4.1.12
+
+  packages/agents:
+    dependencies:
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@taxfs/spine':
+        specifier: workspace:*
+        version: link:../spine
+    devDependencies:
+      '@taxfs/gates':
+        specifier: workspace:*
+        version: link:../gates
 
   packages/forms:
     dependencies:

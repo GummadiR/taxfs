@@ -16,13 +16,20 @@
     "@taxfs/shared": "workspace:*",
     "next": "16.3.2",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "@taxfs/spine": "workspace:*",
+    "@taxfs/gates": "workspace:*",
+    "@taxfs/forms": "workspace:*",
+    "@taxfs/kernel": "workspace:*",
+    "@taxfs/agents": "workspace:*",
+    "pg": "8.16.3"
   },
   "devDependencies": {
     "@playwright/test": "1.56.0",
     "@tailwindcss/postcss": "4.1.12",
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
-    "tailwindcss": "4.1.12"
+    "tailwindcss": "4.1.12",
+    "@types/pg": "8.15.4"
   }
 }

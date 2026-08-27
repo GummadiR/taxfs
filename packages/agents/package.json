@@ -1,0 +1,16 @@
+{
+  "name": "@taxfs/agents",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@taxfs/shared": "workspace:*",
+    "@taxfs/spine": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "devDependencies": {
+    "@taxfs/gates": "workspace:*"
+  }
+}
