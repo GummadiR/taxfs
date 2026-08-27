@@ -228,6 +228,24 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   deployment + Supabase cohabitation (operator-gated), real second-user
   login e2e (needs hosted Supabase auth).
 
+## Known limitation: branch protection is configured but NOT enforced
+
+Blueprint §9.2 asks for branch protection on `main` (require CI green, no
+force-push) as the last line of defense against someone deleting the walls.
+The ruleset EXISTS on GitHub and is set Active with `main` as its target —
+but GitHub does not enforce rulesets on **private repositories on the Free
+plan**, and it says so in a banner on the ruleset page. So today this is a
+Way-1 guardrail (documented intent), not the Way-2 wall §9.2 describes.
+
+Three ways to make it real, none taken (spend and visibility are operator
+decisions): make the repo public (free, enforced immediately — the repo
+holds no PII by design), pay for GitHub Pro/Team, or leave it.
+
+**Revisit trigger:** the day anyone besides the operator gets PUSH access.
+A read-only CPA reviewer does not trigger it; a second committer does.
+Until then the practical wall is CI, which runs on every push and turns
+the commit red — visible, though not blocking.
+
 ## Corrections
 
 - F7's commit message states "unit 797 passed across 69 files"; the actual
