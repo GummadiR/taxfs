@@ -3,6 +3,8 @@ import { appConfigured, requireContext } from '@/server/context';
 import { withSpine } from '@/server/db';
 import { TAX_YEAR } from '@/server/env';
 import type { LineageNode } from '@taxfs/spine';
+import { detectSignals } from '@taxfs/agents';
+import { withUserClient } from '@/server/db';
 
 async function confirmFactAction(formData: FormData) {
   'use server';
@@ -50,9 +52,23 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
   if (!appConfigured()) redirect('/');
   const { userId, ws } = await requireContext();
   const { lineage } = await searchParams;
-  const { facts, lineageNode } = await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => ({
+  const { facts, lineageNode, sources } = await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => ({
     facts: await spine.getFacts({ taxpayer_id: ws.workspace_id, tax_year: TAX_YEAR }),
     lineageNode: lineage ? await spine.getLineage(lineage).catch(() => null) : null,
+    sources: await spine.getSources(ws.workspace_id, TAX_YEAR),
+  }));
+  const history = await withUserClient(userId, async (client) => {
+    const r = await client.query(
+      `select tax_year, line, value::text as value from history_lines where workspace_id = $1`,
+      [ws.workspace_id],
+    );
+    return r.rows as { tax_year: number; line: string; value: string }[];
+  });
+  // Deterministic Discovery signals (§6), template-phrased; the harnessed
+  // agent phrasing takes over when a live provider is configured.
+  const discoveryQuestions = detectSignals({ tax_year: TAX_YEAR, sources, facts, history }).map((s2) => ({
+    id: s2.id,
+    text: `Heads up: ${s2.detail} — is there a document or answer to add?`,
   }));
   const sourced = facts.filter((f) => f.derivation === undefined);
   const derived = facts.filter((f) => f.derivation !== undefined);
@@ -62,6 +78,14 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
       <p className="mt-1 text-sm text-slate-600">
         Nothing counts until you confirm it. Derived lines open a full drilldown — inputs, formula, every step.
       </p>
+      {discoveryQuestions.length > 0 ? (
+        <section className="mt-4 rounded border border-amber-200 bg-amber-50 p-3" data-testid="discovery-card">
+          <h2 className="text-sm font-bold text-amber-900">Anything missing?</h2>
+          <ul className="mt-1 list-disc pl-5 text-sm text-amber-900">
+            {discoveryQuestions.map((q) => <li key={q.id}>{q.text}</li>)}
+          </ul>
+        </section>
+      ) : null}
       <section className="mt-4">
         <h2 className="font-bold">Entered values</h2>
         <table className="mt-2 w-full text-sm">

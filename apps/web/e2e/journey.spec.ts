@@ -232,3 +232,30 @@ test.describe('tax history (§7.6)', () => {
     await expect(page.getByTestId('history-table')).toContainText('45,000');
   });
 });
+
+test.describe('hardening & discovery surface (§7.7–7.8)', () => {
+  test.skip(!HAS_DB, 'needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('the Discovery card asks about the W-2 box 12 W with no coverage entered', async ({ page }) => {
+    await page.goto('/review');
+    await expect(page.getByTestId('discovery-card')).toBeVisible();
+    await expect(page.getByTestId('discovery-card')).toContainText('box 12 code W');
+    await expect(page.getByTestId('discovery-card')).toContainText('?');
+  });
+
+  test('the agent-trace viewer renders (empty until live calls)', async ({ page }) => {
+    await page.goto('/agents');
+    await expect(page.getByTestId('traces-empty')).toBeVisible();
+  });
+
+  test('the owner can add a reviewer member; the roster shows it', async ({ page }) => {
+    await page.goto('/workspaces');
+    await page.getByTestId('member-uuid').fill('99999999-9999-4999-8999-999999999999');
+    await page.getByTestId('member-role').selectOption('reviewer');
+    await page.getByTestId('member-add').click();
+    await page.waitForURL(/\/workspaces/);
+    await expect(page.getByTestId('member-list')).toContainText('99999999-9999-4999-8999-999999999999');
+    await expect(page.getByTestId('member-list')).toContainText('reviewer');
+  });
+});

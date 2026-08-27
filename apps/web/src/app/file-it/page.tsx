@@ -4,11 +4,14 @@ import { withSpine, withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
 import { TAX_YEAR } from '@/server/env';
 import { buildLockedPackage, listPackages } from '@/server/packages';
+import { takeBudget } from '@/server/limits';
 import { IdentityPanel } from './identity-panel';
 
 async function buildAndLock() {
   'use server';
   const { userId, ws } = await requireContext();
+  const { withUserClient } = await import('@/server/db');
+  await withUserClient(userId, (client) => takeBudget(client, ws.workspace_id, userId, 'build_package'));
   await buildLockedPackage(userId, ws.workspace_id);
   redirect('/file-it');
 }

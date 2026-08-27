@@ -19,6 +19,7 @@ const NAV: [string, string][] = [
   ['/gates', '4 · Gates Board'],
   ['/file-it', '5 · File It'],
   ['/history', '6 · History'],
+  ['/agents', 'Agent traces'],
   ['/workspaces', 'Workspaces'],
 ];
 

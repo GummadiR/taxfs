@@ -5,7 +5,7 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 7 (Blueprint §7.7) — COMPLETE.** Phase 6 COMPLETE. Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
+**ALL BLUEPRINT §7 PHASES COMPLETE (1–8).** Phase 6 COMPLETE. Phase 5 COMPLETE. Phase 4 COMPLETE (intake = demo docs + typed entry;
 real uploads/scrub/extraction arrive with the Phase-7 agent re-aim, as
 recorded below).**
 Operator decisions this phase: Supabase live project DEFERRED (option D —
@@ -203,9 +203,36 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   gate-5 profile renders 1:1 by template); the extended e2e now exercises
   extraction → confirm → kernel → gates → explanation → discovery.
 
-## Deferred to their phases (not started)
+## Phase 8 (hardening for testers)
 
-- Phase 8 (hardening for testers) per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Rate limiting: migration 0004 `request_budgets` (named to avoid collision
+  with any future cohabitant project's tables) — per (workspace, user,
+  action) rolling windows, taken in ONE statement, DB-backed because
+  lambdas share no memory. Wired into run-gates, package lock, artifact
+  regeneration and intake; refusal is loud and names the wait. RLS: a user
+  touches only their own budget rows (negative-tested).
+- Agent-trace persistence: PgAgentLog lands every harness call in §4's
+  agent_traces (hashes and verdicts ONLY — never prompt or output text);
+  /agents renders the viewer (empty state until live extraction spends
+  calls).
+- Discovery surfaced: the Review page shows the deterministic §6 signals
+  as questions (demo W-2 now carries a box-12W FIELD with no mapped fact,
+  so the coverage question is real); harnessed-agent phrasing takes over
+  when a live provider is configured.
+- CPA reviewer invite: owners manage the member roster from Workspaces
+  (add by auth user id, reviewer = database-enforced read-only, remove);
+  non-owners are refused by RLS, not by UI.
+- Recorded as still-deferred with their reasons: live uploads + scrub +
+  upload caps + on-page region highlighting (they are one feature — the
+  live document path — and land together when hosting starts), Vercel
+  deployment + Supabase cohabitation (operator-gated), real second-user
+  login e2e (needs hosted Supabase auth).
+
+## Corrections
+
+- F7's commit message states "unit 797 passed across 69 files"; the actual
+  green run was 786 across 68 (the roster drop removed two eval files).
+  Recorded here rather than rewriting pushed history. — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 

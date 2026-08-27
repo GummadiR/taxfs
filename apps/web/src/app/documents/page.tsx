@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
 import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
+import { withUserClient } from '@/server/db';
+import { takeBudget } from '@/server/limits';
 import { TAX_YEAR } from '@/server/env';
 
 async function addDemo(formData: FormData) {
@@ -9,6 +11,7 @@ async function addDemo(formData: FormData) {
   const { userId, ws } = await requireContext();
   const doc = DEMO_DOCS.find((d) => d.id === String(formData.get('doc')));
   if (!doc) throw new Error('unknown demo document');
+  await withUserClient(userId, (client) => takeBudget(client, ws.workspace_id, userId, 'intake'));
   await withSpine({ userId, workspaceId: ws.workspace_id }, (spine) => addDemoDoc(spine, ws.workspace_id, doc));
   redirect('/review');
 }
@@ -19,6 +22,7 @@ async function addManual(formData: FormData) {
   const concept = String(formData.get('concept'));
   const amount = String(formData.get('amount') ?? '').trim();
   if (!/^-?\d+(\.\d{1,2})?$/.test(amount)) throw new Error('amount must be a plain dollar figure like 1234.56');
+  await withUserClient(userId, (client) => takeBudget(client, ws.workspace_id, userId, 'intake'));
   await withSpine({ userId, workspaceId: ws.workspace_id }, (spine) =>
     addManualEntry(spine, ws.workspace_id, concept, amount));
   redirect('/review');

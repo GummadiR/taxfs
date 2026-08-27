@@ -6,6 +6,8 @@ import { setActiveWorkspace } from '@/server/workspace';
 import { localOperatorMode } from '@/server/env';
 import { supabaseServer } from '@/lib/supabase/server';
 import { assertNoIdentityLike } from '@/server/guard';
+import { withUserClient } from '@/server/db';
+import { MembersList } from './members-list';
 
 async function createWorkspace(formData: FormData) {
   'use server';
@@ -37,6 +39,41 @@ async function openWorkspace(formData: FormData) {
   if (!memberships.some((m) => m.workspace_id === id)) throw new Error('not a member of that workspace');
   await setActiveWorkspace(id);
   redirect('/');
+}
+
+async function addMember(formData: FormData) {
+  'use server';
+  const userId = await authUserId();
+  if (!userId) redirect('/login');
+  const workspace_id = String(formData.get('workspace_id'));
+  const member = String(formData.get('user_id') ?? '').trim();
+  const role = String(formData.get('role'));
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(member)) {
+    redirect(`/workspaces?error=${encodeURIComponent('Member id must be the invitee\u2019s auth user id (a UUID from their Supabase account).')}`);
+  }
+  if (!['reviewer', 'editor'].includes(role)) throw new Error('role must be reviewer or editor');
+  try {
+    await withUserClient(userId, (client) =>
+      client.query(
+        `insert into workspace_members (workspace_id, user_id, role) values ($1, $2, $3)
+         on conflict (workspace_id, user_id) do update set role = excluded.role`,
+        [workspace_id, member, role],
+      ));
+  } catch {
+    redirect(`/workspaces?error=${encodeURIComponent('Only a workspace owner can manage members (the database refused the write).')}`);
+  }
+  redirect('/workspaces');
+}
+
+async function removeMember(formData: FormData) {
+  'use server';
+  const userId = await authUserId();
+  if (!userId) redirect('/login');
+  await withUserClient(userId, (client) =>
+    client.query(`delete from workspace_members where workspace_id = $1 and user_id = $2 and user_id <> $3`, [
+      String(formData.get('workspace_id')), String(formData.get('user_id')), userId,
+    ]));
+  redirect('/workspaces');
 }
 
 async function signOut() {
@@ -87,6 +124,29 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
         ))}
         {memberships.length === 0 ? <li className="text-sm text-slate-500">No workspaces yet — create one below.</li> : null}
       </ul>
+      <section className="mt-8 rounded border border-slate-200 p-4">
+        <h2 className="font-bold">Members (invite the CPA as a reviewer)</h2>
+        <p className="mt-1 text-xs text-slate-600">
+          A <span className="font-semibold">reviewer</span> can read everything in a workspace and change nothing —
+          enforced by the database, not by the UI. Add them by their auth user id; they sign in with their own
+          account. Owner-only: the database refuses anyone else.
+        </p>
+        <MembersList openAction={removeMember} memberships={memberships} userId={userId} />
+        <form action={addMember} className="mt-3 flex flex-wrap gap-2 text-sm">
+          <select name="workspace_id" className="rounded border border-slate-300 p-2" data-testid="member-workspace">
+            {memberships.filter((m) => m.role === 'owner').map((m) => (
+              <option key={m.workspace_id} value={m.workspace_id}>{m.display_name}</option>
+            ))}
+          </select>
+          <input name="user_id" required placeholder="Invitee auth user id (UUID)"
+            className="w-80 rounded border border-slate-300 p-2 font-mono text-xs" data-testid="member-uuid" />
+          <select name="role" className="rounded border border-slate-300 p-2" data-testid="member-role">
+            <option value="reviewer">reviewer (read-only)</option>
+            <option value="editor">editor</option>
+          </select>
+          <button className="rounded bg-slate-900 px-3 py-2 font-semibold text-white" data-testid="member-add">Add member</button>
+        </form>
+      </section>
       <form action={createWorkspace} className="mt-6 flex gap-2">
         <input name="display_name" required placeholder="New workspace name"
           className="rounded border border-slate-300 p-2 text-sm" data-testid="new-workspace-name" />

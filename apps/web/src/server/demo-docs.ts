@@ -23,7 +23,9 @@ export const DEMO_DOCS: DemoDoc[] = [
     id: 'demo-w2',
     label: 'Demo W-2 (wages 50,000)',
     type: 'W-2',
-    fields: { box1_wages: '50000', box2_fed_withholding: '4000', box17_il_withholding: '2000' },
+    // box12w_hsa is captured as a FIELD with no mapped fact: the Discovery
+    // card asks about the missing coverage type (§6) without inventing data.
+    fields: { box1_wages: '50000', box2_fed_withholding: '4000', box17_il_withholding: '2000', box12w_hsa: '1000' },
     facts: [
       { concept: C.WAGES, field: 'box1_wages', jurisdiction: ['FED', 'IL'] },
       { concept: C.FED_WITHHOLDING, field: 'box2_fed_withholding', jurisdiction: ['FED'] },

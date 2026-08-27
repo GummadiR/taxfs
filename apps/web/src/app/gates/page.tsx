@@ -3,6 +3,7 @@ import { appConfigured, requireContext } from '@/server/context';
 import { withSpine, withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
 import { boardFromRuns, buildOrchestrator } from '@/server/gates';
+import { takeBudget } from '@/server/limits';
 
 const GATE_TITLES: Record<number, string> = {
   0: 'Intake integrity', 1: 'Source confirmation', 2: 'Profile consistency',
@@ -12,7 +13,10 @@ const GATE_TITLES: Record<number, string> = {
 async function runGates() {
   'use server';
   const { userId, ws } = await requireContext();
-  const filing = await withUserClient(userId, (client) => filingContext(client, ws.workspace_id));
+  const filing = await withUserClient(userId, async (client) => {
+    await takeBudget(client, ws.workspace_id, userId, 'run_gates');
+    return filingContext(client, ws.workspace_id);
+  });
   if (!filing) redirect('/get-started');
   await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => {
     await buildOrchestrator(spine, filing).runAll();
