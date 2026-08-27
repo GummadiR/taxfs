@@ -5,7 +5,11 @@ any scope change). Architecture/schema/guardrails: `TAXFS-BLUEPRINT.md`.
 
 ## Status
 
-**Phase 3 (Blueprint §7.3) — COMPLETE.** shared/kernel/kernel2/goldens/
+**Phase 4 (Blueprint §7.4) — in progress: Spine v2 done; app next.**
+Operator decisions this phase: Supabase live project DEFERRED (option D —
+free-project cap reached; cohabiting in the live `aantic-ai` project is
+under discussion, see the service-role caveat raised in session).
+Phase 3 COMPLETE. shared/kernel/kernel2/goldens/
 divergence, spine (contracts + reference), gates with the §3.2
 graph-derived tie-outs, forms with the field-map verification harness and
 its G10 negative test, official 2025 PDF templates. Phase 2 built;
@@ -90,9 +94,31 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   the stamp-flatten-render field-map harness; G10's seeded-negative test
   added (a fabricated field name against the real f1040.pdf is caught).
 
+## Phase 4 progress
+
+- Migration `0003_spine_v2.sql` — three recorded reconciliations of the
+  abridged §4 DDL with the ported contract: registers rebuilt with the
+  ARCHITECTURE §3.2 shape (balances, closed-immutability trigger, year-close
+  roll), gate_runs + rule_version/started/consumed_fact_ids (the A.2
+  staleness cascade's substrate) + a run-id sequence, calculations +
+  terms/clamp_zero (§3.2 tie-out decomposition persisted). Audit triggers
+  now record each row's natural id.
+- `PgSpine` v2 (packages/spine/src/pg.ts): the TaxOS adapter ported to the
+  §4 schema — every statement workspace-scoped (composite PKs make id-only
+  lookups a cross-workspace defect), findings persist as payload jsonb,
+  the taxpayer_id↔workspace_id mapping lives only at the SQL boundary, and
+  a connection whose role could bypass RLS is REFUSED at connect. Ops
+  helpers: ensureWorkspace / listWorkspaces / deleteWorkspaceCascade.
+- The SHARED behavior-level contract suite passes 16/16 against PgSpine v2
+  on the real migrations (two backends, one suite), in CI via the postgres
+  service container.
+- Remaining in phase: stateless server per §1.3.1, nav view wiring, upload →
+  scrub → extract → confirm → facts, Review with drilldown, Gates board,
+  File It (ephemeral drafts; locked packages as rows).
+
 ## Deferred to their phases (not started)
 
-- Phase 4+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
+- Phase 5+ per Blueprint §7 — shared/kernel/kernel2 + 42 goldens (G6/G7),
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 

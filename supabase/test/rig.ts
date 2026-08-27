@@ -28,6 +28,8 @@ export interface Rig {
   /** Connect as the restricted app role, acting as the given auth user. */
   actAs(userId: string): Promise<pg.Client>;
   admin: pg.Client;
+  /** Connection config for the restricted app role (PgSpine.create input). */
+  appConfig: pg.ClientConfig;
   close(): Promise<void>;
 }
 
@@ -95,9 +97,15 @@ export async function bootRig(): Promise<Rig> {
     grant select, insert, update, delete on storage.objects to authenticated;
   `);
 
+  const appUrl = new URL(TEST_DB_URL);
+  appUrl.pathname = '/' + dbName;
+  appUrl.username = APP_ROLE;
+  appUrl.password = APP_PASSWORD;
+
   const appClients: pg.Client[] = [];
   const rig: Rig = {
     admin,
+    appConfig: { connectionString: appUrl.href },
     async actAs(userId: string) {
       const url = new URL(TEST_DB_URL!);
       url.pathname = '/' + dbName;
