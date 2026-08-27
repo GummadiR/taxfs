@@ -228,23 +228,27 @@ Phase 4 (Spine v2 on the §4 schema + the app). Phase 1 accepted (operator: "pro
   deployment + Supabase cohabitation (operator-gated), real second-user
   login e2e (needs hosted Supabase auth).
 
-## Known limitation: branch protection is configured but NOT enforced
+## Branch protection (§9.2) — ENFORCED
 
-Blueprint §9.2 asks for branch protection on `main` (require CI green, no
-force-push) as the last line of defense against someone deleting the walls.
-The ruleset EXISTS on GitHub and is set Active with `main` as its target —
-but GitHub does not enforce rulesets on **private repositories on the Free
-plan**, and it says so in a banner on the ruleset page. So today this is a
-Way-1 guardrail (documented intent), not the Way-2 wall §9.2 describes.
+The ruleset on `main` requires the CI `gates` check to pass and blocks
+force pushes, Active with `main` as its target. GitHub does not enforce
+rulesets on private repositories on the Free plan, so on 2026-08-27 the
+operator made the repository PUBLIC, which enables enforcement at no cost.
 
-Three ways to make it real, none taken (spend and visibility are operator
-decisions): make the repo public (free, enforced immediately — the repo
-holds no PII by design), pay for GitHub Pro/Team, or leave it.
+Publishing was safe by construction and was verified before the switch:
+no `.env` is committed (only `.env.example` placeholders), no API keys,
+JWTs or private keys anywhere in tracked files OR in the full git history,
+no real database URLs or Supabase project refs, and every SSN-shaped
+string in the repo is a synthetic test value (`123-45-6789` /
+`987-65-4321`, names `Testfirst`/`Testcase`) inside a test file. All
+commit authorship is `Claude <noreply@anthropic.com>` — no personal email
+in the public history.
 
-**Revisit trigger:** the day anyone besides the operator gets PUSH access.
-A read-only CPA reviewer does not trigger it; a second committer does.
-Until then the practical wall is CI, which runs on every push and turns
-the commit red — visible, though not blocking.
+Standing consequences of a public repo, all of which the design already
+required: real taxpayer data never enters the repo (it lives in the
+database and, for identity, only in the operator's browser); `.env.local`
+and `.taxos-mask.json` stay gitignored; secrets only ever reach the app
+through environment variables.
 
 ## Corrections
 
