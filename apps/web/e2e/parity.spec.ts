@@ -51,3 +51,46 @@ test.describe('parity screens (forms, e-file, interview)', () => {
     await expect(page.getByTestId('question-gap-att-residency')).toHaveCount(0);
   });
 });
+
+test.describe('Add Data (structured entry)', () => {
+  test.skip(!HAS_DB, 'TAXFS_TEST_DATABASE_URL not set — needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('the 2024 worksheet computes BOTH carryovers and saves them (P40/P66)', async ({ page }) => {
+    await page.goto('/data');
+    await page.getByTestId('wk-toggle').click();
+    await page.getByTestId('wk-taxable-income').fill('100000');
+    await page.getByTestId('wk-line7').fill('1000');
+    await page.getByTestId('wk-line15').fill('-48842');
+    await page.getByTestId('wk-line21').fill('-3000');
+    await page.getByTestId('wk-compute').click();
+    await page.waitForURL(/\/data\?msg=/);
+    await expect(page.getByTestId('data-msg')).toContainText('SAVED');
+    await expect(page.getByTestId('data-msg')).toContainText('44842');
+    // P86 — the saved figures render as "already on your return".
+    await expect(page.getByTestId('caploss-saved')).toContainText('long-term 44842');
+  });
+
+  test('a K-1 saves as one manual source of registered concepts', async ({ page }) => {
+    await page.goto('/data');
+    await page.getByTestId('field-k1_id').fill('asap-llc');
+    const k1 = page.getByTestId('form-k1');
+    await k1.getByTestId('field-box1').fill('1200');
+    await k1.getByTestId('field-basis_opening').fill('5000');
+    await page.getByTestId('save-k1').click();
+    await page.waitForURL(/\/data\?msg=/);
+    await expect(page.getByTestId('data-msg')).toContainText('Saved');
+    // The completion card must NOT appear: basis and participation are in.
+    await expect(page.getByTestId('detected-k1-asap-llc')).toHaveCount(0);
+  });
+
+  test('a free-form concept id is refused by the registry, not saved', async ({ page }) => {
+    await page.goto('/data');
+    await page.getByTestId('field-k1_id').fill('bad id with spaces');
+    const k1 = page.getByTestId('form-k1');
+    await k1.getByTestId('field-box1').fill('10');
+    await page.getByTestId('save-k1').click();
+    await page.waitForURL(/\/data\?msg=/);
+    await expect(page.getByTestId('data-msg')).toContainText('short id');
+  });
+});
