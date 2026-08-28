@@ -30,6 +30,9 @@ export interface LifecycleReport {
   documents: number;
   orphaned_documents: string[];
   error?: string;
+  /** Set client-side after the server action returns: did the browser vault
+   *  actually clear? Never claimed true on a swallowed failure. */
+  vault_cleared?: boolean;
 }
 
 type Runner = (workspaceId: string, action: 'reset' | 'delete', confirmName: string) => Promise<LifecycleReport>;
@@ -50,16 +53,19 @@ export function DangerZone({ owned, run }: { owned: WorkspaceOption[]; run: Runn
       const result = await run(selected.workspace_id, action, typed);
       // The vault is per-workspace and lives only here. Clear it on BOTH
       // actions: a reset that left last year's SSN behind would silently
-      // repopulate the next return.
+      // repopulate the next return. Whether it ACTUALLY cleared is tracked
+      // and reported honestly — a failure (DB corruption, storage eviction)
+      // must never be announced as "cleared" while the ciphertext remains.
+      let vault_cleared = false;
       if (!result.error) {
         try {
           await deleteIdentity(selected.workspace_id);
+          vault_cleared = true;
         } catch {
-          // An unavailable IndexedDB (private window, storage disabled) has
-          // nothing stored to clear, so there is nothing to report.
+          vault_cleared = false;
         }
       }
-      setReport(result);
+      setReport({ ...result, vault_cleared });
       setTyped('');
     });
   }
@@ -142,9 +148,16 @@ export function DangerZone({ owned, run }: { owned: WorkspaceOption[]; run: Runn
             ) : (
               <p className="mt-1 text-xs text-slate-600">It was already empty.</p>
             )}
-            <p className="mt-2 text-xs text-slate-600">
-              The identity stored in this browser for this workspace was cleared.
-            </p>
+            {report.vault_cleared ? (
+              <p className="mt-2 text-xs text-slate-600">
+                The identity stored in this browser for this workspace was cleared.
+              </p>
+            ) : (
+              <p className="mt-2 text-xs font-semibold text-red-800" data-testid="danger-vault-failed">
+                The identity stored in this browser could NOT be cleared automatically.
+                Clear it manually: browser settings → site data for this site → delete.
+              </p>
+            )}
             {report.orphaned_documents.length > 0 ? (
               <p className="mt-2 text-xs font-semibold text-red-800" data-testid="danger-orphans">
                 {report.orphaned_documents.length} stored document(s) could NOT be removed and are still in the

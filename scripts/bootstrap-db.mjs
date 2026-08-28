@@ -41,10 +41,19 @@ function appUrl() {
   return url.href;
 }
 
-function fail(message, hint) {
+/** Exit codes the launchers act on: 1 = generic failure (show the error),
+ *  2 = the admin password was REJECTED (re-prompting is the fix — nothing
+ *  else is; a stopped service or broken migration must not be answered
+ *  with a password prompt). */
+function fail(message, hint, exitCode = 1) {
   console.error(`\n  TaxFS database setup failed: ${message}`);
   if (hint) console.error(`  ${hint}`);
-  process.exit(1);
+  process.exit(exitCode);
+}
+
+/** Postgres invalid_password / invalid_authorization_specification. */
+function isAuthRejection(e) {
+  return e?.code === '28P01' || e?.code === '28000';
 }
 
 async function main() {
@@ -55,6 +64,13 @@ async function main() {
   try {
     await admin.connect();
   } catch (e) {
+    if (isAuthRejection(e)) {
+      fail(
+        `PostgreSQL rejected the password for its "postgres" user`,
+        'Set PGPASSWORD to the password chosen during PostgreSQL installation (the launcher prompts for it).',
+        2,
+      );
+    }
     fail(
       `cannot reach PostgreSQL at ${new URL(ADMIN_URL).host} (${e.code ?? e.message})`,
       'Is PostgreSQL installed and running? If its password is not "postgres", set PGPASSWORD or TAXFS_ADMIN_DATABASE_URL.',

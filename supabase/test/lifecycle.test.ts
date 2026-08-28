@@ -61,11 +61,20 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
       `insert into tax_facts (workspace_id, fact_id, concept, tax_year, jurisdictions, taxpayer_scope,
          value, status, confidence)
        values ($1, 'f-1', 'wages', 2025, array['FED'], 'primary', 1000.00, 'confirmed', 1.0)`, [id]);
+    await client.query(
+      `insert into tax_facts (workspace_id, fact_id, concept, tax_year, jurisdictions, taxpayer_scope,
+         value, status, confidence)
+       values ($1, 'f-0', 'interest', 2025, array['FED'], 'primary', 10.00, 'confirmed', 1.0)`, [id]);
     await client.query(`insert into fact_provenance (workspace_id, fact_id, source_id, source_field)
        values ($1, 'f-1', 'src-1', 'box1')`, [id]);
     await client.query(
       `insert into calculations (workspace_id, calc_id, concept, output_fact_id, rule_version, formula_ref, steps, value)
        values ($1, 'c-1', 'agi', 'f-1', 'r1', 'ref', array['step'], 1000.00)`, [id]);
+    await client.query(
+      `insert into fact_dependencies (workspace_id, calc_id, input_fact_id, output_fact_id)
+       values ($1, 'c-1', 'f-0', 'f-1')`, [id]);
+    await client.query(
+      `insert into request_budgets (workspace_id, user_id, action, count) values ($1, $2, 'seed', 1)`, [id, user]);  // action 'seed': avoids the PK of tests that insert 'extract' rows
     await client.query(
       `insert into gate_runs (workspace_id, run_id, tax_year, gate, jurisdiction, result)
        values ($1, 'g-1', 2025, 1, 'FED', 'pass')`, [id]);
@@ -88,7 +97,12 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
     return id;
   }
 
+  // Every table a reset clears — including fact_dependencies and
+  // request_budgets, which the first cut of this suite seeded and asserted
+  // nothing about, leaving the silent-0-rows class (the budgets_rw defect
+  // this PR documents) uncovered for them at runtime.
   const DATA_TABLES = ['settings', 'sources', 'tax_facts', 'fact_provenance', 'calculations',
+    'fact_dependencies', 'request_budgets',
     'gate_runs', 'findings', 'packages', 'registers', 'history_lines', 'filing_contexts', 'agent_traces'];
 
   async function rowCount(client: pg.Client, table: string, workspace: string): Promise<number> {
@@ -146,9 +160,11 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
     await editor.query(
       `insert into request_budgets (workspace_id, user_id, action, count) values ($1, $2, 'extract', 1)`,
       [ws, EDITOR]);
-    const seen = await editor.query(`select user_id from request_budgets where workspace_id = $1`, [ws]);
+    // Scoped to this test's 'extract' rows: the seed also plants a 'seed'
+    // budget row for the owner, which is not part of this claim.
+    const seen = await editor.query(`select user_id from request_budgets where workspace_id = $1 and action = 'extract'`, [ws]);
     expect(seen.rows.map((r) => String(r.user_id))).toEqual([EDITOR]);
-    const byOwner = await owner.query(`select user_id from request_budgets where workspace_id = $1 order by user_id`, [ws]);
+    const byOwner = await owner.query(`select user_id from request_budgets where workspace_id = $1 and action = 'extract' order by user_id`, [ws]);
     expect(byOwner.rows.map((r) => String(r.user_id))).toEqual([OWNER, EDITOR].sort());
     // And an owner of a DIFFERENT workspace sees nothing of this one.
     const outsider = await stranger.query(`select 1 from request_budgets where workspace_id = $1`, [ws]);
@@ -160,7 +176,7 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
   it('a REVIEWER cannot reset — the tester case, refused by the database', async () => {
     await expect(reviewer.query(`select reset_workspace($1)`, [ws]))
       .rejects.toThrow(/only a workspace owner/i);
-    expect(await rowCount(owner, 'tax_facts', ws)).toBe(1);
+    expect(await rowCount(owner, 'tax_facts', ws)).toBe(2);
   });
 
   it('a reviewer has no delete path at all, even bypassing the function', async () => {
@@ -168,7 +184,7 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
       const d = await reviewer.query(`delete from ${t} where workspace_id = $1`, [ws]);
       expect(d.rowCount, `reviewer deleted rows from ${t}`).toBe(0);
     }
-    expect(await rowCount(owner, 'tax_facts', ws)).toBe(1);
+    expect(await rowCount(owner, 'tax_facts', ws)).toBe(2);
   });
 
   it('an EDITOR cannot reset or delete the workspace', async () => {
@@ -176,7 +192,7 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
       .rejects.toThrow(/only a workspace owner/i);
     await expect(editor.query(`select delete_workspace($1)`, [ws]))
       .rejects.toThrow(/only a workspace owner/i);
-    expect(await rowCount(owner, 'tax_facts', ws)).toBe(1);
+    expect(await rowCount(owner, 'tax_facts', ws)).toBe(2);
   });
 
   it('a NON-MEMBER cannot reset or delete, and learns nothing about the workspace', async () => {
@@ -184,7 +200,7 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
       .rejects.toThrow(/only a workspace owner/i);
     await expect(stranger.query(`select delete_workspace($1)`, [ws]))
       .rejects.toThrow(/only a workspace owner/i);
-    expect(await rowCount(owner, 'tax_facts', ws)).toBe(1);
+    expect(await rowCount(owner, 'tax_facts', ws)).toBe(2);
   });
 
   // ---- the permitted path ----
@@ -203,9 +219,12 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
   });
 
   it('reset touches ONLY its own workspace', async () => {
+    const before: Record<string, number> = {};
+    for (const t of DATA_TABLES) before[t] = await rowCount(stranger, t, other);
     await owner.query(`select reset_workspace($1)`, [ws]);
     for (const t of DATA_TABLES) {
-      expect(await rowCount(stranger, t, other), `reset leaked into another workspace via ${t}`).toBe(1);
+      expect(before[t], `seed left ${t} empty — the leak check would be vacuous`).toBeGreaterThan(0);
+      expect(await rowCount(stranger, t, other), `reset leaked into another workspace via ${t}`).toBe(before[t]);
     }
   });
 
@@ -239,10 +258,26 @@ describe.skipIf(!TEST_DB_URL)('workspace reset and delete', () => {
   });
 
   it('delete touches ONLY its own workspace', async () => {
+    const factsBefore = await rowCount(stranger, 'tax_facts', other);
     await owner.query(`select delete_workspace($1)`, [ws]);
     const w = await rig.admin.query(`select 1 from workspaces where workspace_id = $1`, [other]);
     expect(w.rowCount).toBe(1);
-    expect(await rowCount(stranger, 'tax_facts', other)).toBe(1);
+    expect(await rowCount(stranger, 'tax_facts', other)).toBe(factsBefore);
+  });
+
+  it('after delete_workspace the ex-owner cannot touch the storage bucket — why the app clears storage FIRST', async () => {
+    // The bucket policies gate every verb on MEMBERSHIP, and delete_workspace
+    // ends the caller's. An app-layer cleanup that ran after the delete would
+    // therefore match nothing and silently orphan every stored document —
+    // the exact defect the architect-critic pass found in runLifecycle. This
+    // pins the property that makes reset -> clear-bucket -> delete the only
+    // safe order.
+    await owner.query(`insert into storage.objects (bucket_id, name) values ('documents', $1)`, [`${ws}/2025/w2.pdf`]);
+    await owner.query(`select delete_workspace($1)`, [ws]);
+    const d = await owner.query(`delete from storage.objects where name = $1`, [`${ws}/2025/w2.pdf`]);
+    expect(d.rowCount).toBe(0); // ex-member: RLS matches nothing
+    const still = await rig.admin.query(`select 1 from storage.objects where name = $1`, [`${ws}/2025/w2.pdf`]);
+    expect(still.rowCount).toBe(1); // the object really is orphaned
   });
 
   it('the audit log is still append-only after a lifecycle operation', async () => {

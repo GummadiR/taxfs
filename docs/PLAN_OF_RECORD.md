@@ -290,6 +290,41 @@ Gate chain green on this work: lint, `audit:values`, typecheck, strict
 production build, **807 unit tests** (1 skipped — the live-provider test),
 **22 Playwright specs** against that build.
 
+## Architect-critic pass over Phase 9 (operator-requested)
+
+A high-effort end-to-end critic review (2026-08-28) over the lifecycle work
+found 8 defects; all fixed and re-verified, gate chain green (808 unit tests,
+22 e2e). The two that mattered most:
+
+- **Hosted Delete orphaned every stored document.** The bucket policies gate
+  every verb on membership, and `delete_workspace` ends the caller's — so the
+  app's storage cleanup, running after it, matched nothing and "succeeded"
+  empty. Fixed: `runLifecycle` now always resets first, clears the bucket
+  while still a member, then deletes the workspace row. A new SQL test pins
+  the property (an ex-owner's storage delete matches 0 rows), so the unsafe
+  order can't quietly come back.
+- **False orphan alarms for synthetic refs.** `demo://` and `manual://` refs
+  never were bucket objects; reporting them as "still in the bucket" was a
+  false alarm every local reset would show. Fixed: only
+  `{workspace_id}/...`-shaped refs go to storage; e2e now asserts the orphan
+  warning is absent after a demo-doc reset.
+
+The rest: `start.bat` saved the password via `echo %VAR%`, which cmd corrupts
+on `& | < > ^ !` (now written by PowerShell from the environment, with zero
+`%PGPASSWORD%` expansions left in the file); both launchers answered EVERY
+bootstrap failure with a password prompt (bootstrap now exits 2 only on
+Postgres 28P01/28000, and the launchers prompt only on that — verified
+empirically: wrong password → one prompt → saved; server down → real
+ECONNREFUSED shown, no prompt); the danger zone claimed the browser vault was
+cleared even when `deleteIdentity()` threw (now tracked and reported
+honestly); the e2e mistype test silently depended on the journey spec's
+workspace surviving (reordered to be self-contained); the 0005 comment
+claimed a failed reset still records its audit row, which plpgsql cannot
+promise (comment corrected — all-or-nothing is the real guarantee); and the
+lifecycle suite seeded but never asserted `fact_dependencies` and
+`request_budgets`, leaving the silent-0-rows class uncovered for them
+(both now seeded and asserted in every refusal/leak/empty check).
+
 ## Branch protection (§9.2) — ENFORCED
 
 The ruleset on `main` requires the CI `gates` check to pass and blocks

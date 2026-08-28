@@ -60,10 +60,27 @@ export async function runLifecycle(
   }
 
   const config = { connectionString: requireDbUrl() };
-  const result =
-    action === 'reset'
-      ? await resetWorkspace(config, userId, workspaceId)
-      : await deleteWorkspace(config, userId, workspaceId);
+
+  // BOTH actions start with reset_workspace, and the ordering is load-bearing
+  // for delete: the bucket policies let only a MEMBER remove objects, and
+  // delete_workspace ends the caller's membership — clearing storage after it
+  // would silently orphan every stored document (RLS matches nothing, remove()
+  // "succeeds" with an empty list). So: empty the rows, clear the bucket
+  // while still a member, and only then remove the workspace row itself.
+  const result = await resetWorkspace(config, userId, workspaceId);
+
+  // Only refs that name real bucket objects ({workspace_id}/{tax_year}/...)
+  // go to storage. Demo and typed entries carry synthetic refs (demo://,
+  // manual://) that never were bucket objects — reporting those as "still in
+  // the bucket" would be a false alarm about documents that do not exist.
+  const bucketRefs = result.raw_refs.filter((r) => r.startsWith(`${workspaceId}/`));
+  const orphaned_documents = await clearDocuments(bucketRefs);
+
+  if (action === 'delete') {
+    // Rows are already gone, so this returns empty counts; it removes the
+    // members and the workspace row, and audits 'delete workspace'.
+    await deleteWorkspace(config, userId, workspaceId);
+  }
 
   const by_table = Object.entries(result.deleted)
     .map(([table, rows]) => ({ table, rows }))
@@ -76,16 +93,17 @@ export async function runLifecycle(
     display_name: member.display_name,
     rows: by_table.reduce((sum, r) => sum + r.rows, 0),
     by_table,
-    documents: result.raw_refs.length,
-    orphaned_documents: await clearDocuments(result.raw_refs),
+    documents: bucketRefs.length,
+    orphaned_documents,
   };
 }
 
 /**
  * Remove the workspace's stored documents. Local-operator mode stores no
- * objects (there is no bucket), so this is a no-op there and the refs list
- * is empty; hosted mode removes them as the authenticated user, which the
- * bucket policies allow only for a member of that workspace.
+ * bucket objects (the caller filters to real {workspace_id}/... refs, so the
+ * list is empty there); hosted mode removes them as the authenticated user,
+ * which the bucket policies allow only while still a member — which is why
+ * runLifecycle clears storage BEFORE delete_workspace ends that membership.
  */
 async function clearDocuments(refs: string[]): Promise<string[]> {
   if (refs.length === 0) return [];

@@ -62,13 +62,14 @@ if not defined PGPASSWORD set PGPASSWORD=postgres
 call :try_bootstrap
 if "%TAXFS_BOOT_OK%"=="1" goto db_ready
 
-REM First attempt failed. If PostgreSQL is reachable but rejected the
-REM password, asking is the fix — so ask, rather than dumping instructions.
+REM bootstrap-db exits 2 ONLY when PostgreSQL rejected the password - the one
+REM failure a prompt fixes. Anything else (not installed, service stopped,
+REM broken migration) is shown verbatim, never misdiagnosed as a bad password.
+if not "%TAXFS_BOOT_RC%"=="2" goto boot_failed
+
 echo(
 echo   PostgreSQL did not accept the stored password.
 echo   Enter the password you chose for the "postgres" user during install.
-echo   (If PostgreSQL is not installed yet, close this window and install it
-echo    from https://www.postgresql.org/download/windows/ first.)
 echo(
 set "PGPASSWORD="
 set /p PGPASSWORD=postgres password: 
@@ -77,18 +78,19 @@ if not defined PGPASSWORD goto boot_failed
 call :try_bootstrap
 if not "%TAXFS_BOOT_OK%"=="1" goto boot_failed
 
-REM It worked - remember it so this is asked exactly once.
+REM It worked - remember it so this is asked exactly once. Written via
+REM PowerShell reading the ENVIRONMENT variable, never via `echo %%var%%`:
+REM cmd would corrupt passwords containing & | < > ^ or ! on the way to the
+REM file (and run whatever follows an & as a command).
 if not exist "%APPDATA%\TaxFS" mkdir "%APPDATA%\TaxFS"
-> "%APPDATA%\TaxFS\pg.txt" echo %PGPASSWORD%
+powershell -NoProfile -Command "[IO.File]::WriteAllText($env:APPDATA + '\TaxFS\pg.txt', $env:PGPASSWORD)"
 echo   Password saved for next time (in %APPDATA%\TaxFS, not in the project).
 goto db_ready
 
 :boot_failed
-REM Re-run WITHOUT swallowing stderr, so the operator sees the real reason
-REM rather than only this checklist.
 echo(
 echo   --- what the database setup actually reported ---
-node scripts/bootstrap-db.mjs
+type "%TEMP%\taxfs-boot.out" 2>nul
 echo(
 echo   Database setup did not finish. The usual causes:
 echo(
@@ -104,9 +106,14 @@ pause
 exit /b 1
 
 :try_bootstrap
-REM bootstrap-db prints TAXFS_DATABASE_URL=... on its last line; capture it.
+REM One run, output captured to a file: the same output feeds the URL
+REM capture on success and the verbatim error report on failure - the old
+REM shape re-ran the bootstrap just to see what it said.
+node scripts/bootstrap-db.mjs > "%TEMP%\taxfs-boot.out" 2>&1
+set TAXFS_BOOT_RC=%errorlevel%
 set TAXFS_BOOT_OK=0
-for /f "usebackq tokens=1,* delims==" %%A in (`node scripts/bootstrap-db.mjs 2^>nul`) do (
+if not "%TAXFS_BOOT_RC%"=="0" exit /b 0
+for /f "usebackq tokens=1,* delims==" %%A in ("%TEMP%\taxfs-boot.out") do (
   if "%%A"=="TAXFS_DATABASE_URL" (
     set "TAXFS_DATABASE_URL=%%B"
     set TAXFS_BOOT_OK=1

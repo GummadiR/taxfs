@@ -49,6 +49,11 @@ test.describe('reset and delete a workspace', () => {
     await expect(report).toContainText('rows removed');
     await expect(report).toContainText('sources');
     await expect(report).toContainText('tax_facts');
+    // Demo docs carry synthetic demo:// refs that never were bucket objects;
+    // a "still in the bucket" warning about them would be a false alarm
+    // (the regression this guards: refs must be filtered to real objects).
+    await expect(page.getByTestId('danger-orphans')).toHaveCount(0);
+    await expect(report).toContainText('was cleared');
 
     // The workspace itself survives a reset, emptied.
     await page.goto('/workspaces');
@@ -57,6 +62,18 @@ test.describe('reset and delete a workspace', () => {
     // The table always renders, and an empty one carries its own row, so
     // "no rows" would be the wrong assertion: assert the empty STATE.
     await expect(page.getByTestId('sourced-facts')).toContainText('Nothing entered yet.');
+  });
+
+  test('a mistyped confirmation cannot reach the destructive path', async ({ page }) => {
+    // Runs BEFORE the delete test, on this spec's own workspace — the spec
+    // stays self-contained instead of silently borrowing the journey's
+    // workspace when its own is already gone (a file-ordering coin flip).
+    await page.goto('/workspaces');
+    const zone = page.getByTestId('danger-zone');
+    await expect(zone).toBeVisible();
+    await page.getByTestId('danger-workspace').selectOption({ label: NAME });
+    await page.getByTestId('danger-confirm').fill('definitely not the name');
+    await expect(page.getByTestId('danger-run')).toBeDisabled();
   });
 
   test('deleting removes the workspace from the list entirely', async ({ page }) => {
@@ -69,13 +86,5 @@ test.describe('reset and delete a workspace', () => {
 
     await page.goto('/workspaces');
     await expect(page.getByTestId('workspace-list')).not.toContainText(NAME);
-  });
-
-  test('a mistyped confirmation cannot reach the destructive path', async ({ page }) => {
-    await page.goto('/workspaces');
-    const zone = page.getByTestId('danger-zone');
-    await expect(zone).toBeVisible();
-    await page.getByTestId('danger-confirm').fill('definitely not the name');
-    await expect(page.getByTestId('danger-run')).toBeDisabled();
   });
 });

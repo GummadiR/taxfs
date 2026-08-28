@@ -28,7 +28,9 @@
 --
 --  * audit_log SURVIVES both operations. It has no foreign key to workspaces
 --    precisely so the record that a wipe happened outlives the thing wiped.
---    Each function writes an explicit summary row BEFORE it deletes anything.
+--    Each function writes an explicit summary row in the same transaction as
+--    its deletes — the row commits with a completed wipe (all-or-nothing),
+--    it is not a durable record of failed attempts.
 --
 --  * log_audit() becomes SECURITY DEFINER (see below) — required, because
 --    delete_workspace removes the caller's own membership row, and the audit
@@ -131,7 +133,11 @@ begin
   select coalesce(array_agg(raw_ref), '{}') into refs
     from sources where workspace_id = p_workspace_id;
 
-  -- Written first: if a later statement fails, the attempt is still recorded.
+  -- Written before the deletes for reading order, but it lives in the SAME
+  -- transaction as them (plpgsql has no autonomous transactions): a failed
+  -- reset rolls this row back along with every delete. All-or-nothing is
+  -- the guarantee here — there is deliberately NO record-of-failed-attempt
+  -- claim, because Postgres cannot make one from inside this function.
   insert into audit_log (workspace_id, actor, action, detail)
   values (p_workspace_id, coalesce(auth.uid()::text, 'system'), 'reset workspace',
           jsonb_build_object('documents', coalesce(array_length(refs, 1), 0)));
