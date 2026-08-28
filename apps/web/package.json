@@ -26,7 +26,12 @@
     "react-dom": "19.2.0",
     "@taxfs/defense": "workspace:*",
     "@taxfs/postfiling": "workspace:*",
-    "@taxfs/compliance": "workspace:*"
+    "@taxfs/compliance": "workspace:*",
+    "jimp": "^1.6.1",
+    "pdfjs-dist": "^6.2.108",
+    "tesseract.js": "^7.0.0",
+    "@hyzyla/pdfium": "^2.1.13",
+    "@tesseract.js-data/eng": "^1.0.0"
   },
   "devDependencies": {
     "@playwright/test": "1.56.0",
@@ -35,6 +40,8 @@
     "@types/react": "19.2.0",
     "@types/react-dom": "19.2.0",
     "tailwindcss": "4.1.12",
-    "pdf-lib": "1.17.1"
+    "pdf-lib": "1.17.1",
+    "pdfkit": "^0.19.1",
+    "@types/pdfkit": "^0.17.6"
   }
 }

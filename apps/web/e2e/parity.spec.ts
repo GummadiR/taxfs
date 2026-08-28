@@ -262,3 +262,28 @@ test.describe('Entities + Business Filing (1120-S / 1065)', () => {
     await expect(forms).toContainText('owner copy: bob');
   });
 });
+
+test.describe('Real document upload (scrub + store, extraction off)', () => {
+  test.skip(!HAS_DB, 'TAXFS_TEST_DATABASE_URL not set — needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('a clean PDF uploads: scrubbed locally, stored, listed with Rescan; extraction-off is said plainly', async ({ page }) => {
+    test.setTimeout(120_000); // local OCR/scrub is real work
+    await page.goto('/documents');
+    await expect(page.getByTestId('upload-dropzone')).toBeVisible();
+    await page.getByTestId('upload-file-input').setInputFiles('../../rules/fixtures/sample-docs/2025.SAMPLE.w2.pdf');
+    // The dropzone posts sequentially then refreshes; the new source appears.
+    await expect(page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first())
+      .toBeVisible({ timeout: 90_000 });
+    // Stored uploads expose Rescan (P26) — demo/manual sources never do.
+    await expect(page.locator('[data-testid^="rescan-doc-"]').first()).toBeVisible();
+  });
+
+  test('deleting the upload removes the source and its stored file', async ({ page }) => {
+    await page.goto('/documents');
+    const row = page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first();
+    await row.getByRole('button', { name: 'Remove' }).click();
+    await page.waitForURL(/\/documents\?msg=/);
+    await expect(page.getByTestId('docs-msg')).toContainText('deleted');
+  });
+});

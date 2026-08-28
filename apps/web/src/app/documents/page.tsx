@@ -1,5 +1,8 @@
 import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
+import { UploadDropzone } from '@/components/upload-dropzone';
+import { deleteUploadedDocument, rescanDocument } from '@/server/upload';
+import { isStoredDocumentRef } from '@/server/docstore';
 import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
 import { withUserClient } from '@/server/db';
@@ -32,23 +35,37 @@ async function removeDoc(formData: FormData) {
   'use server';
   const { userId, ws } = await requireContext();
   const source_id = String(formData.get('source_id'));
-  await withSpine({ userId, workspaceId: ws.workspace_id }, (spine) =>
-    spine.deleteSource(source_id, { cascade: true }));
-  redirect('/documents');
+  // Stored uploads also remove their file; demo/manual sources have none.
+  const msg = await deleteUploadedDocument(userId, ws.workspace_id, source_id);
+  redirect(`/documents?msg=${encodeURIComponent(msg)}`);
 }
 
-export default async function Documents() {
+async function rescanDoc(formData: FormData) {
+  'use server';
+  const { userId, ws } = await requireContext();
+  await withUserClient(userId, (client) => takeBudget(client, ws.workspace_id, userId, 'upload'));
+  const report = await rescanDocument(userId, ws.workspace_id, String(formData.get('source_id')));
+  redirect(`/documents?msg=${encodeURIComponent(report.messages.join(' '))}`);
+}
+
+export default async function Documents({ searchParams }: { searchParams: Promise<{ msg?: string }> }) {
   if (!appConfigured()) redirect('/');
   const { userId, ws } = await requireContext();
+  const { msg } = await searchParams;
   const sources = await withSpine({ userId, workspaceId: ws.workspace_id }, (spine) =>
     spine.getSources(ws.workspace_id, TAX_YEAR));
   return (
     <main>
       <h1 className="text-xl font-black">Documents</h1>
       <p className="mt-1 text-sm text-slate-600">
-        Deterministic demo documents and typed entries for now — real uploads (scrub + extraction) arrive with the
-        agent phase. Every extracted value still needs your confirmation on Review before it counts.
+        Your evidence locker. Upload tax documents (W-2, 1099s, K-1, 1095-A, brokerage statements) — every file
+        is scrubbed of SSNs ON THIS MACHINE before storage or reading (a document that cannot be safely scrubbed
+        is refused), and every extracted value still needs your confirmation on Review before it counts.
       </p>
+      {msg ? <p className="mt-2 rounded border border-sky-300 bg-sky-50 p-2 text-sm" role="status" data-testid="docs-msg">{msg}</p> : null}
+      <div className="mt-4">
+        <UploadDropzone />
+      </div>
       <ul className="mt-4 space-y-2" data-testid="source-list">
         {sources.map((s) => (
           <li key={s.source_id} className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
@@ -59,10 +76,21 @@ export default async function Documents() {
                 {s.review_status}
               </span>
             </span>
-            <form action={removeDoc}>
-              <input type="hidden" name="source_id" value={s.source_id} />
-              <button className="text-xs text-red-700 underline">Remove</button>
-            </form>
+            <span className="flex items-center gap-2">
+              {isStoredDocumentRef(s.raw_ref) ? (
+                <form action={rescanDoc}>
+                  <input type="hidden" name="source_id" value={s.source_id} />
+                  <button className="text-xs underline" data-testid={`rescan-${s.source_id}`}
+                    title="Re-read the stored file (P26): its unconfirmed values are rebuilt from the same scrubbed bytes.">
+                    Rescan
+                  </button>
+                </form>
+              ) : null}
+              <form action={removeDoc}>
+                <input type="hidden" name="source_id" value={s.source_id} />
+                <button className="text-xs text-red-700 underline">Remove</button>
+              </form>
+            </span>
           </li>
         ))}
         {sources.length === 0 ? <li className="text-sm text-slate-500">No documents yet.</li> : null}

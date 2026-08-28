@@ -69,11 +69,18 @@ export async function runLifecycle(
   // while still a member, and only then remove the workspace row itself.
   const result = await resetWorkspace(config, userId, workspaceId);
 
-  // Only refs that name real bucket objects ({workspace_id}/{tax_year}/...)
-  // go to storage. Demo and typed entries carry synthetic refs (demo://,
-  // manual://) that never were bucket objects — reporting those as "still in
-  // the bucket" would be a false alarm about documents that do not exist.
+  // Only refs that name real stored objects go to cleanup. Demo and typed
+  // entries carry synthetic refs (demo://, manual://) that never were stored
+  // files — reporting those as "still in the bucket" would be a false alarm.
+  // Local-mode uploads (localfs://) are files on the operator's own disk and
+  // are removed here too — a "wipe" that left scrubbed scans behind would
+  // be a lie of the same kind as the vault one.
   const bucketRefs = result.raw_refs.filter((r) => r.startsWith(`${workspaceId}/`));
+  const localRefs = result.raw_refs.filter((r) => r.startsWith('localfs://'));
+  for (const ref of localRefs) {
+    const { deleteDocument } = await import('./docstore');
+    await deleteDocument(ref).catch(() => undefined);
+  }
   const orphaned_documents = await clearDocuments(bucketRefs);
 
   if (action === 'delete') {
@@ -93,7 +100,7 @@ export async function runLifecycle(
     display_name: member.display_name,
     rows: by_table.reduce((sum, r) => sum + r.rows, 0),
     by_table,
-    documents: bucketRefs.length,
+    documents: bucketRefs.length + localRefs.length,
     orphaned_documents,
   };
 }
