@@ -23,7 +23,10 @@
     "next": "16.3.2",
     "pg": "8.16.3",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "@taxfs/defense": "workspace:*",
+    "@taxfs/postfiling": "workspace:*",
+    "@taxfs/compliance": "workspace:*"
   },
   "devDependencies": {
     "@playwright/test": "1.56.0",

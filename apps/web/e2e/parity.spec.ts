@@ -94,3 +94,72 @@ test.describe('Add Data (structured entry)', () => {
     await expect(page.getByTestId('data-msg')).toContainText('short id');
   });
 });
+
+test.describe('Year-Round, Mark Filed, year close, Audit Readiness', () => {
+  test.skip(!HAS_DB, 'TAXFS_TEST_DATABASE_URL not set — needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('capture is append-only with immutable timestamps; a generic purpose is flagged', async ({ page }) => {
+    await page.goto('/year-round');
+    await page.getByTestId('mileage-miles').fill('34');
+    await page.getByTestId('mileage-purpose').fill('misc'); // generic → incomplete
+    await page.getByTestId('mileage-add').click();
+    await page.waitForURL(/\/year-round/);
+    const list = page.getByTestId('mileage-list');
+    await expect(list.getByTestId('substantiation-badge')).toContainText('incomplete');
+    await expect(list.getByTestId('completeness-prompt')).toBeVisible();
+    // Amend with a specific purpose → NEW version, history retained.
+    await list.locator('[data-testid^="amend-purpose-"]').fill('Client visit: Acme Corp quarterly books review');
+    await list.locator('[data-testid^="amend-save-"]').click();
+    await page.waitForURL(/\/year-round/);
+    await expect(page.getByTestId('mileage-list').getByTestId('substantiation-badge')).toContainText('complete');
+    await expect(page.getByTestId('mileage-list').getByTestId('history-note')).toContainText('2 versions retained');
+  });
+
+  test('estimated-tax: prior-year anchor + a payment render the two-method table', async ({ page }) => {
+    await page.goto('/year-round');
+    await page.getByTestId('prior-year-tax').fill('12000');
+    await page.getByTestId('prior-year-save').click();
+    await page.waitForURL(/\/year-round/);
+    await page.getByTestId('payment-amount').fill('3300');
+    await page.getByTestId('payment-add').click();
+    await page.waitForURL(/\/year-round/);
+    await expect(page.getByTestId('esttax-table')).toBeVisible();
+    await expect(page.getByTestId('esttax-q1')).toContainText('$');
+  });
+
+  test('year close is REFUSED before a filed return exists', async ({ page }) => {
+    await page.goto('/year-round');
+    await page.getByTestId('close-year').click();
+    await page.waitForURL(/\/year-round\?msg=/);
+    await expect(page.getByTestId('yr-msg')).toContainText('requires a FILED return');
+  });
+
+  test('Mark as Filed freezes the filed record on File It', async ({ page }) => {
+    await page.goto('/file-it');
+    // The journey suite locked a package; mark it filed.
+    await page.getByTestId('markfiled').click();
+    await page.waitForURL(/\/file-it\?msg=/);
+    await expect(page.getByTestId('filed-banner')).toContainText('Marked FILED');
+    await expect(page.getByTestId('filed-banner')).toContainText('package v1');
+  });
+
+  test('year close now rolls registers into next-year openings', async ({ page }) => {
+    await page.goto('/year-round');
+    await page.getByTestId('close-year').click();
+    await page.waitForURL(/\/year-round\?msg=/);
+    await expect(page.getByTestId('yr-msg')).toContainText('Year closed');
+  });
+
+  test('Audit Readiness lists gate-5 items or a clean bill, and the Defense File downloads', async ({ page }) => {
+    await page.goto('/risk');
+    await expect(page.getByTestId('risk-overview')).toBeVisible();
+    await expect(page.getByTestId('ack-copy')).toContainText('§7602');
+    await expect(page.getByTestId('defense-download')).toBeVisible();
+    const res = await page.request.get('/api/defense');
+    expect(res.status()).toBe(200);
+    const file = await res.json();
+    expect(file.sections?.length ?? 0).toBeGreaterThan(0);
+    expect(JSON.stringify(file)).toContain('NEUTRAL GATE LOG');
+  });
+});

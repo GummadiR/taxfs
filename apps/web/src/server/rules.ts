@@ -27,7 +27,7 @@ function repoRoot(): string {
   return existsSync(join(here, 'rules/fixtures')) ? here : join(here, '../..');
 }
 
-function readFixture(rel: string): unknown {
+export function readFixture(rel: string): unknown {
   const path = join(repoRoot(), rel);
   if (!existsSync(path)) {
     throw new Error(

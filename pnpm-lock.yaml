@@ -44,6 +44,12 @@ importers:
       '@taxfs/agents':
         specifier: workspace:*
         version: link:../../packages/agents
+      '@taxfs/compliance':
+        specifier: workspace:*
+        version: link:../../packages/compliance
+      '@taxfs/defense':
+        specifier: workspace:*
+        version: link:../../packages/defense
       '@taxfs/forms':
         specifier: workspace:*
         version: link:../../packages/forms
@@ -53,6 +59,9 @@ importers:
       '@taxfs/kernel':
         specifier: workspace:*
         version: link:../../packages/kernel
+      '@taxfs/postfiling':
+        specifier: workspace:*
+        version: link:../../packages/postfiling
       '@taxfs/shared':
         specifier: workspace:*
         version: link:../../packages/shared

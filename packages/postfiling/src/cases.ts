@@ -199,4 +199,37 @@ export class PostFilingStore {
   amendmentsFor(filing_id: string): AmendmentCase[] {
     return this.amendments.filter((a) => a.filing_id === filing_id);
   }
+
+  // ---- persistence (TaxFS addition) -------------------------------------
+  // TaxOS held filings/cases in the server session — the FILED baseline,
+  // the one record that must outlive everything, vanished on restart. The
+  // snapshot round-trips the plain state; filings re-freeze on rehydration
+  // so the no-mutation guarantee survives persistence.
+
+  toSnapshot(): PostFilingSnapshot {
+    return {
+      filings: this.filings.map((f) => ({ ...f, baseline_lines: { ...f.baseline_lines } })),
+      noticeCases: JSON.parse(JSON.stringify(this.noticeCases)) as NoticeCase[],
+      amendments: JSON.parse(JSON.stringify(this.amendments)) as AmendmentCase[],
+      seq: this.seq,
+    };
+  }
+
+  static fromSnapshot(clock: Clock, snap: PostFilingSnapshot | null): PostFilingStore {
+    const store = new PostFilingStore(clock);
+    if (snap) {
+      for (const f of snap.filings) store.filings.push(deepFreeze({ ...f }));
+      for (const c of snap.noticeCases) store.noticeCases.push(c);
+      for (const a of snap.amendments) store.amendments.push(a);
+      store.seq = snap.seq;
+    }
+    return store;
+  }
+}
+
+export interface PostFilingSnapshot {
+  filings: FilingRecord[];
+  noticeCases: NoticeCase[];
+  amendments: AmendmentCase[];
+  seq: number;
 }

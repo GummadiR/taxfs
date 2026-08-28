@@ -23,6 +23,8 @@ const NAV: [string, string][] = [
   ['/file-it', '8 · File It'],
   ['/efile', '9 · E-file Sheet'],
   ['/history', '10 · History'],
+  ['/year-round', '11 · Year-Round'],
+  ['/risk', '12 · Audit Readiness'],
   ['/agents', 'Agent traces'],
   ['/workspaces', 'Workspaces'],
 ];

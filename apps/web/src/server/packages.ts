@@ -9,7 +9,7 @@
 import { createHash } from 'node:crypto';
 import { PDFDocument } from 'pdf-lib';
 import type { Clock } from '@taxfs/shared';
-import { buildPackage } from '@taxfs/forms';
+import { buildPackage, type PackageManifest } from '@taxfs/forms';
 import { withSpine, withUserClient } from './db';
 import { filingContext } from './filing';
 import { releases } from './rules';
@@ -153,6 +153,8 @@ export interface PackageRow {
   created_at: string;
   /** Real-PDF artifacts of the locked package (browser fills identity). */
   pdfs: { artifact_id: string; form_id: string; label: string }[];
+  /** The archived PackageManifest (post-filing consumers: markFiled, 1040-X). */
+  manifest: PackageManifest;
 }
 
 export async function listPackages(userId: string, ws: string): Promise<PackageRow[]> {
@@ -175,6 +177,7 @@ export async function listPackages(userId: string, ws: string): Promise<PackageR
         package_id: row.package_id,
         version: row.version,
         status: row.status,
+        manifest: row.manifest?.manifest as PackageManifest,
         forms: ((row.manifest?.manifest?.forms ?? []) as { form_id: string }[]).map((f) => f.form_id),
         created_at: (row.created_at as Date).toISOString(),
         pdfs,

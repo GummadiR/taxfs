@@ -219,4 +219,31 @@ export class CaptureStore {
   incomeLedger(): readonly IncomeLedgerEntry[] {
     return this.income;
   }
+
+  // ---- persistence (TaxFS addition) -------------------------------------
+  // TaxOS held this store in the server session, so capture records — whose
+  // entire evidentiary value is their contemporaneity — vanished on every
+  // restart. TaxFS snapshots the full append-only state and reconstructs it
+  // verbatim; created_at values persist untouched, so the timestamps stay
+  // the product.
+
+  toSnapshot(): CaptureSnapshot {
+    return { records: [...this.records], income: [...this.income], seq: this.seq };
+  }
+
+  static fromSnapshot(clock: Clock, rules: CaptureRules, snap: CaptureSnapshot | null): CaptureStore {
+    const store = new CaptureStore(clock, rules);
+    if (snap) {
+      for (const r of snap.records) store.records.push(Object.freeze({ ...r }));
+      for (const e of snap.income) store.income.push(Object.freeze({ ...e }));
+      store.seq = snap.seq;
+    }
+    return store;
+  }
+}
+
+export interface CaptureSnapshot {
+  records: CaptureRecord[];
+  income: IncomeLedgerEntry[];
+  seq: number;
 }
