@@ -26,6 +26,8 @@ const NAV: [string, string][] = [
   ['/year-round', '11 · Year-Round'],
   ['/risk', '12 · Audit Readiness'],
   ['/amend', '13 · Amend'],
+  ['/entities', '14 · Entities'],
+  ['/business', '15 · Business Filing'],
   ['/agents', 'Agent traces'],
   ['/workspaces', 'Workspaces'],
 ];

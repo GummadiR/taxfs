@@ -198,3 +198,67 @@ test.describe('Amend (1040-X cases)', () => {
     await expect(page.getByTestId('amend-il-rows')).toBeVisible();
   });
 });
+
+test.describe('Entities + Business Filing (1120-S / 1065)', () => {
+  test.skip(!HAS_DB, 'TAXFS_TEST_DATABASE_URL not set — needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('an S-corp with two members computes entity lines and exact K-1 allocation', async ({ page }) => {
+    // Self-contained workspace: the journey workspace's personal-return data
+    // stays untouched, and this suite cannot be broken by what earlier
+    // suites entered (the lifecycle-spec lesson).
+    await page.goto('/workspaces');
+    await page.getByTestId('new-workspace-name').fill('Entity Co');
+    await page.getByRole('button', { name: 'Create workspace' }).click();
+    await page.waitForURL('**/');
+    await page.goto('/get-started');
+    await page.getByTestId('filing-status').selectOption('single');
+    await page.getByRole('button', { name: 'Save and continue' }).click();
+    await page.waitForURL(/\/documents/);
+    await page.goto('/entities');
+    const core = page.getByTestId('form-entity');
+    await core.getByTestId('ent-entity_id').fill('acme-scorp');
+    await core.getByTestId('ent-gross_receipts').fill('100000');
+    await core.getByTestId('ent-cogs').fill('20000');
+    await page.getByTestId('save-entity').click();
+    await page.waitForURL(/\/entities\?msg=/);
+    await expect(page.getByTestId('entities-msg')).toContainText('Saved');
+    // Two members, 60/40. Each iteration starts from a msg-free URL so the
+    // post-click waitForURL genuinely waits for THIS save's navigation —
+    // otherwise the second iteration's wait matches the previous redirect
+    // instantly and the fills race the navigation (typed into the old DOM,
+    // wiped, submitted empty).
+    for (const [member, share] of [['alice', '0.6'], ['bob', '0.4']] as const) {
+      await page.goto('/entities');
+      await page.getByTestId('ent-m-entity').fill('acme-scorp');
+      await page.getByTestId('ent-m-member').fill(member);
+      await page.getByTestId('ent-share').fill(share);
+      await page.getByTestId('save-ent-member').click();
+      await page.waitForURL(/\/entities\?msg=Saved/);
+    }
+    await expect(page.getByTestId('entity-lines')).toContainText('entity.acme-scorp.ordinary_income = 80000');
+    // Cumulative rounding: member K-1 box1 amounts sum EXACTLY to the entity line.
+    await expect(page.getByTestId('entity-lines')).toContainText('k1.acme-scorp-alice.box1 = 48000');
+    await expect(page.getByTestId('entity-lines')).toContainText('k1.acme-scorp-bob.box1 = 32000');
+  });
+
+  test('Business Filing builds the per-entity package with owner K-1 copies', async ({ page }) => {
+    // Fresh browser context per test — the workspace cookie is gone, and the
+    // fallback is the FIRST membership. Re-open Entity Co explicitly.
+    await page.goto('/workspaces');
+    await page
+      .getByTestId('workspace-list')
+      .locator('li', { hasText: 'Entity Co' })
+      .getByRole('button', { name: 'Open' })
+      .click();
+    await page.waitForURL('**/');
+    await page.goto('/business');
+    await expect(page.getByTestId('biz-entity-acme-scorp')).toContainText('S corporation');
+    await page.getByTestId('biz-build').click();
+    await page.waitForURL(/\/business/);
+    const forms = page.getByTestId('biz-forms-acme-scorp');
+    await expect(forms).toBeVisible();
+    await expect(forms).toContainText('owner copy: alice');
+    await expect(forms).toContainText('owner copy: bob');
+  });
+});

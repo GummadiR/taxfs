@@ -17,6 +17,8 @@ import {
   type BusinessRule,
   type FieldMapRelease,
   type FormDefRelease,
+  loadBizFormRelease,
+  type BizFormRelease,
   type StubXsdConfig,
 } from '@taxfs/forms';
 import { TAX_YEAR } from './env';
@@ -46,6 +48,7 @@ export interface StaticReleases {
   stubXsdFed: StubXsdConfig;
   stubXsdIl: StubXsdConfig;
   bizRules: BusinessRule[];
+  bizForms: BizFormRelease;
   fieldMaps: FieldMapRelease;
   pdfTemplates: Record<string, Uint8Array>;
   /** Placeholder-PDF template release, passed through to buildPackage. */
@@ -78,6 +81,7 @@ export function releases(): StaticReleases {
     stubXsdFed: loadStubXsd(readFixture(`rules/fixtures/schemas/${TAX_YEAR}.FED.STUBXSD.json`)),
     stubXsdIl: loadStubXsd(readFixture(`rules/fixtures/schemas/${TAX_YEAR}.IL.STUBXSD.json`)),
     bizRules: loadBusinessRules(readFixture(`rules/fixtures/${TAX_YEAR}.BIZRULES.json`)),
+    bizForms: loadBizFormRelease(readFixture(`rules/fixtures/forms/${TAX_YEAR}.FORMS.BIZ.json`)),
     fieldMaps: maps,
     pdfTemplates: templates,
     pdfPlaceholderRelease: readFixture(`rules/fixtures/pdf/${TAX_YEAR}.PDF-TEMPLATES.json`),
