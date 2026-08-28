@@ -325,6 +325,31 @@ lifecycle suite seeded but never asserted `fact_dependencies` and
 `request_budgets`, leaving the silent-0-rows class uncovered for them
 (both now seeded and asserted in every refusal/leak/empty check).
 
+## Windows: the build gate could not run at all (operator-found)
+
+First real Windows run of `start.bat` (2026-08-28): the database bootstrapped
+correctly (all 5 migrations applied), then the build step failed with an exit
+code and **no message whatsoever** — the launcher's "Build failed. Copy the
+message above" pointed at an empty screen.
+
+Cause: `scripts/build-strict.mjs` called `spawnSync('pnpm', ...)` without
+`shell`. On Windows pnpm is `pnpm.cmd`, which spawnSync cannot execute
+directly, so the spawn failed with ENOENT — `status: null`, stdout and stderr
+both empty — and `process.exit(result.status ?? 1)` exited 1 silently.
+Reproduced exactly (`error: ENOENT | status: null | stdout empty: true`).
+
+Fixed: `shell: process.platform === 'win32'`, and — the part that matters
+more — `result.error` is now reported loudly, plus a guard that says so
+explicitly if the build ever exits non-zero having printed nothing. A gate
+that fails without saying why is worse than no gate; the loud-failure rule
+the wrapper enforces for `next build` now applies to the wrapper itself.
+
+**Class note (for the SESSION_NOTES habit): this was invisible to every gate
+we have, because CI and every dev container are Linux.** Anything spawning a
+child process is platform-dependent and cannot be proven by our CI alone;
+`build-strict.mjs` is now the only such call site in the repo (verified by
+grep), and it is the one to check first if a Windows-only failure recurs.
+
 ## Branch protection (§9.2) — ENFORCED
 
 The ruleset on `main` requires the CI `gates` check to pass and blocks
