@@ -163,3 +163,38 @@ test.describe('Year-Round, Mark Filed, year close, Audit Readiness', () => {
     expect(JSON.stringify(file)).toContain('NEUTRAL GATE LOG');
   });
 });
+
+test.describe('Amend (1040-X cases)', () => {
+  test.skip(!HAS_DB, 'TAXFS_TEST_DATABASE_URL not set — needs a database; CI always runs it');
+  test.describe.configure({ mode: 'serial' });
+
+  test('an amendment case opens against the filed return and builds A/B/C columns', async ({ page }) => {
+    await page.goto('/amend');
+    // The filed record from the Mark-as-Filed spec is on the books.
+    await expect(page.getByTestId('amend-filed-ref')).toContainText('package v1');
+    await page.getByTestId('amend-open').click();
+    await page.waitForURL(/\/amend\?msg=/);
+    await expect(page.getByTestId('amend-msg')).toContainText('opened');
+    const kase = page.locator('[data-testid^="amend-case-"]').first();
+    await expect(kase).toBeVisible();
+    await kase.getByTestId('amend-summary').fill('interest income');
+    await kase.getByTestId('amend-build').click();
+    await page.waitForURL(/\/amend\?msg=/);
+    await expect(page.getByTestId('amend-msg')).toContainText('columns built');
+    // Column B = C − A is engine-asserted; the statement uses the template.
+    await expect(page.getByTestId('amend-fed-rows')).toBeVisible();
+    await expect(page.getByTestId('amend-statement')).toContainText('Explanation of changes');
+  });
+
+  test('finalizing federal starts the IL conformity clock; the companion generates', async ({ page }) => {
+    await page.goto('/amend');
+    const kase = page.locator('[data-testid^="amend-case-"]').first();
+    await kase.getByTestId('amend-finalize').click();
+    await page.waitForURL(/\/amend\?msg=/);
+    await expect(page.getByTestId('amend-msg')).toContainText('finalized');
+    await expect(page.getByTestId('il-companion-alert')).toBeVisible();
+    await page.getByTestId('il-generate').click();
+    await page.waitForURL(/\/amend\?msg=/);
+    await expect(page.getByTestId('amend-il-rows')).toBeVisible();
+  });
+});
