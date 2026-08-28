@@ -49,9 +49,71 @@ if defined TAXFS_DATABASE_URL (
   echo   Using the database from TAXFS_DATABASE_URL - skipping local setup.
   goto db_ready
 )
-REM bootstrap-db prints TAXFS_DATABASE_URL=... on its last line; capture it.
+REM The PostgreSQL password. Asked for ONCE, then remembered so later runs
+REM stay a plain double-click. It is kept in %APPDATA%\TaxFS (this Windows
+REM account only), never in the repo - a password written into a tracked file
+REM is one git push away from being public. It guards the local database on
+REM this machine and nothing else; treat it accordingly.
+if not defined PGPASSWORD if exist "%APPDATA%\TaxFS\pg.txt" (
+  set /p PGPASSWORD=<"%APPDATA%\TaxFS\pg.txt"
+)
+if not defined PGPASSWORD set PGPASSWORD=postgres
+
+call :try_bootstrap
+if "%TAXFS_BOOT_OK%"=="1" goto db_ready
+
+REM bootstrap-db exits 2 ONLY when PostgreSQL rejected the password - the one
+REM failure a prompt fixes. Anything else (not installed, service stopped,
+REM broken migration) is shown verbatim, never misdiagnosed as a bad password.
+if not "%TAXFS_BOOT_RC%"=="2" goto boot_failed
+
+echo(
+echo   PostgreSQL did not accept the stored password.
+echo   Enter the password you chose for the "postgres" user during install.
+echo(
+set "PGPASSWORD="
+set /p PGPASSWORD=postgres password: 
+if not defined PGPASSWORD goto boot_failed
+
+call :try_bootstrap
+if not "%TAXFS_BOOT_OK%"=="1" goto boot_failed
+
+REM It worked - remember it so this is asked exactly once. Written via
+REM PowerShell reading the ENVIRONMENT variable, never via `echo %%var%%`:
+REM cmd would corrupt passwords containing & | < > ^ or ! on the way to the
+REM file (and run whatever follows an & as a command).
+if not exist "%APPDATA%\TaxFS" mkdir "%APPDATA%\TaxFS"
+powershell -NoProfile -Command "[IO.File]::WriteAllText($env:APPDATA + '\TaxFS\pg.txt', $env:PGPASSWORD)"
+echo   Password saved for next time (in %APPDATA%\TaxFS, not in the project).
+goto db_ready
+
+:boot_failed
+echo(
+echo   --- what the database setup actually reported ---
+type "%TEMP%\taxfs-boot.out" 2>nul
+echo(
+echo   Database setup did not finish. The usual causes:
+echo(
+echo     * PostgreSQL is not installed - get it from
+echo       https://www.postgresql.org/download/windows/
+echo     * The PostgreSQL service is not running - open "Services" and start
+echo       the postgresql service.
+echo     * The password was wrong. Delete %APPDATA%\TaxFS\pg.txt and re-run.
+echo(
+echo   Copy the messages above and send them to Claude.
+echo(
+pause
+exit /b 1
+
+:try_bootstrap
+REM One run, output captured to a file: the same output feeds the URL
+REM capture on success and the verbatim error report on failure - the old
+REM shape re-ran the bootstrap just to see what it said.
+node scripts/bootstrap-db.mjs > "%TEMP%\taxfs-boot.out" 2>&1
+set TAXFS_BOOT_RC=%errorlevel%
 set TAXFS_BOOT_OK=0
-for /f "usebackq tokens=1,* delims==" %%A in (`node scripts/bootstrap-db.mjs`) do (
+if not "%TAXFS_BOOT_RC%"=="0" exit /b 0
+for /f "usebackq tokens=1,* delims==" %%A in ("%TEMP%\taxfs-boot.out") do (
   if "%%A"=="TAXFS_DATABASE_URL" (
     set "TAXFS_DATABASE_URL=%%B"
     set TAXFS_BOOT_OK=1
@@ -59,19 +121,7 @@ for /f "usebackq tokens=1,* delims==" %%A in (`node scripts/bootstrap-db.mjs`) d
     echo %%A%%B
   )
 )
-if "%TAXFS_BOOT_OK%"=="0" (
-  echo(
-  echo   Database setup did not finish. The most common cause is that
-  echo   PostgreSQL is not installed or not running.
-  echo(
-  echo     1. Install PostgreSQL from https://www.postgresql.org/download/windows/
-  echo     2. During install, set a password for the "postgres" user
-  echo     3. If that password is NOT "postgres", run this once before start.bat:
-  echo          set PGPASSWORD=your-password
-  echo(
-  pause
-  exit /b 1
-)
+exit /b 0
 
 :db_ready
 echo(

@@ -24,11 +24,9 @@ The launcher updates the code, installs dependencies, prepares the database
 (first run creates it and applies the migrations), builds, and starts the app
 at **http://localhost:3000**. Leave the window open; Ctrl+C stops it.
 
-If your `postgres` password is not `postgres`, set it once before launching:
-
-```bat
-set PGPASSWORD=your-password
-```
+The first run asks for the `postgres` password you chose during installation
+and remembers it (`%APPDATA%\TaxFS` on Windows, `~/.config/taxfs` elsewhere —
+never in the project folder). After that, launching is a plain double-click.
 
 ### Where your data lives
 
@@ -38,9 +36,28 @@ set PGPASSWORD=your-password
 | **Names, SSNs, dates of birth, address** | **Your browser only** — encrypted with your passphrase (Argon2id → AES-256-GCM), never sent to any server |
 | Nothing | Any cloud, unless you deliberately configure one |
 
+To browse the data yourself, open **pgAdmin** (installed alongside PostgreSQL),
+connect as `postgres`, and look under **Databases → taxfs → Schemas → public →
+Tables**. Connecting instead as `taxfs_local` — the restricted role the app
+uses — shows **zero rows in every table**: outside the app there is no
+signed-in user, and row-level security answers accordingly. That is the
+security model working, not a broken connection.
+
 Identity is filled into the PDFs **in your browser** at download time. The
 server builds every package with the identity boxes empty, because it has no
 field that can receive an SSN.
+
+### Starting over
+
+**Workspaces → Reset or delete a workspace.** *Reset* empties a workspace —
+every document, fact, calculation, gate run and package — and keeps the
+workspace and its members. *Delete* removes it entirely. Both clear the
+identity stored in your browser for that workspace, and both are **owner-only,
+enforced by the database**: a reviewer or editor is refused by Postgres, not by
+a hidden button. You type the workspace name to confirm.
+
+The **audit log survives both**, on purpose: the record that a wipe happened is
+the point of an audit trail.
 
 ## Using it
 
