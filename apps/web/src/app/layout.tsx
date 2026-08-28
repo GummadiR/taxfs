@@ -15,10 +15,13 @@ export const dynamic = 'force-dynamic';
 const NAV: [string, string][] = [
   ['/get-started', '1 · Get Started'],
   ['/documents', '2 · Documents'],
-  ['/review', '3 · Review'],
-  ['/gates', '4 · Gates Board'],
-  ['/file-it', '5 · File It'],
-  ['/history', '6 · History'],
+  ['/interview', '3 · Interview'],
+  ['/review', '4 · Review'],
+  ['/gates', '5 · Gates Board'],
+  ['/forms', '6 · Forms'],
+  ['/file-it', '7 · File It'],
+  ['/efile', '8 · E-file Sheet'],
+  ['/history', '9 · History'],
   ['/agents', 'Agent traces'],
   ['/workspaces', 'Workspaces'],
 ];

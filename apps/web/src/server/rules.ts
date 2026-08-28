@@ -5,6 +5,7 @@
  * for loading it again. Every path resolves by TAX_YEAR (the P99 rule); a
  * missing release file fails loudly at first read, never a silent default.
  */
+import { loadQuestionTemplates, type QuestionTemplate } from '@taxfs/agents';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadVerifiedRuleSet, type RuleSet } from '@taxfs/shared';
@@ -49,6 +50,8 @@ export interface StaticReleases {
   pdfTemplates: Record<string, Uint8Array>;
   /** Placeholder-PDF template release, passed through to buildPackage. */
   pdfPlaceholderRelease: unknown;
+  /** E.2 question templates — suggested wording for interview attestations. */
+  questionTemplates: QuestionTemplate[];
 }
 
 let cached: StaticReleases | null = null;
@@ -78,6 +81,7 @@ export function releases(): StaticReleases {
     fieldMaps: maps,
     pdfTemplates: templates,
     pdfPlaceholderRelease: readFixture(`rules/fixtures/pdf/${TAX_YEAR}.PDF-TEMPLATES.json`),
+    questionTemplates: loadQuestionTemplates(readFixture(`rules/fixtures/${TAX_YEAR}.QUESTIONS.json`)),
   };
   return cached;
 }
