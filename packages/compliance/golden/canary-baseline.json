@@ -1,0 +1,7 @@
+{
+  "baseline_id": "canary-baseline-2-docs",
+  "expected": {
+    "canary-w2": "{\"doc_type\":\"W-2\",\"tax_year\":2025,\"payer\":{\"name\":\"Canary Fixture Payer\",\"ein_token\":\"tok_ein_canary\"},\"fields\":[{\"name\":\"box1_wages\",\"raw_text\":\"42,000.00\",\"normalized\":{\"kind\":\"decimal\",\"value\":\"42000\"},\"region\":{\"page\":1,\"x\":50,\"y\":700,\"w\":200,\"h\":14},\"confidence\":0.98},{\"name\":\"box2_fed_withholding\",\"raw_text\":\"4,200.00\",\"normalized\":{\"kind\":\"decimal\",\"value\":\"4200\"},\"region\":{\"page\":1,\"x\":50,\"y\":680,\"w\":200,\"h\":14},\"confidence\":0.97}]}",
+    "canary-int": "{\"doc_type\":\"1099-INT\",\"tax_year\":2025,\"payer\":{\"name\":\"Canary Fixture Payer\",\"ein_token\":\"tok_ein_canary\"},\"fields\":[{\"name\":\"box1_interest\",\"raw_text\":\"314.00\",\"normalized\":{\"kind\":\"decimal\",\"value\":\"314\"},\"region\":{\"page\":1,\"x\":50,\"y\":700,\"w\":200,\"h\":14},\"confidence\":0.98}]}"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@taxfs/defense",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "dependencies": {
+    "@taxfs/forms": "workspace:*",
+    "@taxfs/shared": "workspace:*",
+    "@taxfs/spine": "workspace:*"
+  },
+  "devDependencies": {
+    "@taxfs/defense": "workspace:*",
+    "@taxfs/gates": "workspace:*"
+  }
+}

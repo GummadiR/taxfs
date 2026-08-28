@@ -110,6 +110,47 @@ importers:
         specifier: workspace:*
         version: link:../gates
 
+  packages/compliance:
+    dependencies:
+      '@taxfs/agents':
+        specifier: workspace:*
+        version: link:../agents
+      '@taxfs/kernel':
+        specifier: workspace:*
+        version: link:../kernel
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@taxfs/compliance':
+        specifier: workspace:*
+        version: 'link:'
+      '@taxfs/forms':
+        specifier: workspace:*
+        version: link:../forms
+      '@taxfs/gates':
+        specifier: workspace:*
+        version: link:../gates
+
+  packages/defense:
+    dependencies:
+      '@taxfs/forms':
+        specifier: workspace:*
+        version: link:../forms
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@taxfs/spine':
+        specifier: workspace:*
+        version: link:../spine
+    devDependencies:
+      '@taxfs/defense':
+        specifier: workspace:*
+        version: 'link:'
+      '@taxfs/gates':
+        specifier: workspace:*
+        version: link:../gates
+
   packages/forms:
     dependencies:
       '@taxfs/shared':
@@ -160,6 +201,31 @@ importers:
       '@taxfs/kernel':
         specifier: workspace:*
         version: link:../kernel
+
+  packages/postfiling:
+    dependencies:
+      '@taxfs/defense':
+        specifier: workspace:*
+        version: link:../defense
+      '@taxfs/forms':
+        specifier: workspace:*
+        version: link:../forms
+      '@taxfs/kernel':
+        specifier: workspace:*
+        version: link:../kernel
+      '@taxfs/shared':
+        specifier: workspace:*
+        version: link:../shared
+      '@taxfs/spine':
+        specifier: workspace:*
+        version: link:../spine
+    devDependencies:
+      '@taxfs/gates':
+        specifier: workspace:*
+        version: link:../gates
+      '@taxfs/postfiling':
+        specifier: workspace:*
+        version: 'link:'
 
   packages/shared:
     dependencies:
