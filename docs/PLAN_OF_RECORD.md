@@ -350,6 +350,32 @@ child process is platform-dependent and cannot be proven by our CI alone;
 `build-strict.mjs` is now the only such call site in the repo (verified by
 grep), and it is the one to check first if a Windows-only failure recurs.
 
+## Phase 10 (full TaxOS parity — operator-directed)
+
+Operator (2026-08-28): "take from TaxOS and build additional functionality
+by optimizing the code and re-writing all fixes and initial design" — i.e.
+TaxOS WHOLE, not the Blueprint §7 subset. Executed against
+`docs/TAXOS-PARITY-LEDGER.md`, now fully green:
+
+- Screens: Forms (+ official-PDF draft preview), E-file Sheet, Interview,
+  Add Data (structured entry, K-1s, FX lookup, carryover worksheet),
+  Year-Round (capture, both estimated-tax methods, year close, Gate-13
+  transcript entry), Audit Readiness (+ Defense File download), Amend
+  (1040-X + IL companion), Entities, Business Filing, real document
+  upload on Documents. Nav is 15 sections.
+- Packages: defense, postfiling, compliance — 98 tests.
+- Mark-as-Filed on File It freezes the filed record + column-A baseline.
+- The P15 SSN scrubber ported whole with its 16-test suite; storage is
+  two-backend (localfs in operator mode; authenticated bucket hosted).
+- Durability improvements over TaxOS (its session state vanished on
+  restart): capture records, est payments, prior-year tax, transcript
+  lines, built 1040-X columns, the FILED baseline, and acknowledgments
+  all persist as workspace-scoped settings rows behind RLS.
+
+Gate chain at completion: lint, audit:values, typecheck, strict build,
+925 unit tests (1 skipped, live-provider), 41 Playwright specs against
+the production build.
+
 ## Branch protection (§9.2) — ENFORCED
 
 The ruleset on `main` requires the CI `gates` check to pass and blocks
