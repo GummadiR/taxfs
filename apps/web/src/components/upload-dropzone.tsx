@@ -27,33 +27,57 @@ export function UploadDropzone() {
   const [progress, setProgress] = useState<{ done: number; total: number; current: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Per-file failures COLLECT and the batch continues — one slow or refused
+  // document never costs the other eleven. Each request also carries its own
+  // client-side deadline (the server budgets the scrub at ~3 minutes; this
+  // is the fallback for a dead connection), so the spinner can never sit
+  // forever with no verdict.
+  const PER_FILE_TIMEOUT_MS = 4 * 60 * 1000;
+
   async function uploadAll(files: FileList | File[]): Promise<void> {
     const list = Array.from(files);
     if (list.length === 0) return;
     setError(null);
-    try {
-      for (const [i, file] of list.entries()) {
-        setProgress({ done: i, total: list.length, current: file.name });
+    const failures: string[] = [];
+    for (const [i, file] of list.entries()) {
+      setProgress({ done: i, total: list.length, current: file.name });
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), PER_FILE_TIMEOUT_MS);
         const body = new FormData();
         body.append('file', file);
-        const res = await fetch('/api/upload', { method: 'POST', body });
+        let res: Response;
+        try {
+          res = await fetch('/api/upload', { method: 'POST', body, signal: controller.signal });
+        } finally {
+          clearTimeout(timer);
+        }
         if (!res.ok) {
           const detail = await res
             .json()
             .then((j: { message?: string }) => j.message)
             .catch(() => null);
-          throw new Error(
+          failures.push(
             `"${file.name}" (${(file.size / 1024 / 1024).toFixed(1)} MB): ${detail ?? `upload failed with status ${res.status}`}`,
           );
         }
+      } catch (e) {
+        const aborted = e instanceof DOMException && e.name === 'AbortError';
+        failures.push(
+          aborted
+            ? `"${file.name}": no verdict after ${Math.round(PER_FILE_TIMEOUT_MS / 60000)} minutes — the file was NOT saved. Try it alone, as a PNG/JPEG, or split a long PDF into pages.`
+            : `"${file.name}": ${e instanceof Error ? e.message : String(e)}`,
+        );
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setProgress(null);
-      formRef.current?.reset();
-      router.refresh();
     }
+    if (failures.length > 0) {
+      setError(
+        `${failures.length} of ${list.length} file(s) did not land (the rest went through):\n` + failures.join('\n'),
+      );
+    }
+    setProgress(null);
+    formRef.current?.reset();
+    router.refresh();
   }
 
   function onDrop(e: DragEvent<HTMLDivElement>): void {
@@ -114,7 +138,7 @@ export function UploadDropzone() {
             </label>
             {error ? (
               <p
-                className="mx-auto mt-2 max-w-md rounded border border-red-300 bg-red-50 p-2 text-xs text-red-800"
+                className="mx-auto mt-2 max-w-md whitespace-pre-line rounded border border-red-300 bg-red-50 p-2 text-left text-xs text-red-800"
                 data-testid="upload-error"
               >
                 {error}

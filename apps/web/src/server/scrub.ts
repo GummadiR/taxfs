@@ -25,7 +25,7 @@
  *   - page images we cannot decode locally are REPORTED as unscanned rather
  *     than assumed clean.
  */
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -98,22 +98,30 @@ function findTrainedDataGz(): string {
  * `<cachePath>/eng.traineddata` directly when it exists, so decompressing it
  * ourselves removes every path where the library would reach for the network.
  */
+/** Write-then-rename: a concurrent reader (parallel test workers, two
+ *  first uploads racing) must never see a half-written model file. */
+function writeAtomically(target: string, bytes: Buffer): void {
+  const tmp = `${target}.${process.pid}.${Math.random().toString(36).slice(2, 8)}.tmp`;
+  writeFileSync(tmp, bytes);
+  renameSync(tmp, target);
+}
+
 function ensureTrainedData(): string {
-  const dir = join(process.cwd(), 'node_modules', '.cache', 'taxos-ocr');
+  const dir = join(process.cwd(), 'node_modules', '.cache', 'taxfs-ocr');
   const target = join(dir, 'eng.traineddata');
   try {
     if (!existsSync(target)) {
       mkdirSync(dir, { recursive: true });
-      writeFileSync(target, gunzipSync(readFileSync(findTrainedDataGz())));
+      writeAtomically(target, gunzipSync(readFileSync(findTrainedDataGz())));
     }
     return dir;
   } catch {
     // Read-only or unusual install layout: fall back to the temp directory.
-    const fallbackDir = join(tmpdir(), 'taxos-ocr');
+    const fallbackDir = join(tmpdir(), 'taxfs-ocr');
     const fallback = join(fallbackDir, 'eng.traineddata');
     if (!existsSync(fallback)) {
       mkdirSync(fallbackDir, { recursive: true });
-      writeFileSync(fallback, gunzipSync(readFileSync(findTrainedDataGz())));
+      writeAtomically(fallback, gunzipSync(readFileSync(findTrainedDataGz())));
     }
     return fallbackDir;
   }
@@ -147,16 +155,46 @@ async function ocrWorker() {
   return workerPromise;
 }
 
-/** Run OCR over image bytes and return every word with its pixel box. */
+/**
+ * OCR resolution cap. A phone-camera scan is ~4000×3000 px, and tesseract's
+ * runtime grows superlinearly with pixel count — full-resolution pages took
+ * MINUTES each and read as a hang (found on a real 12-document upload,
+ * stuck at "Temple Donations.pdf"). Document text, SSNs included, is
+ * comfortably legible to OCR at this size; word boxes are scaled back to
+ * the ORIGINAL pixels so masking still paints the right place at full
+ * resolution.
+ */
+const OCR_MAX_DIM = 1800;
+
+/** Run OCR over image bytes and return every word with its pixel box
+ *  (in the ORIGINAL image's coordinates). */
 export async function ocrWords(png: Uint8Array): Promise<OcrWord[]> {
   const worker = await ocrWorker();
-  const { data } = await worker.recognize(Buffer.from(png), {}, { blocks: true });
+  const { Jimp } = await import('jimp');
+  const img = await Jimp.read(Buffer.from(png));
+  let input: Buffer = Buffer.from(png);
+  let scale = 1;
+  const maxDim = Math.max(img.width, img.height);
+  if (maxDim > OCR_MAX_DIM) {
+    scale = maxDim / OCR_MAX_DIM;
+    const resized = img.clone().resize({ w: Math.round(img.width / scale) });
+    input = await resized.getBuffer('image/png');
+  }
+  const { data } = await worker.recognize(input, {}, { blocks: true });
   const words: OcrWord[] = [];
   for (const block of data.blocks ?? []) {
     for (const para of block.paragraphs ?? []) {
       for (const line of para.lines ?? []) {
         for (const w of line.words ?? []) {
-          words.push({ text: w.text, bbox: { x0: w.bbox.x0, y0: w.bbox.y0, x1: w.bbox.x1, y1: w.bbox.y1 } });
+          words.push({
+            text: w.text,
+            bbox: {
+              x0: w.bbox.x0 * scale,
+              y0: w.bbox.y0 * scale,
+              x1: w.bbox.x1 * scale,
+              y1: w.bbox.y1 * scale,
+            },
+          });
         }
       }
     }
@@ -811,10 +849,42 @@ async function scrubPdfBytes(bytes: Uint8Array): Promise<ScrubResult> {
  * internal failure returns a `blocked` result rather than silently letting
  * an unscrubbed document through.
  */
+/**
+ * Hard time budget for one document's scrub. The scrubber must never look
+ * like a hang: a document that exceeds the budget is REFUSED with
+ * instructions (never passed through unscanned — the honesty rule holds),
+ * and the OCR worker is torn down so the queued work behind it starts
+ * fresh instead of waiting on a wedged worker.
+ */
+const SCRUB_BUDGET_MS = Number(process.env.TAXFS_SCRUB_BUDGET_MS ?? 180_000);
+
+async function resetOcrWorker(): Promise<void> {
+  const pending = workerPromise;
+  workerPromise = null;
+  try {
+    await (await pending)?.terminate();
+  } catch {
+    // a worker that cannot terminate is abandoned; the next call creates a new one
+  }
+}
+
 export async function scrubDocument(bytes: Uint8Array, mediaType: string): Promise<ScrubResult> {
   try {
-    if (mediaType === 'application/pdf') return await scrubPdfBytes(bytes);
-    return await scrubImageBytes(bytes);
+    const work = mediaType === 'application/pdf' ? scrubPdfBytes(bytes) : scrubImageBytes(bytes);
+    let timer: NodeJS.Timeout | undefined;
+    const deadline = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`the scan exceeded its ${Math.round(SCRUB_BUDGET_MS / 1000)}s budget`)), SCRUB_BUDGET_MS);
+    });
+    try {
+      return await Promise.race([work, deadline]);
+    } catch (e) {
+      if (e instanceof Error && e.message.includes('exceeded its')) await resetOcrWorker();
+      throw e;
+    } finally {
+      clearTimeout(timer);
+      // If the deadline won, the abandoned work must not crash the process.
+      work.catch(() => {});
+    }
   } catch (e) {
     return {
       bytes,
@@ -824,7 +894,7 @@ export async function scrubDocument(bytes: Uint8Array, mediaType: string): Promi
       blocked: {
         reason: `The local SSN scan could not complete (${e instanceof Error ? e.message : String(e)}), so the upload was refused rather than sending an unscanned document.`,
         instructions:
-          'Try uploading the document as a PNG or JPEG image. If it keeps failing, black out the SSN yourself before uploading — TaxFS never needs it.',
+          'Try uploading the document as a PNG or JPEG image (or split a long PDF into single pages). If it keeps failing, black out the SSN yourself before uploading — TaxFS never needs it.',
       },
     };
   }
