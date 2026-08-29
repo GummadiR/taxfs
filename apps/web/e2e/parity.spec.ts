@@ -275,6 +275,9 @@ test.describe('Real document upload (scrub + store, extraction off)', () => {
     // The dropzone posts sequentially then refreshes; the new source appears.
     await expect(page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first())
       .toBeVisible({ timeout: 90_000 });
+    // The row shows the operator's own file name, not a bare doc-<uuid> id.
+    await expect(page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first())
+      .toContainText('2025.SAMPLE.w2.pdf');
     // Stored uploads expose Rescan (P26) — demo/manual sources never do.
     await expect(page.locator('[data-testid^="rescan-doc-"]').first()).toBeVisible();
   });

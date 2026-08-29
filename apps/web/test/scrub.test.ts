@@ -79,7 +79,7 @@ describe('PDF handling', () => {
   it('reads the selectable text layer locally', async () => {
     const pages = await pdfTextLayer(await pdfWithText('Wages 60000'));
     expect(pages.join(' ')).toContain('60000');
-  });
+  }, 120_000); // first pdfjs load can exceed the 5s default under full-suite load
 
   it('FLATTENS a PDF whose selectable text carries an SSN — the number is destroyed, not covered', async () => {
     // A digitally generated 1099/W-2 (the common case) stores the SSN as live
@@ -141,7 +141,7 @@ describe('PDF handling', () => {
     expect(result.blocked).toBeUndefined();
     expect(result.masked).toBe(0);
     expect(result.notes.join(' ')).toContain('none found');
-  });
+  }, 120_000);
 });
 
 describe('ENCRYPTED PDFs (the JP Morgan statement shape)', () => {
