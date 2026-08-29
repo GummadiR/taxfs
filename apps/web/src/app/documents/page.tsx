@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
 import { UploadDropzone } from '@/components/upload-dropzone';
 import { deleteUploadedDocument, rescanDocument } from '@/server/upload';
-import { isStoredDocumentRef } from '@/server/docstore';
+import { documentDisplayName, isStoredDocumentRef } from '@/server/docstore';
 import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
 import { withUserClient } from '@/server/db';
@@ -67,11 +67,20 @@ export default async function Documents({ searchParams }: { searchParams: Promis
         <UploadDropzone />
       </div>
       <ul className="mt-4 space-y-2" data-testid="source-list">
-        {sources.map((s) => (
+        {sources.map((s) => {
+          // The operator's own file name (exact for new uploads via __filename;
+          // recovered from the storage path for older ones). The doc id stays
+          // available on hover — it is a database key, not a display name.
+          const docName = s.fields['__filename'] ?? documentDisplayName(s.raw_ref);
+          return (
           <li key={s.source_id} className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">
             <span>
               <span className="font-semibold">{s.type}</span>
-              <span className="ml-2 text-xs text-slate-500">{s.source_id}</span>
+              {docName ? (
+                <span className="ml-2" title={s.source_id} data-testid={`docname-${s.source_id}`}>{docName}</span>
+              ) : (
+                <span className="ml-2 text-xs text-slate-500">{s.source_id}</span>
+              )}
               <span className={`ml-2 rounded px-1.5 py-0.5 text-xs ${s.review_status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'}`}>
                 {s.review_status}
               </span>
@@ -92,7 +101,8 @@ export default async function Documents({ searchParams }: { searchParams: Promis
               </form>
             </span>
           </li>
-        ))}
+          );
+        })}
         {sources.length === 0 ? <li className="text-sm text-slate-500">No documents yet.</li> : null}
       </ul>
       <section className="mt-6">

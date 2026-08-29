@@ -37,6 +37,8 @@ function titleOf(src: SourceDoc | undefined): string | null {
   if (payer && src.type !== 'USER_ENTRY') return `${src.type} — ${payer} (${src.tax_year})`;
   if (src.raw_ref.startsWith('manual://')) return `Manual entry (${src.source_id})`;
   if (src.raw_ref.startsWith('demo://')) return `${src.type} (demo)`;
+  const fname = src.fields['__filename'];
+  if (fname) return `${src.type} — ${fname}`;
   return `${src.type} (${src.source_id})`;
 }
 

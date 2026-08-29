@@ -120,7 +120,7 @@ async function runDocPipeline(
         taxpayer_id: ws,
         type: 'USER_ENTRY',
         tax_year: TAX_YEAR,
-        fields: {},
+        fields: { __filename: name },
         ocr_confidence: 0,
         raw_ref: rawRef,
       });
@@ -162,7 +162,7 @@ async function runDocPipeline(
         taxpayer_id: ws,
         type: 'USER_ENTRY',
         tax_year: TAX_YEAR,
-        fields: {},
+        fields: { __filename: name },
         ocr_confidence: 0,
         raw_ref: rawRef,
       });
@@ -184,6 +184,9 @@ async function runDocPipeline(
         // P14.2 — persist the payer for smart titles; never for a 15CA/CB,
         // where the "payer" would be the taxpayer (identity stays out, P14.1).
         ...(out.payer.name && out.doc_type !== 'FOREIGN-REMITTANCE' ? { __payer: out.payer.name } : {}),
+        // The operator's own file name, for display on Documents — the same
+        // name already carried in the storage path (raw_ref).
+        __filename: name,
       },
       ocr_confidence: out.fields.length > 0 ? Math.min(...out.fields.map((f) => f.confidence)) : 0.5,
       raw_ref: rawRef,
