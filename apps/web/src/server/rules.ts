@@ -5,6 +5,7 @@
  * for loading it again. Every path resolves by TAX_YEAR (the P99 rule); a
  * missing release file fails loudly at first read, never a silent default.
  */
+import { loadQuestionTemplates, type QuestionTemplate } from '@taxfs/agents';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadVerifiedRuleSet, type RuleSet } from '@taxfs/shared';
@@ -16,6 +17,8 @@ import {
   type BusinessRule,
   type FieldMapRelease,
   type FormDefRelease,
+  loadBizFormRelease,
+  type BizFormRelease,
   type StubXsdConfig,
 } from '@taxfs/forms';
 import { TAX_YEAR } from './env';
@@ -26,7 +29,7 @@ function repoRoot(): string {
   return existsSync(join(here, 'rules/fixtures')) ? here : join(here, '../..');
 }
 
-function readFixture(rel: string): unknown {
+export function readFixture(rel: string): unknown {
   const path = join(repoRoot(), rel);
   if (!existsSync(path)) {
     throw new Error(
@@ -45,10 +48,13 @@ export interface StaticReleases {
   stubXsdFed: StubXsdConfig;
   stubXsdIl: StubXsdConfig;
   bizRules: BusinessRule[];
+  bizForms: BizFormRelease;
   fieldMaps: FieldMapRelease;
   pdfTemplates: Record<string, Uint8Array>;
   /** Placeholder-PDF template release, passed through to buildPackage. */
   pdfPlaceholderRelease: unknown;
+  /** E.2 question templates — suggested wording for interview attestations. */
+  questionTemplates: QuestionTemplate[];
 }
 
 let cached: StaticReleases | null = null;
@@ -75,9 +81,11 @@ export function releases(): StaticReleases {
     stubXsdFed: loadStubXsd(readFixture(`rules/fixtures/schemas/${TAX_YEAR}.FED.STUBXSD.json`)),
     stubXsdIl: loadStubXsd(readFixture(`rules/fixtures/schemas/${TAX_YEAR}.IL.STUBXSD.json`)),
     bizRules: loadBusinessRules(readFixture(`rules/fixtures/${TAX_YEAR}.BIZRULES.json`)),
+    bizForms: loadBizFormRelease(readFixture(`rules/fixtures/forms/${TAX_YEAR}.FORMS.BIZ.json`)),
     fieldMaps: maps,
     pdfTemplates: templates,
     pdfPlaceholderRelease: readFixture(`rules/fixtures/pdf/${TAX_YEAR}.PDF-TEMPLATES.json`),
+    questionTemplates: loadQuestionTemplates(readFixture(`rules/fixtures/${TAX_YEAR}.QUESTIONS.json`)),
   };
   return cached;
 }

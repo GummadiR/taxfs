@@ -17,6 +17,8 @@ export const BUDGETS: Record<string, Budget> = {
   build_package: { limit: 10, windowSeconds: 600 },
   artifact: { limit: 60, windowSeconds: 600 },
   intake: { limit: 120, windowSeconds: 600 },
+  // Real uploads: scrub + vision per file — the P-series upload cap.
+  upload: { limit: 40, windowSeconds: 600 },
 };
 
 export class RateLimitError extends Error {
