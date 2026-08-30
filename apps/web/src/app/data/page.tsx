@@ -225,7 +225,7 @@ export default async function DataEntry({ searchParams }: { searchParams: Promis
                     <Amount
                       name="fx_rate"
                       label="Exchange rate (units per USD)"
-                      hint="Foreign units per 1 US dollar (for rupees this is a number like 85, not 0.012). Use the 'Re-fetch the rate for this date' button above for the sale-date rate, or the IRS published YEARLY AVERAGE for the sale year. Year-end rates are only for FBAR account balances, not income."
+                      hint="Foreign units per 1 US dollar (for rupees this is a number like 85, not 0.012). The automatic lookup uses the date PRINTED ON THE CERTIFICATE, which for a 15CA/15CB is when the money was REMITTED — often weeks or months after the sale. §1001 wants the rate on the SALE date, so if they differ, type the sale-date rate here and it replaces the looked-up one. The IRS yearly average for the year of sale is equally acceptable. Year-end rates are only for FBAR account balances, not income."
                     />
                   ) : null}
                   <SubmitButton className="rounded bg-emerald-700 px-3 py-1.5 text-white" data-testid="complete-foreign">

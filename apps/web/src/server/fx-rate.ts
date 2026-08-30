@@ -2,11 +2,20 @@
  * Exchange-rate resolution for foreign-currency certificates (15CA/15CB).
  *
  * P75 — this runs AUTOMATICALLY when such a certificate is uploaded. The
- * certificate states its own remittance date and currency; the rate for that
- * date is a published fact, not a judgement. Asking the filer to press a
- * button contributed no information — the system already had the date, already
- * knew it needed a rate, and already had a deterministic lookup for exactly
- * that date. The button remains only as a re-fetch.
+ * certificate states its own date and currency; the rate for that date is a
+ * published fact, not a judgement. Asking the filer to press a button
+ * contributed no information — the system already had the date, already knew
+ * it needed a rate, and already had a deterministic lookup for exactly that
+ * date. The button remains only as a re-fetch.
+ *
+ * REMITTANCE DATE IS NOT ALWAYS THE SALE DATE. A 15CA/15CB certifies money
+ * LEAVING India, which routinely happens weeks or months after the sale it
+ * arose from — the CA has to certify first. §1001 translates the amount
+ * realized at the rate on the date of the SALE. This code (and its own
+ * comments, which used to read "remittance / sale date" as though they were
+ * one thing) can only see the date the certificate prints, so it uses that
+ * and now SAYS which date it used. When the sale was earlier, the filer
+ * overrides the rate on Add Data and their figure replaces this one.
  *
  * PRIVACY: only the date and the ISO currency code leave this machine. Never
  * an amount, never identity.
@@ -41,7 +50,7 @@ export async function resolveFxRateFromCertificate(
     return {
       status: 'no_date',
       message:
-        'No sale/remittance date was read from the certificate, so the exchange rate could not be looked up — enter it on Add Data (the IRS yearly-average rate, or the sale-date rate from your records).',
+        'No date was read from the certificate, so the exchange rate could not be looked up — enter it on Add Data (the rate on the date of SALE, or the IRS published yearly-average rate for the year of sale).',
     };
   }
   try {
@@ -90,7 +99,9 @@ export async function resolveFxRateFromCertificate(
       status: 'saved',
       message:
         `Exchange rate applied automatically: 1 USD = ${rate} ${currency}, the European Central Bank reference rate for ${data.date}${nearest}. ` +
-        'The source and date are kept with it. The IRS equally accepts its published yearly-average rate — to use that instead, type it into the exchange-rate field on Add Data and yours replaces this one. ' +
+        `CHECK THIS DATE: ${date} is the date printed on the certificate, which for a 15CA/15CB is when the money was REMITTED. ` +
+        'If the sale happened earlier, the rate on the SALE date is the one §1001 wants — type it into the exchange-rate field on Add Data and yours replaces this one. ' +
+        'The IRS equally accepts its published yearly-average rate for the year of sale. ' +
         'Only the date and the currency code were sent to the rate service — never your amounts.',
     };
   } catch (e) {

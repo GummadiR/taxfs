@@ -464,6 +464,138 @@ here. They print by name on every run and their reasons live in
 6. **Documents — IRS Wage & Income transcript intake.** TaxFS reconciles
    against a transcript in the Defense File but has no way to supply one.
 
+## Coverage audit (2026-08-30) — what is NOT built
+
+Audited against the code, not against memory, after the operator asked
+whether comprehensive HSA/retirement/income validation was covered. Much of
+it is; these are the parts that are NOT, each verified by reading the
+computing code and its tests. Ordered by consequence.
+
+### A. The goldens certify the kernel against SUPERSEDED LAW
+
+`packages/kernel/test/helpers.ts` loads `rules/fixtures/2025.FED.json`
+(`rule_version 2025.FED.0.0.1-PLACEHOLDER`, every value tagged
+"PLACEHOLDER — verify"). The app loads `2025.FED.1.0.json`, verified
+against Rev. Proc. 2024-40 and Rev. Proc. 2025-32 §3.01. They disagree,
+and the golden side is PRE-OBBBA:
+
+| parameter | goldens | app |
+|---|---|---|
+| standard_deduction.single | 15,000 | 15,750 |
+| standard_deduction.mfj | 30,000 | 31,500 |
+| standard_deduction.mfs | 15,000 | 15,750 |
+| standard_deduction.hoh | 22,500 | 23,625 |
+| ptc.fpl_base / per_additional / cliff_pct | round stand-ins | published |
+
+So ~40 goldens and 992 unit tests prove the kernel correct on figures the
+app never uses. This is the session's recurring defect one layer down:
+validating against something other than what ships.
+
+NOT a swap — the files have different SHAPES (a `{value,status}` wrapper;
+`mfj` vs `married_filing_jointly`), so 19 of 22 kernel test files fail at
+LOAD when pointed at the verified release. And golden expectations must NOT
+be regenerated from the kernel: they would then prove only that the kernel
+agrees with itself. Each expectation needs deriving independently.
+
+Interim guard shipped: `packages/kernel/test/rule-data-drift.test.ts` pins
+today's divergence and FAILS on any new one, so the gap can shrink but
+never silently grow.
+
+### B. The whole retirement DISTRIBUTION side is unmodeled
+
+Zero code anywhere for rollovers, Roth conversions/recharacterisation,
+basis recovery, or RMDs (and the §4974 shortfall excise). 1099-R handling
+is "trust box 2a": `box1_gross` is extracted (`extraction.ts:76`) and has
+no `CONCEPT_BY_FIELD` entry, so gross is discarded and never reconciled;
+box 7 (distribution code) is not read at all. A rollover reported with a
+taxable amount is invisible. The 10% §72(t) tax applies a rate to a
+FULLY operator-supplied "amount subject to the tax" — no age test, no
+§72(t)(2) exceptions, no derivation from the 1099-R.
+
+Also absent: HSA distributions entirely (Form 8889 Part II, the 20%
+non-qualified additional tax); partial-year HDHP proration and the
+last-month/testing-period rules (§223(b)(7)-(8)), despite `guides.ts:135`
+telling the operator month-based limits matter.
+
+### C. Income categories with no computation at all
+
+| 1040 line | Category | State |
+|---|---|---|
+| 6a/6b | Social Security | extracted, and used ONLY as an Illinois subtraction. NO federal §86/Pub 915 taxable-portion worksheet. Declared `in_development` in 2025.CAPABILITIES.json; gate 1 blocks it |
+| Sch 1 L5 | Rental real estate (Sch E Part I) | no intake path AND no computation |
+| Sch 1 L7 | Unemployment (1099-G) | zero occurrences repo-wide |
+| Sch 1 L8 | Other income | absent (the `other_income_*` ids are entity Sch K items) |
+| Sch 1 L1/L2 | State tax refunds; alimony | absent |
+
+4a/4b and 5a/5b are ONE undifferentiated `income.retirement` bucket — no
+separate IRA-distribution line.
+
+Credits: **no Child Tax Credit and no EITC anywhere.**
+
+### D. Form 8606 is write-only
+
+Current-year nondeductible IRA amounts are emitted with
+`formula_ref FED.F8606.LINE1`, but there is no prior-year basis carry-in,
+no cumulative basis register, no Part I pro-rata recovery, and NO 8606 in
+`rules/fixtures/forms/2025.FORMS.FED.json`. A critic tells the operator to
+file it by hand.
+
+### E. Computed retirement amounts never reach form lines
+
+`2025.FORMS.FED.json` maps only `1040.5b ← fed.retirement.total` and
+`SCH2.8 ← fed.tax.early_distribution`. There is no SCH1.13 (HSA), SCH1.16
+(SEP), SCH1.20 (IRA), or 1040 line 1h (excess deferral). The HSA/IRA/SEP
+excises reach the return only inside the `SCH2.21` aggregate, whose label
+still reads "Part II total other taxes (SE + 8959 + 8960)" — stale and now
+understated.
+
+### F. Guardrails that exist but cannot fire
+
+- `IRS-INCOME-RECON` reconciles every income fact against an IRS Wage &
+  Income transcript. Production has NO `IRS_WI_TRANSCRIPT` intake path, so
+  `applies_when` returns false and the critic silently never runs. It
+  fires only in tests.
+- The P98 retirement critics are registered by the web app but NOT by
+  `packages/gates/src/harness.ts:152` — so a harness-driven run skips them.
+- `sep.min_compensation` (§408(k)(2) eligibility) is loaded and never read.
+  The SIMPLE §408(p)(2)(E) 110% small-employer limits are declared
+  not-modeled in the rule note with no code to flag a filer claiming them.
+
+### G. Critics the operator believed existed
+
+Of six named — CPA, Tax Compliance, Tax Rule, Calculation, Evidence, Tax
+Auditor — **four do not exist at all**, by that name or an equivalent.
+"Accountant" is a LENS tag shared by 21 critics, not a critic.
+`ACC-TIEOUT-FORM` is the Calculation equivalent and
+`ACC-EVID-SUFFICIENCY` the Evidence one. There are 24 real critics, but
+only gates 2, 4 and 5 have any; gates 0, 1, 3 and 6 are hardcoded engine
+checks.
+
+### H. Foreign-currency gaps (15CA/15CB)
+
+- The rate is looked up at the date PRINTED ON THE CERTIFICATE, which for a
+  15CA/15CB is the REMITTANCE date — routinely weeks or months after the
+  sale §1001 wants. There is no separate sale-date field; the code's own
+  comments read "remittance / sale date" as though they were one thing.
+  Now stated explicitly in the lookup message, the Add Data hint and the
+  kernel's lineage trail, with the override path named. A real sale-date
+  field remains open.
+- One rate is applied to both proceeds and basis (strictly: sale-date and
+  acquisition-date respectively) — already recorded in the trail.
+- NO critic detects a 15CA/15CB gain that OVERLAPS a 1099-B entry for the
+  same sale. The kernel prevents the legacy-line double count; it cannot
+  see the same sale entered through two intake paths.
+
+### Other verified-fine areas (recorded so they are not re-audited)
+
+Income sequence is deterministic and form-ordered; two independent kernels
+must agree on 12 headline lines across 40 goldens, with isolation enforced.
+HSA/IRA/Roth/401(k) CONTRIBUTION limits, §219(g) deductibility phase-out
+(MAGI × filing status × W-2 box 13), Roth MAGI phase-out, the 60–63 super
+catch-up (correctly replacing, not stacking), Schedule D/8949 with wash
+sales and carryovers, and K-1 basis/§465/§469 are all implemented with
+tests. Form 1116 is byte-identical to TaxOS (322 lines, verbatim).
+
 ## Operator decisions on record
 
 - Supabase/Vercel region: **NOT YET SET** — the kickoff message carried a
