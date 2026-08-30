@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { authConfigured, supabaseServer } from '@/lib/supabase/server';
 
@@ -39,9 +40,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <input name="password" type="password" required autoComplete="current-password"
             className="mt-1 w-full rounded border border-slate-300 p-2" />
         </label>
-        <button type="submit" className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+        <SubmitButton pendingText="Signing in…" className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
           Sign in
-        </button>
+        </SubmitButton>
       </form>
     </main>
   );

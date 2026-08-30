@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured } from '@/server/context';
@@ -131,7 +132,7 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
         {localOperatorMode() ? (
           <span className="text-xs text-slate-500">local operator mode</span>
         ) : (
-          <form action={signOut}><button className="text-sm underline">Sign out</button></form>
+          <form action={signOut}><SubmitButton className="text-sm underline" pendingText="Signing out…">Sign out</SubmitButton></form>
         )}
       </div>
       {error ? <p className="mt-2 text-sm text-red-700" role="alert" data-testid="workspace-error">{error}</p> : null}
@@ -159,7 +160,7 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
             </span>
             <form action={openWorkspace}>
               <input type="hidden" name="workspace_id" value={m.workspace_id} />
-              <button className="rounded border border-slate-300 px-2 py-1 text-xs">Open</button>
+              <SubmitButton className="rounded border border-slate-300 px-2 py-1 text-xs" pendingText="Opening…">Open</SubmitButton>
             </form>
           </li>
         ))}
@@ -185,7 +186,7 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
             <option value="reviewer">reviewer (read-only)</option>
             <option value="editor">editor</option>
           </select>
-          <button className="rounded bg-slate-900 px-3 py-2 font-semibold text-white" data-testid="member-add">Add member</button>
+          <SubmitButton className="rounded bg-slate-900 px-3 py-2 font-semibold text-white" data-testid="member-add" pendingText="Adding…">Add member</SubmitButton>
         </form>
       </section>
       <DangerZone
@@ -198,9 +199,9 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
       <form action={createWorkspace} className="mt-6 flex gap-2">
         <input name="display_name" required placeholder="New workspace name"
           className="rounded border border-slate-300 p-2 text-sm" data-testid="new-workspace-name" />
-        <button type="submit" className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white">
+        <SubmitButton className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white" pendingText="Creating…">
           Create workspace
-        </button>
+        </SubmitButton>
       </form>
     </main>
   );

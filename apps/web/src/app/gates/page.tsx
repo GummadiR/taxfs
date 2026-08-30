@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
@@ -85,9 +86,10 @@ export default async function GatesBoard() {
       <div className="flex items-baseline justify-between">
         <h1 className="text-xl font-black">Gates Board</h1>
         <form action={runGates}>
-          <button className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="run-gates">
+          <SubmitButton className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="run-gates"
+            pendingText="Running gates — computing both jurisdictions…">
             {board.length > 0 ? 'Re-run gates' : 'Run gates 0–6'}
-          </button>
+          </SubmitButton>
         </form>
       </div>
       <p className="mt-1 text-sm text-slate-600">

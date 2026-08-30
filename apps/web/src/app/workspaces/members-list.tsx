@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { withUserClient } from '@/server/db';
 
 interface Membership { workspace_id: string; display_name: string; role: string }
@@ -36,7 +37,7 @@ export async function MembersList({
             <form action={openAction}>
               <input type="hidden" name="workspace_id" value={r.workspace_id} />
               <input type="hidden" name="user_id" value={r.user_id} />
-              <button className="text-xs text-red-700 underline">Remove</button>
+              <SubmitButton className="text-xs text-red-700 underline" pendingText="Removing…">Remove</SubmitButton>
             </form>
           ) : null}
         </li>
