@@ -7,7 +7,7 @@
  * the lineage, never baked into prose where they could drift.
  */
 import type { SourceDoc, TaxFact } from '@taxfs/shared';
-import { documentDisplayName } from './docstore';
+import { documentDisplayName } from './doc-ref';
 import { TAX_YEAR } from './env';
 
 /** Federal Review lines, in reading order. Lines render only when computed. */

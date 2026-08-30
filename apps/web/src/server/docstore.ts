@@ -17,7 +17,8 @@ import { dirname, join, normalize, sep } from 'node:path';
 import { localOperatorMode } from './env';
 import { supabaseServer } from '@/lib/supabase/server';
 
-const LOCAL_PREFIX = 'localfs://';
+import { LOCAL_PREFIX } from './doc-ref';
+export { documentDisplayName, isStoredDocumentRef } from './doc-ref';
 const BUCKET = 'documents';
 
 function localRoot(): string {
@@ -85,19 +86,3 @@ export async function deleteDocument(rawRef: string): Promise<void> {
   }
 }
 
-export function isStoredDocumentRef(rawRef: string): boolean {
-  return rawRef.startsWith(LOCAL_PREFIX) || /^ws_[a-z0-9]+\//.test(rawRef);
-}
-
-/**
- * Human-readable name for a stored upload, recovered from the storage path
- * (`.../<year>/doc-<uuid>-<safeName>`). Lets documents uploaded before
- * `__filename` was recorded still show as "Temple_Donations.pdf" instead of
- * a bare doc id. Returns null for demo/manual/unrecognized refs.
- */
-export function documentDisplayName(rawRef: string): string | null {
-  if (!isStoredDocumentRef(rawRef)) return null;
-  const base = rawRef.split('/').pop() ?? '';
-  const stripped = base.replace(/^doc-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}-/, '');
-  return stripped && stripped !== base ? stripped : null;
-}

@@ -13,6 +13,7 @@
  */
 import type { SourceDoc, TaxFact } from '@taxfs/shared';
 import { conceptLabel, docTitle, SOURCE_LABELS } from './labels';
+import { isStoredDocumentRef } from './doc-ref';
 
 /** Below this, TaxOS made the operator TYPE the value rather than click. */
 export const TYPE_TO_VERIFY_BELOW = 0.95;
@@ -62,4 +63,65 @@ export function pendingConfirmations(
       };
     })
     .sort((a, b) => (a.doc_title ?? '').localeCompare(b.doc_title ?? '') || a.label.localeCompare(b.label));
+}
+
+/**
+ * Whether a document can usefully be re-scanned, and if not, why not.
+ *
+ * The Rescan control used to appear on EVERY stored document. On a confirmed
+ * one it could not do anything — re-proposing on top of a confirmed value is
+ * how a document gets counted twice, so the action refuses — and the refusal
+ * printed in a banner at the top of a long page, far from the button. The
+ * honest read was "I clicked it and nothing happened", so people clicked
+ * again, and with no per-row status there was no way to tell which document
+ * you had just re-scanned or whether it had worked.
+ *
+ * TaxOS showed its equivalent on almost no row: only where a document had
+ * NOTHING attached, because unconfirmed proposals lived in an in-memory
+ * session and died on restart. TaxFS persists facts, so that reason is gone —
+ * which is why most documents here never need re-scanning at all.
+ *
+ * What remains genuinely re-scannable: a stored file whose values are not yet
+ * confirmed. That covers extraction being off at upload, extraction failing
+ * or being refused, and a reading you have not yet accepted.
+ */
+export interface RescanState {
+  canRescan: boolean;
+  /** Stored file, but no values were ever read from it. */
+  nothingRead: boolean;
+  /** Full explanation, for a tooltip. */
+  why: string;
+  /** Two or three words, for the row itself. */
+  shortWhy: string;
+}
+
+export function rescanState(source: SourceDoc, facts: readonly TaxFact[]): RescanState {
+  const mine = facts.filter(
+    (f) => f.derivation === undefined && f.provenance?.some((p) => p.source_id === source.source_id),
+  );
+  const confirmed = mine.filter((f) => f.status === 'confirmed').length;
+  const stored = isStoredDocumentRef(source.raw_ref);
+
+  if (!stored) {
+    return {
+      canRescan: false, nothingRead: false,
+      why: 'This entry has no stored file behind it — it was typed in, or came from a demo document. There is nothing to read again.',
+      shortWhy: 'typed entry',
+    };
+  }
+  if (confirmed > 0) {
+    return {
+      canRescan: false, nothingRead: false,
+      why: `${confirmed} value(s) from this document are confirmed and counting toward your return. A re-scan would propose them a second time, so it is refused. To start over, Remove the document and upload it again.`,
+      shortWhy: 'confirmed — nothing to re-scan',
+    };
+  }
+  return {
+    canRescan: true,
+    nothingRead: mine.length === 0,
+    why: mine.length === 0
+      ? 'The file is stored but no values were read from it. Re-scan reads the same stored bytes again.'
+      : 'This document has values waiting for your confirmation. Re-scan reads the stored file again and rebuilds them.',
+    shortWhy: '',
+  };
 }
