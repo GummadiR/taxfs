@@ -16,6 +16,7 @@
  * plus a message routing the operator to manual entry.
  */
 import { runExtraction } from '@taxfs/agents';
+import { createHash } from 'node:crypto';
 import { Money } from '@taxfs/shared';
 import { withSpine } from './db';
 import { makeAgentDeps, anthropicApiKey } from './agent-deps';
@@ -97,6 +98,25 @@ async function runDocPipeline(
     return;
   }
 
+  // DUPLICATE check by content fingerprint: the SHA-256 of the incoming
+  // bytes is stored with every upload, so re-uploading the same file — even
+  // renamed — is refused BEFORE the (expensive) scrub, naming the existing
+  // document. A hash reveals nothing about the content. Only exact-byte
+  // duplicates match; a re-scan of the same paper document is a different
+  // file and legitimately lands as its own evidence.
+  const sha256 = createHash('sha256').update(original).digest('hex');
+  const twin = (await withSpine({ userId, workspaceId: ws }, (spine) => spine.getSources(ws, TAX_YEAR)))
+    .find((s) => s.fields['__sha256'] === sha256);
+  if (twin) {
+    const twinName = twin.fields['__filename'] ?? twin.source_id;
+    report.blocked.push({
+      name,
+      reason: `"${name}" is byte-for-byte identical to "${twinName}", which is already in this workspace — it was skipped, nothing was stored twice.`,
+      instructions: 'If you meant to replace the existing copy, Remove it on the Documents page first, then upload again.',
+    });
+    return;
+  }
+
   // P15 — LOCAL SSN SCRUB, first and unconditionally.
   // Isolated child process with a hard kill: a document that freezes a PDF
   // library can cost only ITSELF, never the server or the rest of the batch.
@@ -122,7 +142,7 @@ async function runDocPipeline(
         taxpayer_id: ws,
         type: 'USER_ENTRY',
         tax_year: TAX_YEAR,
-        fields: { __filename: name },
+        fields: { __filename: name, __sha256: sha256 },
         ocr_confidence: 0,
         raw_ref: rawRef,
       });
@@ -164,7 +184,7 @@ async function runDocPipeline(
         taxpayer_id: ws,
         type: 'USER_ENTRY',
         tax_year: TAX_YEAR,
-        fields: { __filename: name },
+        fields: { __filename: name, __sha256: sha256 },
         ocr_confidence: 0,
         raw_ref: rawRef,
       });
@@ -189,6 +209,7 @@ async function runDocPipeline(
         // The operator's own file name, for display on Documents — the same
         // name already carried in the storage path (raw_ref).
         __filename: name,
+        __sha256: sha256,
       },
       ocr_confidence: out.fields.length > 0 ? Math.min(...out.fields.map((f) => f.confidence)) : 0.5,
       raw_ref: rawRef,
