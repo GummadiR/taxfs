@@ -282,6 +282,18 @@ test.describe('Real document upload (scrub + store, extraction off)', () => {
     await expect(page.locator('[data-testid^="rescan-doc-"]').first()).toBeVisible();
   });
 
+  test('re-uploading the same file is refused as an exact duplicate, naming the existing document', async ({ page }) => {
+    test.setTimeout(120_000);
+    await page.goto('/documents');
+    await page.getByTestId('upload-file-input').setInputFiles('../../rules/fixtures/sample-docs/2025.SAMPLE.w2.pdf');
+    const err = page.getByTestId('upload-error');
+    await expect(err).toBeVisible({ timeout: 90_000 });
+    await expect(err).toContainText('byte-for-byte identical');
+    await expect(err).toContainText('2025.SAMPLE.w2.pdf');
+    // Still exactly one copy in the locker.
+    await expect(page.getByTestId('source-list').locator('li', { hasText: '2025.SAMPLE.w2.pdf' })).toHaveCount(1);
+  });
+
   test('deleting the upload removes the source and its stored file', async ({ page }) => {
     await page.goto('/documents');
     const row = page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first();
