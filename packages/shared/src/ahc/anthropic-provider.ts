@@ -18,8 +18,15 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { LlmProvider, LlmRequest, LlmResponse } from './provider';
 
-/** Default vision model (override per-route via the ModelRouter config). */
-export const DEFAULT_VISION_MODEL = 'claude-opus-4-8';
+/**
+ * Default vision model (override per-route via the ModelRouter config, or
+ * per-machine with TAXFS_VISION_MODEL).
+ *
+ * Opus 5 is the current Opus generation and is priced identically to Opus 4.8
+ * ($5/$25 per Mtok), so staying on 4.8 bought nothing. It accepts adaptive
+ * thinking, and its `refusal` stop reason is handled explicitly below.
+ */
+export const DEFAULT_VISION_MODEL = 'claude-opus-5';
 
 const IMAGE_MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'] as const;
 type ImageMediaType = (typeof IMAGE_MEDIA_TYPES)[number];
@@ -31,9 +38,35 @@ function isImageMediaType(v: string): v is ImageMediaType {
 export interface AnthropicRequestBody {
   model: string;
   max_tokens: number;
-  thinking: { type: 'adaptive' };
+  /** Present ONLY for models that accept adaptive thinking (see below). */
+  thinking?: { type: 'adaptive' };
   system?: string;
   messages: Anthropic.MessageParam[];
+}
+
+/**
+ * Which models accept `thinking: { type: 'adaptive' }`.
+ *
+ * Sending it to a model that does not returns HTTP 400 "adaptive thinking is
+ * not supported on this model" — which is exactly what every extraction did
+ * on the operator's machine, because this file hardcoded the parameter while
+ * the web app pinned an older vision model. Pre-4.6 models use a fixed
+ * `budget_tokens` instead; rather than guess a budget for them, omit thinking
+ * entirely, which every model accepts.
+ *
+ * Matching by family prefix keeps a pinned dated snapshot working.
+ */
+export function supportsAdaptiveThinking(model: string): boolean {
+  return [
+    'claude-fable-5',
+    'claude-mythos-5',
+    'claude-opus-5',
+    'claude-opus-4-8',
+    'claude-opus-4-7',
+    'claude-opus-4-6',
+    'claude-sonnet-5',
+    'claude-sonnet-4-6',
+  ].some((family) => model.startsWith(family));
 }
 
 /**
@@ -74,7 +107,7 @@ export function buildAnthropicRequest(req: LlmRequest): AnthropicRequestBody {
     // Non-streaming default per current API guidance; extraction outputs are
     // small JSON documents, far below this ceiling.
     max_tokens: req.max_tokens ?? 16000,
-    thinking: { type: 'adaptive' },
+    ...(supportsAdaptiveThinking(req.model) ? { thinking: { type: 'adaptive' as const } } : {}),
     ...(systemText.length > 0 ? { system: systemText } : {}),
     messages,
   };
