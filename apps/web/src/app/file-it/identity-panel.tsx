@@ -8,7 +8,7 @@
 import { useState } from 'react';
 // Client-safe subpath: the forms barrel reaches node:fs (template
 // loading) and must never enter a browser chunk.
-import { fillIdentity, type FilingIdentity } from '@taxfs/forms/identity';
+import { fillIdentity, incompleteIdentityMessage, missingIdentityFields, type FilingIdentity } from '@taxfs/forms/identity';
 import { loadIdentity, saveIdentity } from '@/lib/identity/vault';
 
 interface PdfRef {
@@ -18,7 +18,7 @@ interface PdfRef {
   label: string;
 }
 
-export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs: PdfRef[] }) {
+export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceId: string; joint?: boolean; pdfs: PdfRef[] }) {
   const [passphrase, setPassphrase] = useState('');
   const [status, setStatus] = useState<string>('');
   /** Which click is in flight — every button disables while one runs, so a
@@ -56,6 +56,12 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
   }
 
   async function download(ref: PdfRef, withIdentity: boolean) {
+    // Refuse BEFORE fetching: regenerating and hash-verifying the artifact is
+    // real work, and there is nothing to fill it with.
+    if (withIdentity) {
+      const missing = missingIdentityFields(id, ref.form_id, joint);
+      if (missing.length > 0) return setStatus(`Not downloaded — ${incompleteIdentityMessage(missing)}`);
+    }
     setBusy(`${ref.artifact_id}:${withIdentity}`);
     setStatus(`Fetching ${ref.label}…`);
     try {
@@ -64,11 +70,13 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
     let bytes: Uint8Array<ArrayBuffer> = new Uint8Array(await res.arrayBuffer());
     if (withIdentity) {
       try {
-        bytes = new Uint8Array(await fillIdentity(bytes, ref.form_id, id));
+        bytes = new Uint8Array(await fillIdentity(bytes, ref.form_id, id, { joint }));
       } catch (e) {
         // LOUD (the P92 lesson): never hand out a return with a silently
-        // empty box because a value failed to land.
-        return setStatus(`Identity fill failed: ${(e as Error).message}`);
+        // empty box — whether a value FAILED to land or was never there.
+        // Nothing downloads, so a blank Step 1 cannot reach a printer
+        // believing it is filled.
+        return setStatus(`Not downloaded — ${(e as Error).message}`);
       }
     }
     const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' }));
@@ -126,10 +134,10 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
           onChange={(e) => setId((p) => ({ ...p, city: e.target.value || undefined }))}
           className="rounded border border-slate-300 p-1.5" />
         <div className="flex gap-2">
-          <input placeholder="ST" value={id.state ?? ''}
+          <input placeholder="ST" data-testid="identity-state" value={id.state ?? ''}
             onChange={(e) => setId((p) => ({ ...p, state: e.target.value || undefined }))}
             className="w-12 rounded border border-slate-300 p-1.5" />
-          <input placeholder="ZIP" value={id.zip ?? ''}
+          <input placeholder="ZIP" data-testid="identity-zip" value={id.zip ?? ''}
             onChange={(e) => setId((p) => ({ ...p, zip: e.target.value || undefined }))}
             className="flex-1 rounded border border-slate-300 p-1.5" />
         </div>
@@ -137,6 +145,29 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
       {pdfs.length > 0 ? (
         <div className="mt-4">
           <h3 className="text-sm font-semibold">Print-ready downloads (filled in this browser)</h3>
+          {/* Say what is missing BEFORE the click. The panel starts empty on
+              every page load — a saved identity lives encrypted in this
+              browser and only comes back when you press Load — so "I printed
+              it and my details were blank" was the predictable outcome. */}
+          {(() => {
+            // Judge readiness against the forms actually offered, not a
+            // hardcoded one: only the IL-1040 face carries a date of birth,
+            // so demanding it when there is no IL form to print is nagging
+            // about a field nothing needs.
+            const strictest = pdfs.some((p) => p.form_id === 'IL1040') ? 'IL1040' : '1040';
+            const missing = missingIdentityFields(id, strictest, joint);
+            return missing.length === 0 ? (
+              <p className="mt-1 text-xs text-emerald-700" data-testid="identity-ready">
+                Ready: your details will be printed into the forms below on this machine.
+              </p>
+            ) : (
+              <p className="mt-1 text-xs text-amber-800" data-testid="identity-incomplete">
+                <span className="font-semibold">Your details are not filled in yet</span> — the forms would print
+                with a blank Step 1. Missing: {missing.join(', ')}.
+                {' '}If you saved them before, enter your passphrase above and press <span className="font-semibold">Load</span>.
+              </p>
+            );
+          })()}
           <div className="mt-2 flex flex-wrap gap-2">
             {pdfs.map((ref) => (
               <span key={ref.artifact_id} className="flex gap-1">

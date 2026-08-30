@@ -124,10 +124,33 @@ test.describe('return journey (local operator, real database)', () => {
   test('the downloaded 1040 carries the typed identity — filled in the BROWSER, never on the server', async ({ page }) => {
     // Synthetic identity only (repo rule): fake name, fake SSN with dashes.
     await page.goto('/file-it');
+
+    // The panel starts EMPTY on every load — a saved identity lives encrypted
+    // in the browser until Load. Printing from that state used to produce a
+    // blank Step 1 while reporting success, so before filling anything, prove
+    // the app now REFUSES rather than handing over an unfilled return.
+    await expect(page.getByTestId('identity-incomplete')).toContainText('not filled in yet');
+    await page.getByTestId('download-1040').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Not downloaded');
+    await expect(page.getByTestId('identity-status')).toContainText('press Load');
+
     await page.getByTestId('identity-passphrase').fill('journey-pass-1');
     await page.getByTestId('taxpayer-first').fill('Testy');
     await page.getByTestId('taxpayer-last').fill('Journey');
     await page.getByTestId('taxpayer-ssn').fill('123-45-6789');
+    await page.getByTestId('taxpayer-dob').fill('1979-04-02');
+    // This return is MARRIED FILING JOINTLY, so the spouse's name and SSN are
+    // as required as the taxpayer's — an MFJ 1040 missing them is rejected.
+    await page.getByTestId('spouse-first').fill('Spousey');
+    await page.getByTestId('spouse-last').fill('Journey');
+    await page.getByTestId('spouse-ssn').fill('987-65-4321');
+    await page.getByTestId('spouse-dob').fill('1981-09-14');
+    // A filable Step 1 needs the address block too — the 1040 face asks for it.
+    await page.getByTestId('identity-address').fill('1 Synthetic Way');
+    await page.getByTestId('identity-city').fill('Springfield');
+    await page.getByTestId('identity-state').fill('IL');
+    await page.getByTestId('identity-zip').fill('62701');
+    await expect(page.getByTestId('identity-ready')).toBeVisible();
     await page.getByTestId('identity-save').click();
     await expect(page.getByTestId('identity-status')).toContainText('Saved');
 
@@ -141,6 +164,8 @@ test.describe('return journey (local operator, real database)', () => {
     expect(form.getTextField('topmostSubform[0].Page1[0].f1_14[0]').getText()).toBe('Testy');
     expect(form.getTextField('topmostSubform[0].Page1[0].f1_15[0]').getText()).toBe('Journey');
     expect(form.getTextField('topmostSubform[0].Page1[0].f1_16[0]').getText()).toBe('123456789');
+    expect(form.getTextField('topmostSubform[0].Page1[0].Address_ReadOrder[0].f1_20[0]').getText())
+      .toBe('1 Synthetic Way');
 
     // And the identity-blank download really is blank — the server never saw a name.
     const waitingBlank = page.waitForEvent('download');
@@ -162,8 +187,16 @@ test.describe('client-side identity (§5) — print-package proof', () => {
     await page.getByTestId('taxpayer-first').fill('Testfirst');
     await page.getByTestId('taxpayer-last').fill('Testcase');
     await page.getByTestId('taxpayer-ssn').fill(SSN);
+    await page.getByTestId('taxpayer-dob').fill('1979-04-02');
+    // Same MFJ return as the journey above — the spouse is required.
+    await page.getByTestId('spouse-first').fill('Spousefirst');
+    await page.getByTestId('spouse-last').fill('Testcase');
+    await page.getByTestId('spouse-ssn').fill('987-65-4321');
+    await page.getByTestId('spouse-dob').fill('1981-09-14');
     await page.getByTestId('identity-address').fill('1 Synthetic Way');
     await page.getByTestId('identity-city').fill('Springfield');
+    await page.getByTestId('identity-state').fill('IL');
+    await page.getByTestId('identity-zip').fill('62701');
     await page.getByTestId('identity-passphrase').fill('correct-horse-battery');
     await page.getByTestId('identity-save').click();
     await expect(page.getByTestId('identity-status')).toContainText('Saved');
