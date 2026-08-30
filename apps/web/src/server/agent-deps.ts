@@ -8,6 +8,7 @@
  * routes to the real Anthropic vision API only when ANTHROPIC_API_KEY is
  * configured — the router swap point; agents never change.
  */
+import { loadRootEnv } from './load-env';
 import {
   AnthropicProvider,
   InMemoryAgentLog,
@@ -23,6 +24,7 @@ const AGENT_IDS = ['extraction', 'extraction_simple', 'interview', 'explanation'
 const DEFAULT_VISION_MODEL = 'claude-sonnet-4-5';
 
 export function anthropicApiKey(): string | null {
+  loadRootEnv();
   return process.env.ANTHROPIC_API_KEY ?? null;
 }
 

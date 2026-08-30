@@ -13,6 +13,11 @@
  * could bypass RLS at connect). The active season is TAXFS_TAX_YEAR
  * (default 2025); a junk value refuses to boot (the P99 rule).
  */
+import { loadRootEnv } from './load-env';
+
+// Operators put .env files at the REPO ROOT (the TaxOS habit) — honor them.
+loadRootEnv();
+
 export function supabaseConfigured(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 }
