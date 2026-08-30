@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
 import { withSpine, withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
@@ -68,28 +69,54 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
         Drafts are never stored; a package exists only once it is LOCKED — an immutable row with its manifest,
         validation report and artifact hashes. TaxFS never transmits: you file the printed package yourself.
       </p>
+      <div className="mt-3">
+        <PageHelp
+          what={'Builds the filing package: validates everything, locks an immutable version, and produces the print-ready artifacts. After you file, mark it Filed here. TaxFS never transmits — you file the printed package yourself.'}
+          doThis={[
+            "Click 'Build & lock package' once gates are green.",
+            'Download each PDF from the identity panel below — your name/SSN are filled IN YOUR BROWSER at download time, print, sign in ink, and mail — or use the E-file Sheet.',
+            "After sending, choose how you filed and click 'Mark as Filed' — corrections from then on go through Amend.",
+          ]}
+        />
+      </div>
       {msg ? <p className="mt-2 rounded border border-sky-300 bg-sky-50 p-2 text-sm" role="status" data-testid="fileit-msg">{msg}</p> : null}
       {filedRecord ? (
         <p className="mt-2 rounded border border-emerald-300 bg-emerald-50 p-2 text-sm" data-testid="filed-banner">
           Marked FILED on {filedRecord.filed_date} ({filedRecord.filing_id}, package v{filedRecord.package_version},{' '}
           {filedRecord.channel === 'paper' ? 'paper' : 'e-file'}). The filed record never changes — corrections open a
           case on <a className="underline" href="/amend">Amend</a>; the year-close roll on{' '}
-          <a className="underline" href="/year-round">Year-Round</a> is now available.
+          <a className="underline" href="/year-round">Year-Round</a> is now available. This return stays saved
+          exactly as filed — switch on <a className="underline" href="/workspaces">Workspaces</a> to work on
+          another client and come back any time.
         </p>
       ) : null}
       {!filing ? (
         <p className="mt-4 text-sm">Complete <a className="underline" href="/get-started">Get Started</a> first.</p>
       ) : !hardPass ? (
-        <p className="mt-4 text-sm" data-testid="fileit-blocked">
-          {gatesRan ? 'Hard gates are not green — fix the findings on the Gates Board first.'
-                    : 'Run the gates first — packaging never bypasses them.'}
+        <p className="mt-4 rounded border border-amber-300 bg-amber-50 p-3 text-sm" data-testid="fileit-blocked">
+          {gatesRan
+            ? 'Not ready yet: hard gates (0–4, 6) must pass in both jurisdictions first. The Gates Board shows exactly what is missing — packaging never bypasses gates.'
+            : 'Run the gates first — packaging never bypasses them. The Gates Board runs all seven for both jurisdictions.'}
+          {' '}<a className="underline" href="/gates">Open the Gates Board →</a>
         </p>
       ) : (
-        <form action={buildAndLock} className="mt-4">
-          <button className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="build-package">
-            Build &amp; lock package
-          </button>
-        </form>
+        <div className="mt-4">
+          <p className="rounded border border-emerald-300 bg-emerald-50 p-3 text-sm" data-testid="file-ready">
+            Hard gates pass. Build the package below; it validates (schema, business rules, round-trip) and locks
+            only if everything is clean.
+          </p>
+          <form action={buildAndLock} className="mt-3">
+            <button className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="build-package">
+              Build &amp; lock package
+            </button>
+          </form>
+          <p className="mt-2 text-xs text-slate-500" data-testid="build-expectation">
+            This produces a locked, immutable package version: the official-form PDFs for print-sign-mail (identity
+            filled in your browser at download time, below) plus the internal workpapers. There is no downloadable
+            &quot;e-file file&quot; — the IRS accepts no return-file upload from individuals; the E-file Sheet gives you
+            the exact values to type instead.
+          </p>
+        </div>
       )}
       {rows[0]?.status === 'locked' && !filedRecord ? (
         <form action={markFiled} className="mt-4 flex items-center gap-2 text-sm" data-testid="markfiled-form">
@@ -119,6 +146,18 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
             {rows.length === 0 ? <tr><td colSpan={4} className="py-2 text-slate-500">No locked packages yet.</td></tr> : null}
           </tbody>
         </table>
+      </section>
+      <section className="mt-6 grid gap-3 md:grid-cols-3" data-testid="filing-channels">
+        {[
+          ['Print and mail', 'Download the filled PDFs from the identity panel below, print, sign in ink, attach your W-2 copies, and mail federal and Illinois to their addresses. Certified mail gives you the proof-of-filing date.'],
+          ['E-file via Free File Fillable Forms', 'Individuals cannot upload a return file, so the E-file Sheet lists the exact values to type into the IRS Free File Fillable Forms and MyTax Illinois — line by line, from the locked package.'],
+          ['Workpapers & records', 'The locked package carries the manifest, validation report and artifact hashes. Keep it with your records — the Defense File on Audit Readiness bundles the evidence behind every line.'],
+        ].map(([title, body]) => (
+          <div key={title} className="rounded border border-slate-200 p-3 text-xs">
+            <h3 className="text-sm font-bold">{title}</h3>
+            <p className="mt-1 text-slate-600">{body}</p>
+          </div>
+        ))}
       </section>
       <IdentityPanel
         workspaceId={ws.workspace_id}

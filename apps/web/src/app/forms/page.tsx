@@ -17,6 +17,11 @@ export default async function FormsView() {
     <main className="max-w-3xl space-y-6 print:max-w-none">
       <div className="print:hidden">
         <h1 className="text-xl font-black">Forms (draft)</h1>
+        <p className="mb-2 text-sm text-slate-600">
+          The return as form lines — every amount is a kernel-emitted total with lineage; the mapping layer does
+          no math. Use your browser&apos;s Print for a paper copy; the locked package on File It remains the filing
+          artifact of record.
+        </p>
         <PageHelp
           what={'The draft return rendered as form lines (1040, schedules, IL-1040) — a preview of what will print. Every value is calculation-backed; the mapping layer does no math.'}
           doThis={[

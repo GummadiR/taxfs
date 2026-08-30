@@ -22,3 +22,17 @@ export async function requireContext(): Promise<AppContext> {
   if (!ws) redirect('/workspaces');
   return { userId, ws };
 }
+
+/** Best-effort context for chrome (nav): NEVER redirects or throws — the
+ *  layout must render on /login, /workspaces and unconfigured deployments. */
+export async function maybeContext(): Promise<AppContext | null> {
+  if (!appConfigured()) return null;
+  try {
+    const userId = await authUserId();
+    if (!userId) return null;
+    const ws = await activeWorkspace(userId);
+    return ws ? { userId, ws } : null;
+  } catch {
+    return null;
+  }
+}

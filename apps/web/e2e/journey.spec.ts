@@ -6,6 +6,8 @@
  * (CI always provides one).
  */
 import { test, expect } from '@playwright/test';
+import { readFile } from 'node:fs/promises';
+import { PDFDocument } from 'pdf-lib';
 
 const HAS_DB = Boolean(process.env.TAXFS_TEST_DATABASE_URL);
 
@@ -67,11 +69,15 @@ test.describe('return journey (local operator, real database)', () => {
     }
   });
 
-  test('computed lines carry a full drilldown', async ({ page }) => {
+  test('computed lines carry human labels, a plain-English summary, and a full drilldown', async ({ page }) => {
     await page.goto('/review');
-    const derived = page.getByTestId('derived-facts');
-    await expect(derived).toContainText('fed.agi');
-    await page.getByRole('link', { name: 'drilldown' }).first().click();
+    // Human labels, never raw concept ids (the id stays available as a tooltip).
+    const fed = page.getByTestId('fed-lines');
+    await expect(fed).toContainText('Adjusted gross income');
+    await expect(fed).not.toContainText('fed.agi');
+    await expect(page.getByTestId('review-summary')).toContainText('total income');
+    // Every amount is the drilldown link.
+    await fed.locator('tr', { hasText: 'Adjusted gross income' }).getByRole('link').click();
     await expect(page.getByTestId('lineage-drawer')).toBeVisible();
     await expect(page.getByTestId('lineage-drawer')).toContainText('round_half_up');
   });
@@ -81,6 +87,35 @@ test.describe('return journey (local operator, real database)', () => {
     await page.getByTestId('build-package').click();
     await expect(page.getByTestId('package-list')).toContainText('v1');
     await expect(page.getByTestId('package-list')).toContainText('locked');
+  });
+
+  test('the downloaded 1040 carries the typed identity — filled in the BROWSER, never on the server', async ({ page }) => {
+    // Synthetic identity only (repo rule): fake name, fake SSN with dashes.
+    await page.goto('/file-it');
+    await page.getByTestId('identity-passphrase').fill('journey-pass-1');
+    await page.getByTestId('taxpayer-first').fill('Testy');
+    await page.getByTestId('taxpayer-last').fill('Journey');
+    await page.getByTestId('taxpayer-ssn').fill('123-45-6789');
+    await page.getByTestId('identity-save').click();
+    await expect(page.getByTestId('identity-status')).toContainText('Saved');
+
+    const waiting = page.waitForEvent('download');
+    await page.getByTestId('download-1040').click();
+    const download = await waiting;
+    const bytes = await readFile((await download.path())!);
+    const doc = await PDFDocument.load(new Uint8Array(bytes));
+    const form = doc.getForm();
+    // The P80-verified 1040 Step-1 field names; SSN lands as bare digits (P92 comb field).
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_14[0]').getText()).toBe('Testy');
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_15[0]').getText()).toBe('Journey');
+    expect(form.getTextField('topmostSubform[0].Page1[0].f1_16[0]').getText()).toBe('123456789');
+
+    // And the identity-blank download really is blank — the server never saw a name.
+    const waitingBlank = page.waitForEvent('download');
+    await page.getByTestId('download-blank-1040').click();
+    const blankBytes = await readFile((await (await waitingBlank).path())!);
+    const blankForm = (await PDFDocument.load(new Uint8Array(blankBytes))).getForm();
+    expect(blankForm.getTextField('topmostSubform[0].Page1[0].f1_16[0]').getText() ?? '').toBe('');
   });
 });
 

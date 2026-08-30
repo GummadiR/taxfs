@@ -31,13 +31,18 @@ export function buildOrchestrator(spine: SpineBackend, filing: FilingContext): O
   );
 }
 
+export interface BoardFinding {
+  critic_id: string;
+  message: string;
+}
+
 export interface BoardCell {
   gate: number;
   jurisdiction: string;
   result: string;
   ts: string;
-  errors: string[];
-  warnings: string[];
+  errors: BoardFinding[];
+  warnings: BoardFinding[];
 }
 
 /** Latest run per (gate, jurisdiction) from the persisted gate runs. */
@@ -51,7 +56,7 @@ export function boardFromRuns(runs: readonly GateRun[]): BoardCell[] {
       jurisdiction: run.jurisdiction,
       result: run.result,
       ts: run.timestamp,
-      errors: run.findings.filter((f) => f.severity === 'Error').map((f) => f.message),
-      warnings: run.findings.filter((f) => f.severity !== 'Error').map((f) => f.message),
+      errors: run.findings.filter((f) => f.severity === 'Error').map((f) => ({ critic_id: f.critic_id, message: f.message })),
+      warnings: run.findings.filter((f) => f.severity !== 'Error').map((f) => ({ critic_id: f.critic_id, message: f.message })),
     }));
 }

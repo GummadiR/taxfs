@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
+import { maybeContext } from '@/server/context';
 
 export const metadata: Metadata = {
   title: 'TaxFS',
@@ -32,13 +33,24 @@ const NAV: [string, string][] = [
   ['/workspaces', 'Workspaces'],
 ];
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Whose return is every page showing? Best-effort — never blocks the chrome.
+  const ctx = await maybeContext();
   return (
     <html lang="en">
       <body className="bg-white text-slate-900">
         <div className="mx-auto flex min-h-screen max-w-5xl">
           <nav aria-label="Sections" className="w-48 shrink-0 border-r border-slate-200 p-4">
-            <Link href="/" className="mb-3 block text-lg font-black tracking-tight">TaxFS</Link>
+            <Link href="/" className="block text-lg font-black tracking-tight">TaxFS</Link>
+            {ctx ? (
+              <Link href="/workspaces" title="Every section shows this workspace's return. Click to switch."
+                className="mb-3 mt-1 block truncate rounded bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-900"
+                data-testid="active-workspace">
+                {ctx.ws.display_name} <span className="font-normal text-indigo-400">· switch</span>
+              </Link>
+            ) : (
+              <span className="mb-3 block" />
+            )}
             <ul className="space-y-1 text-sm">
               {NAV.map(([href, label]) => (
                 <li key={href}>
