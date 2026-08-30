@@ -19,15 +19,17 @@
  * transpiled (type-strip only) into a standalone ES module once and cached
  * under node_modules/.cache. The child bootstrap loads it, scrubs one file,
  * and writes the result. Stage breadcrumbs from TAXFS_SCRUB_TRACE let a
- * timeout name WHERE the document froze. If any part of this setup is
- * unavailable (e.g. a hosted serverless deployment with no source tree),
- * scrubbing falls back to the in-process path unchanged.
+ * timeout name WHERE the document froze. If the setup is unavailable the
+ * upload is REFUSED, never scrubbed in-process: the same missing node_modules
+ * that blocks the child also breaks tesseract's worker resolution inside the
+ * bundled server, where the failure escapes as an uncaughtException and takes
+ * the whole server with it instead of costing one upload.
  */
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { scrubDocument, type ScrubResult } from './scrub';
+import type { ScrubResult } from './scrub';
 
 /** Read at CALL time so tests (and an operator) can tune without a restart.
  *  The kill grace is extra time past the soft budget: when the child's event
@@ -99,7 +101,7 @@ let runtimePromise: Promise<Runtime | null> | null = null;
 /**
  * Transpile scrub.ts (type-strip only — it has no app-internal imports) into
  * the cache once, alongside the child bootstrap. Re-done when the source
- * changes (mtime+size key). Any failure → null → in-process fallback.
+ * changes (mtime+size key). Any failure → null → the upload is refused.
  */
 async function prepareRuntime(): Promise<Runtime | null> {
   if (!runtimePromise) {
@@ -166,14 +168,31 @@ function frozenResult(bytes: Uint8Array, mediaType: string, lastStage: string | 
 }
 
 /**
- * Scrub one document in an isolated, killable child process. Falls back to
- * the in-process scrubber when isolation cannot be set up. This is the entry
- * point the upload path must use — never in-process scrubDocument directly,
- * which a frozen PDF library can wedge beyond any timer's reach.
+ * Scrub one document in an isolated, killable child process. This is the
+ * ONLY entry point the upload path may use: in-process scrubbing can be
+ * wedged by a frozen PDF library beyond any timer's reach, and inside the
+ * bundled server it cannot resolve tesseract's worker at all.
  */
 export async function scrubDocumentSafely(bytes: Uint8Array, mediaType: string): Promise<ScrubResult> {
   const rt = await prepareRuntime();
-  if (!rt) return scrubDocument(bytes, mediaType);
+  if (!rt) {
+    // No isolated runtime means no real node_modules next to us — which is
+    // exactly the situation where an in-process scrub ALSO cannot resolve
+    // tesseract's worker, and would take the whole server down with an
+    // uncaughtException instead of failing one upload. Refuse honestly.
+    return {
+      bytes,
+      media_type: mediaType,
+      masked: 0,
+      notes: [],
+      blocked: {
+        reason:
+          'The local SSN scanner could not be started on this machine, so the upload was refused rather than storing an unscanned document.',
+        instructions:
+          'Run "pnpm install" in the TaxFS folder and start it again. Nothing was stored, and no other document was affected.',
+      },
+    };
+  }
 
   const id = `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const inFile = join(rt.workDir, `${id}.in`);

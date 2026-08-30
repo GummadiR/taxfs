@@ -178,15 +178,26 @@ async function ocrWorker() {
 const OCR_MAX_DIM = 1800;
 
 /**
- * Pre-load the heavy machinery (OCR worker + WASM model, ~23 MB) so the
- * FIRST document of a batch does not pay the cold start. Called
- * fire-and-forget when the Documents page renders; errors are swallowed —
- * the real upload path reports them properly.
+ * Pre-materialize the OCR model so the first scrub of a batch does not pay
+ * to decompress it. Called when the Documents page renders.
  */
 export function warmScrubber(): void {
-  void ocrWorker().catch(() => {});
-  void import('@hyzyla/pdfium').catch(() => {});
-  void import('pdfjs-dist/legacy/build/pdf.mjs').catch(() => {});
+  // ONLY the model file — never a worker, and never a bundled import.
+  //
+  // Found on the operator's Windows machine: warming the OCR worker here
+  // spawned tesseract INSIDE the Next server, whose bundler rewrites module
+  // paths ("Cannot find module 'C:\\ROOT\\node_modules\\...worker-script...'").
+  // tesseract throws that from a worker spawn, asynchronously — outside any
+  // promise, so it surfaced as an uncaughtException in the running server.
+  // It was also pointless: since scrubbing moved into an isolated child
+  // process, warming the PARENT warms the wrong process. Decompressing the
+  // model is the only part the child actually reuses, and it is plain
+  // filesystem work that cannot spawn anything.
+  try {
+    ensureTrainedData();
+  } catch {
+    // a cold first scan is a slowdown, never a reason to disturb a page load
+  }
 }
 
 /** Run OCR over image bytes and return every word with its pixel box

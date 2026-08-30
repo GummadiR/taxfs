@@ -49,9 +49,13 @@ export function loadRootEnv(): void {
   if (loaded) return;
   loaded = true;
   for (const name of ['.env.local', '.env']) {
-    const path = join(repoRoot(), name);
+    // turbopackIgnore: reading the operator's own .env at runtime must not
+    // make the bundler trace (and ship) the entire project tree.
+    const path = join(/* turbopackIgnore: true */ repoRoot(), name);
     try {
-      if (existsSync(path)) applyEnv(parseEnvFile(readFileSync(path, 'utf8')));
+      if (existsSync(/* turbopackIgnore: true */ path)) {
+        applyEnv(parseEnvFile(readFileSync(/* turbopackIgnore: true */ path, 'utf8')));
+      }
     } catch {
       // unreadable root env file: the process env still rules
     }
