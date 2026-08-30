@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
@@ -106,9 +107,10 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
             only if everything is clean.
           </p>
           <form action={buildAndLock} className="mt-3">
-            <button className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="build-package">
+            <SubmitButton className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" data-testid="build-package"
+              pendingText="Building and validating the package…">
               Build &amp; lock package
-            </button>
+            </SubmitButton>
           </form>
           <p className="mt-2 text-xs text-slate-500" data-testid="build-expectation">
             This produces a locked, immutable package version: the official-form PDFs for print-sign-mail (identity
@@ -124,9 +126,10 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
             <option value="paper">filed on paper</option>
             <option value="mef_xml">e-filed (FFFF / MyTax)</option>
           </select>
-          <button className="rounded border border-emerald-700 bg-emerald-700 px-3 py-2 font-semibold text-white" data-testid="markfiled">
+          <SubmitButton className="rounded border border-emerald-700 bg-emerald-700 px-3 py-2 font-semibold text-white" data-testid="markfiled"
+            pendingText="Recording…">
             Mark as Filed
-          </button>
+          </SubmitButton>
           <span className="text-xs text-slate-500">Freezes the filed record and its column-A baseline for any later 1040-X.</span>
         </form>
       ) : null}

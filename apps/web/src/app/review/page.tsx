@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
@@ -207,9 +208,10 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
                     <form action={confirmFactAction}>
                       <input type="hidden" name="fact_id" value={f.fact_id} />
                       <input type="hidden" name="source_id" value={f.provenance?.[0]?.source_id ?? ''} />
-                      <button className="rounded border border-slate-300 px-2 py-0.5 text-xs" data-testid={`confirm-${f.fact_id}`}>
+                      <SubmitButton className="rounded border border-slate-300 px-2 py-0.5 text-xs" data-testid={`confirm-${f.fact_id}`}
+                        pendingText="Confirming…">
                         Confirm
-                      </button>
+                      </SubmitButton>
                     </form>
                   ) : null}
                 </td>

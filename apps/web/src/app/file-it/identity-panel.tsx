@@ -21,6 +21,9 @@ interface PdfRef {
 export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs: PdfRef[] }) {
   const [passphrase, setPassphrase] = useState('');
   const [status, setStatus] = useState<string>('');
+  /** Which click is in flight — every button disables while one runs, so a
+   *  slow PDF fill can never look like a dead button (or be double-clicked). */
+  const [busy, setBusy] = useState<string | null>(null);
   const [id, setId] = useState<FilingIdentity>({ taxpayer: {} });
 
   const patch = (path: 'taxpayer' | 'spouse', field: string, value: string | boolean) =>
@@ -28,12 +31,18 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
 
   async function onSave() {
     if (!passphrase) return setStatus('Enter a passphrase first.');
-    await saveIdentity(workspaceId, passphrase, id);
-    setStatus('Saved to this browser (encrypted).');
+    setBusy('save');
+    try {
+      await saveIdentity(workspaceId, passphrase, id);
+      setStatus('Saved to this browser (encrypted).');
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function onLoad() {
     if (!passphrase) return setStatus('Enter a passphrase first.');
+    setBusy('load');
     try {
       const loaded = await loadIdentity(workspaceId, passphrase);
       if (!loaded) return setStatus('No identity stored in this browser for this workspace.');
@@ -41,11 +50,15 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
       setStatus('Loaded.');
     } catch {
       setStatus('Wrong passphrase (decryption failed) — nothing was loaded.');
+    } finally {
+      setBusy(null);
     }
   }
 
   async function download(ref: PdfRef, withIdentity: boolean) {
+    setBusy(`${ref.artifact_id}:${withIdentity}`);
     setStatus(`Fetching ${ref.label}…`);
+    try {
     const res = await fetch(`/api/artifact?package_id=${encodeURIComponent(ref.package_id)}&artifact_id=${encodeURIComponent(ref.artifact_id)}`);
     if (!res.ok) return setStatus(`Download failed: ${await res.text()}`);
     let bytes: Uint8Array<ArrayBuffer> = new Uint8Array(await res.arrayBuffer());
@@ -64,7 +77,10 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
     a.download = `${ref.form_id}${withIdentity ? '' : '-identity-blank'}.pdf`;
     a.click();
     URL.revokeObjectURL(url);
-    setStatus(`${ref.label} downloaded${withIdentity ? ' with identity filled in this browser' : ' (identity blank)'}.`);
+      setStatus(`${ref.label} downloaded${withIdentity ? ' with identity filled in this browser' : ' (identity blank)'}.`);
+    } finally {
+      setBusy(null);
+    }
   }
 
   const person = (path: 'taxpayer' | 'spouse', label: string) => (
@@ -94,8 +110,8 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
       <div className="mt-3 flex items-center gap-2">
         <input type="password" placeholder="Passphrase" data-testid="identity-passphrase" value={passphrase}
           onChange={(e) => setPassphrase(e.target.value)} className="rounded border border-slate-300 p-1.5 text-sm" />
-        <button onClick={onSave} className="rounded border border-slate-300 px-2 py-1 text-sm" data-testid="identity-save">Save</button>
-        <button onClick={onLoad} className="rounded border border-slate-300 px-2 py-1 text-sm" data-testid="identity-load">Load</button>
+        <button onClick={onSave} disabled={busy !== null} className="rounded border border-slate-300 px-2 py-1 text-sm disabled:cursor-wait disabled:opacity-60" data-testid="identity-save">{busy === 'save' ? 'Saving…' : 'Save'}</button>
+        <button onClick={onLoad} disabled={busy !== null} className="rounded border border-slate-300 px-2 py-1 text-sm disabled:cursor-wait disabled:opacity-60" data-testid="identity-load">{busy === 'load' ? 'Loading…' : 'Load'}</button>
         <span className="text-xs text-slate-500" data-testid="identity-status">{status}</span>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
@@ -124,13 +140,13 @@ export function IdentityPanel({ workspaceId, pdfs }: { workspaceId: string; pdfs
           <div className="mt-2 flex flex-wrap gap-2">
             {pdfs.map((ref) => (
               <span key={ref.artifact_id} className="flex gap-1">
-                <button onClick={() => download(ref, true)} data-testid={`download-${ref.form_id}`}
-                  className="rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white">
-                  {ref.label} + identity
+                <button onClick={() => download(ref, true)} data-testid={`download-${ref.form_id}`} disabled={busy !== null}
+                  className="rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-wait disabled:opacity-60">
+                  {busy === `${ref.artifact_id}:true` ? 'Preparing…' : `${ref.label} + identity`}
                 </button>
-                <button onClick={() => download(ref, false)} data-testid={`download-blank-${ref.form_id}`}
-                  className="rounded border border-slate-300 px-2 py-1.5 text-xs">
-                  blank
+                <button onClick={() => download(ref, false)} data-testid={`download-blank-${ref.form_id}`} disabled={busy !== null}
+                  className="rounded border border-slate-300 px-2 py-1.5 text-xs disabled:cursor-wait disabled:opacity-60">
+                  {busy === `${ref.artifact_id}:false` ? 'Preparing…' : 'blank'}
                 </button>
               </span>
             ))}

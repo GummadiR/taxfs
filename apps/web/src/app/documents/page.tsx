@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
 import { UploadDropzone } from '@/components/upload-dropzone';
@@ -111,15 +112,16 @@ export default async function Documents({ searchParams }: { searchParams: Promis
               {isStoredDocumentRef(s.raw_ref) ? (
                 <form action={rescanDoc}>
                   <input type="hidden" name="source_id" value={s.source_id} />
-                  <button className="text-xs underline" data-testid={`rescan-${s.source_id}`}
+                  <SubmitButton className="text-xs underline" data-testid={`rescan-${s.source_id}`}
+                    pendingText="Reading…"
                     title="Re-read the stored file (P26): its unconfirmed values are rebuilt from the same scrubbed bytes.">
                     Rescan
-                  </button>
+                  </SubmitButton>
                 </form>
               ) : null}
               <form action={removeDoc}>
                 <input type="hidden" name="source_id" value={s.source_id} />
-                <button className="text-xs text-red-700 underline">Remove</button>
+                <SubmitButton className="text-xs text-red-700 underline" pendingText="Removing…" data-testid={`remove-${s.source_id}`}>Remove</SubmitButton>
               </form>
             </span>
           </li>
@@ -133,7 +135,7 @@ export default async function Documents({ searchParams }: { searchParams: Promis
           {DEMO_DOCS.map((d) => (
             <form key={d.id} action={addDemo}>
               <input type="hidden" name="doc" value={d.id} />
-              <button className="rounded border border-slate-300 px-3 py-2 text-sm" data-testid={`add-${d.id}`}>{d.label}</button>
+              <SubmitButton className="rounded border border-slate-300 px-3 py-2 text-sm" data-testid={`add-${d.id}`} pendingText="Adding…">{d.label}</SubmitButton>
             </form>
           ))}
         </div>
@@ -146,7 +148,7 @@ export default async function Documents({ searchParams }: { searchParams: Promis
           </select>
           <input name="amount" required placeholder="Amount" inputMode="decimal"
             className="w-32 rounded border border-slate-300 p-2 text-sm" data-testid="manual-amount" />
-          <button className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white">Add</button>
+          <SubmitButton className="rounded bg-slate-900 px-3 py-2 text-sm font-semibold text-white" pendingText="Saving…">Add</SubmitButton>
         </form>
       </section>
     </main>

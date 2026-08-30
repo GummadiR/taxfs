@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
@@ -74,9 +75,9 @@ export default async function GetStarted() {
             defaultValue={current?.addl_std_boxes ?? 0}
             className="mt-1 w-24 rounded border border-slate-300 p-2" />
         </label>
-        <button type="submit" className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white">
+        <SubmitButton className="rounded bg-slate-900 px-4 py-2 text-sm font-semibold text-white" pendingText="Saving…">
           Save and continue
-        </button>
+        </SubmitButton>
       </form>
     </main>
   );

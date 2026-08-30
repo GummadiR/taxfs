@@ -1,3 +1,4 @@
+import { SubmitButton } from '@/components/submit-button';
 import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
 import { withSpine, withUserClient } from '@/server/db';
@@ -99,12 +100,13 @@ export default async function History() {
           </select>
           <input name="value" required placeholder="Amount" inputMode="decimal"
             className="w-32 rounded border border-slate-300 p-2" data-testid="history-value" />
-          <button className="rounded bg-slate-900 px-3 py-2 font-semibold text-white">Add</button>
+          <SubmitButton className="rounded bg-slate-900 px-3 py-2 font-semibold text-white" pendingText="Saving…">Add</SubmitButton>
         </form>
         <form action={importDemo} className="mt-2">
-          <button className="rounded border border-slate-300 px-3 py-2 text-sm" data-testid="history-demo">
+          <SubmitButton className="rounded border border-slate-300 px-3 py-2 text-sm" data-testid="history-demo"
+            pendingText="Importing…">
             Import demo {DEMO_PRIOR_YEAR.tax_year} return (synthetic figures)
-          </button>
+          </SubmitButton>
         </form>
       </section>
     </main>
