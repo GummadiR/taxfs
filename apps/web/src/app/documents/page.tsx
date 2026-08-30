@@ -3,6 +3,7 @@ import { appConfigured, requireContext } from '@/server/context';
 import { UploadDropzone } from '@/components/upload-dropzone';
 import { deleteUploadedDocument, rescanDocument } from '@/server/upload';
 import { documentDisplayName, isStoredDocumentRef } from '@/server/docstore';
+import { warmScrubber } from '@/server/scrub';
 import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
 import { withUserClient } from '@/server/db';
@@ -51,6 +52,9 @@ async function rescanDoc(formData: FormData) {
 export default async function Documents({ searchParams }: { searchParams: Promise<{ msg?: string }> }) {
   if (!appConfigured()) redirect('/');
   const { userId, ws } = await requireContext();
+  // Start loading the OCR engine now, in the background: by the time files
+  // are picked, the first document skips the ~23 MB model cold start.
+  warmScrubber();
   const { msg } = await searchParams;
   const sources = await withSpine({ userId, workspaceId: ws.workspace_id }, (spine) =>
     spine.getSources(ws.workspace_id, TAX_YEAR));
