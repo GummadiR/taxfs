@@ -1,5 +1,9 @@
 /**
- * P26 rescan — IN PLACE and NON-DESTRUCTIVE (§9.1 negative tests).
+ * DOCUMENT DURABILITY — an uploaded document is never lost (§9.1 negative
+ * tests). Two halves: the upload path always lands the file as evidence,
+ * and rescan re-reads it in place without ever deleting.
+ *
+ * P26 rescan — IN PLACE and NON-DESTRUCTIVE.
  *
  * Found the hard way on a real workspace: the ported rescan deleted the
  * source and its stored file FIRST, then re-ran the whole upload pipeline.
@@ -194,5 +198,63 @@ describe('rescan is in-place and non-destructive (P26)', () => {
     expect(report.messages.join(' ')).toContain('out of date');
     expect(spine.sources).toHaveLength(1);
     expect(spine.deleted).toEqual([]);
+  });
+});
+
+/**
+ * The evidence-locker rule, on the UPLOAD side (§9.1 negative tests).
+ *
+ * With extraction off, every uploaded document landed as stored evidence.
+ * Turning extraction on introduced two paths that threw the operator's file
+ * away — a validation rejection deleted it outright, and a thrown API error
+ * left it orphaned on disk while the screen claimed it "was NOT saved".
+ * Both matter immediately: the documents an operator most wants to keep
+ * (a donation receipt, a property-tax printout) are exactly the ones a
+ * form-reader cannot classify.
+ */
+describe('an uploaded document always lands as evidence', () => {
+  beforeEach(() => {
+    spine.sources = [];
+    spine.facts = [];
+    spine.deleted = [];
+    spine.registered = [];
+    spine.landed = [];
+    storeDeletes.length = 0;
+    apiKey = 'sk-ant-test';
+  });
+
+  const file = (name: string) =>
+    ({ name, type: 'application/pdf', arrayBuffer: async () => new Uint8Array([9, 9, 9]).buffer }) as unknown as File;
+
+  it('KEEPS the document when extraction is REJECTED by validation', async () => {
+    extraction = async () => ({ status: 'rejected', issues: [{ message: 'not a recognised form' }] });
+    const { uploadDocuments } = await import('../src/server/upload');
+    const report = await uploadDocuments('user', 'ws_test', [file('Temple Donations.pdf')]);
+    expect(spine.registered).toHaveLength(1);
+    expect(spine.sources[0]!.fields['__filename']).toBe('Temple Donations.pdf');
+    expect(storeDeletes).toEqual([]); // the file is NOT thrown away
+    expect(report.messages.join(' ')).toContain('KEPT as evidence');
+  });
+
+  it('KEEPS the document when the extraction API THROWS, and says so honestly', async () => {
+    extraction = async () => {
+      throw new Error('503 reader unavailable');
+    };
+    const { uploadDocuments } = await import('../src/server/upload');
+    const report = await uploadDocuments('user', 'ws_test', [file('JP Morgan 1099_1.pdf')]);
+    expect(spine.registered).toHaveLength(1);
+    expect(storeDeletes).toEqual([]);
+    // The old message claimed "was NOT saved" while the file sat orphaned.
+    expect(report.messages.join(' ')).toContain('STORED');
+    expect(report.messages.join(' ')).not.toContain('NOT saved');
+  });
+
+  it('KEEPS the document when it is not a supported form', async () => {
+    extraction = async () => ({ status: 'manual_entry' });
+    const { uploadDocuments } = await import('../src/server/upload');
+    const report = await uploadDocuments('user', 'ws_test', [file('DuPage Property Tax.pdf')]);
+    expect(spine.registered).toHaveLength(1);
+    expect(storeDeletes).toEqual([]);
+    expect(report.messages.join(' ')).toContain('STORED');
   });
 });

@@ -135,7 +135,10 @@ async function runDocPipeline(
   // The stored artifact is the SCRUBBED copy; extraction reads the same bytes.
   const rawRef = await storeDocument(ws, `${TAX_YEAR}/${docId}-${safeName}`, bytes, outType);
 
-  if (!anthropicApiKey()) {
+  // Whatever extraction does, the DOCUMENT lands. This is an evidence
+  // locker: a file the operator uploaded is never silently discarded
+  // because a reader could not classify it.
+  const keepAsEvidence = async (): Promise<void> => {
     await withSpine({ userId, workspaceId: ws }, async (spine) => {
       await spine.registerSource({
         source_id: docId,
@@ -148,6 +151,11 @@ async function runDocPipeline(
       });
       await spine.confirmSource(docId);
     });
+  };
+
+
+  if (!anthropicApiKey()) {
+    await keepAsEvidence();
     report.messages.push(
       `"${name}" was scanned for SSNs locally and stored, but live extraction is off on this TaxFS setup ` +
         '(no ANTHROPIC_API_KEY — a machine configuration, not a problem with your document). ' +
@@ -156,7 +164,10 @@ async function runDocPipeline(
     return;
   }
 
-  const run = await withUserClient(userId, (client) =>
+  let run: Awaited<ReturnType<typeof runExtraction>>;
+  try {
+    run = await withUserClient(userId, (client) =>
+
     runExtraction(
       makeAgentDeps(new PgAgentLog(client, ws)),
       {
@@ -166,31 +177,33 @@ async function runDocPipeline(
         expected_tax_year: TAX_YEAR,
       },
       ws,
-    ));
+      ));
+  } catch (e) {
+    // The reader failed (API error, network, timeout) — that is a machine
+    // problem, never a reason to lose the operator's document.
+    await keepAsEvidence();
+    report.messages.push(
+      `"${name}" was scrubbed and STORED, but the reader could not be reached ` +
+        `(${e instanceof Error ? e.message : String(e)}), so no values were read. ` +
+        'The document is safe in your locker — use Rescan to try reading it again, or enter its values with Typed entry.',
+    );
+    return;
+  }
 
   if (run.status === 'rejected') {
-    await deleteDocument(rawRef);
+    await keepAsEvidence();
     report.messages.push(
-      `Extraction of "${name}" was rejected by validation and produced nothing to review` +
+      `"${name}" was scrubbed and STORED, but its extraction was rejected by validation and produced nothing to review` +
         (run.issues[0] ? ` (${run.issues[0].message})` : '') +
-        '. Nothing was guessed — try a clearer scan or enter the document manually below.',
+        '. Nothing was guessed, and the document itself was KEPT as evidence — enter its values with Typed entry or Add Data.',
     );
     return;
   }
   if (run.status === 'manual_entry') {
-    await withSpine({ userId, workspaceId: ws }, async (spine) => {
-      await spine.registerSource({
-        source_id: docId,
-        taxpayer_id: ws,
-        type: 'USER_ENTRY',
-        tax_year: TAX_YEAR,
-        fields: { __filename: name, __sha256: sha256 },
-        ocr_confidence: 0,
-        raw_ref: rawRef,
-      });
-      await spine.confirmSource(docId);
-    });
-    report.messages.push(`"${name}" could not be read as a supported form. Nothing was guessed — enter it manually below (the file is stored alongside).`);
+    await keepAsEvidence();
+    report.messages.push(
+      `"${name}" was scrubbed and STORED, but could not be read as a supported form. Nothing was guessed — enter its values with Typed entry or Add Data; the file stays alongside as the evidence.`,
+    );
     return;
   }
 
