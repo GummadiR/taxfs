@@ -1,3 +1,4 @@
+import { buildInfo } from '@/server/build-info';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
@@ -34,6 +35,7 @@ const NAV: [string, string][] = [
 ];
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const build = buildInfo();
   // Whose return is every page showing? Best-effort — never blocks the chrome.
   const ctx = await maybeContext();
   return (
@@ -61,6 +63,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <p className="mt-6 text-[10px] leading-4 text-slate-400">
               Rule data is source-verified but not yet dual-sign-off verified. Not for live filing.
             </p>
+            {build ? (
+              <p className="mt-2 font-mono text-[10px] leading-4 text-slate-400" data-testid="build-stamp"
+                title="The exact build this app is running. Quote it when reporting a problem — it says whether a fix has reached this machine.">
+                build {build.commit}{build.branch ? ` · ${build.branch}` : ''}
+              </p>
+            ) : null}
           </nav>
           <div className="min-w-0 flex-1 p-6">{children}</div>
         </div>

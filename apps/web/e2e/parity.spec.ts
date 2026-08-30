@@ -294,6 +294,27 @@ test.describe('Real document upload (scrub + store, extraction off)', () => {
     await expect(page.getByTestId('source-list').locator('li', { hasText: '2025.SAMPLE.w2.pdf' })).toHaveCount(1);
   });
 
+  test('RESCAN never destroys the document — the row and its name survive (P26)', async ({ page }) => {
+    // The bug this guards: rescan used to delete the source and its file
+    // FIRST and rebuild after, so any failure lost the document outright.
+    // Extraction is off in e2e, which is exactly a "rescan cannot produce
+    // values" case — the document must still be there afterwards, with the
+    // same id, and the operator must be told plainly why.
+    test.setTimeout(120_000);
+    await page.goto('/documents');
+    const row = page.getByTestId('source-list').locator('li', { hasText: '2025.SAMPLE.w2.pdf' });
+    await expect(row).toHaveCount(1);
+    const rescan = page.locator('[data-testid^="rescan-doc-"]').first();
+    const docId = (await rescan.getAttribute('data-testid'))!.replace('rescan-', '');
+
+    await rescan.click();
+    await page.waitForURL(/\/documents\?msg=/);
+    await expect(page.getByTestId('docs-msg')).toContainText('extraction is off');
+    // Same document, same id, same name — nothing deleted, nothing recreated.
+    await expect(page.getByTestId('source-list').locator('li', { hasText: '2025.SAMPLE.w2.pdf' })).toHaveCount(1);
+    await expect(page.locator(`[data-testid="rescan-${docId}"]`)).toHaveCount(1);
+  });
+
   test('deleting the upload removes the source and its stored file', async ({ page }) => {
     await page.goto('/documents');
     const row = page.getByTestId('source-list').locator('li', { hasText: 'USER_ENTRY' }).first();
