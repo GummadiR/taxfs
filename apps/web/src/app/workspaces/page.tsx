@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { PageHelp } from '@/components/pagehelp';
 import { appConfigured } from '@/server/context';
 import { authUserId } from '@/server/identity';
 import { ensureWorkspace, listWorkspaces, requireDbUrl } from '@/server/db';
@@ -134,6 +135,21 @@ export default async function WorkspacesPage({ searchParams }: { searchParams: P
         )}
       </div>
       {error ? <p className="mt-2 text-sm text-red-700" role="alert" data-testid="workspace-error">{error}</p> : null}
+      <div className="mt-3">
+        <PageHelp
+          what={'One workspace per person or business. The workspace you open is whose return every other page displays. Switching swaps the whole workspace — documents, review, gates, packages — with zero mixing, and deletes nothing.'}
+          doThis={[
+            'Finish one return, then switch — it stays saved in the database exactly as you left it.',
+            'Create a new workspace for each additional person or business you prepare.',
+            'Come back to any workspace at any time; reopening loads its saved return.',
+          ]}
+        />
+      </div>
+      <p className="mt-2 text-xs text-slate-500">
+        Each workspace is fully isolated: uploads, extracted values, computed figures, gate results, and filing
+        packages belong to exactly one workspace — enforced by row-level security in the database schema, not by
+        the app remembering to filter.
+      </p>
       <ul className="mt-4 space-y-2" data-testid="workspace-list">
         {memberships.map((m) => (
           <li key={m.workspace_id} className="flex items-center justify-between rounded border border-slate-200 p-3 text-sm">

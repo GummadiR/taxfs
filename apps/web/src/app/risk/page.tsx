@@ -27,7 +27,7 @@ export default async function Risk() {
     <main className="max-w-3xl space-y-4">
       <h1 className="text-xl font-black">Audit Readiness</h1>
       <PageHelp
-        what={'Being ready IF a letter ever comes — NOT a prediction of your audit odds (nobody can honestly predict those, and TaxFS refuses to pretend). Informational pattern checks plus the Defense File: your evidence, pre-assembled.'}
+        what={'Being ready IF a letter ever comes — NOT a prediction of your audit odds (nobody can honestly predict those, and this tool will not pretend to). It reviews your return for patterns that public IRS statistics show draw more attention — round-number estimates, deductions far above the norm for similar returns, positions with weak legal authority — and makes sure each one is DOCUMENTED before you file. The Defense File is the bundle you would hand over in response to a letter. Nothing on this page blocks filing.'}
         doThis={[
           'Read each informational item; fix what has a fix, acknowledge what you have reviewed.',
           'After locking a package on File It, download the Defense File — the bundle you would hand a preparer if a letter came.',

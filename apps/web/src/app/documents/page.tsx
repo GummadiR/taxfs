@@ -4,6 +4,7 @@ import { UploadDropzone } from '@/components/upload-dropzone';
 import { deleteUploadedDocument, rescanDocument } from '@/server/upload';
 import { documentDisplayName, isStoredDocumentRef } from '@/server/docstore';
 import { warmScrubber } from '@/server/scrub';
+import { PageHelp } from '@/components/pagehelp';
 import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
 import { withUserClient } from '@/server/db';
@@ -65,6 +66,23 @@ export default async function Documents({ searchParams }: { searchParams: Promis
         Your evidence locker. Upload tax documents (W-2, 1099s, K-1, 1095-A, brokerage statements) — every file
         is scrubbed of SSNs ON THIS MACHINE before storage or reading (a document that cannot be safely scrubbed
         is refused), and every extracted value still needs your confirmation on Review before it counts.
+      </p>
+      <div className="mt-3">
+        <PageHelp
+          what={'Your evidence locker. Upload tax documents (W-2, 1099s, K-1, 1095-A, brokerage statements) — every file is scrubbed of SSNs on this machine before storage or reading, and every extracted value still needs your confirmation on Review before it counts. Amounts with no scannable document go in Typed entry.'}
+          doThis={[
+            'Upload each document (image or PDF). Duplicates are refused automatically by content fingerprint.',
+            'Use Typed entry for amounts without a scannable form (solar cost, estimated payments, foreign bank interest…).',
+            'Remove deletes a document and everything computed from it; Rescan re-reads the stored file.',
+          ]}
+        />
+      </div>
+      <p className="mt-3 rounded border border-emerald-200 bg-emerald-50 p-2 text-xs text-emerald-900" data-testid="scrub-notice">
+        Privacy, honestly stated: SSNs are blacked out ON THIS MACHINE before a document is stored or read — a
+        page whose text carries the number is re-rendered to pixels so it is destroyed, not covered, and the
+        rebuilt file is verified SSN-free before it is accepted. Two honest caveats: a page image that cannot be
+        decoded locally is reported as unscanned rather than assumed clean, and a document that cannot be safely
+        scrubbed is refused with instructions rather than stored as-is.
       </p>
       {msg ? <p className="mt-2 rounded border border-sky-300 bg-sky-50 p-2 text-sm" role="status" data-testid="docs-msg">{msg}</p> : null}
       <div className="mt-4">
