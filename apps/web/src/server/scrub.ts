@@ -31,6 +31,17 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { gunzipSync } from 'node:zlib';
 
+/**
+ * Stage breadcrumbs, printed to stderr ONLY when TAXFS_SCRUB_TRACE is set
+ * (the isolated child process sets it). When a document freezes a PDF
+ * library in native/WASM code — where no JavaScript timer can fire — the
+ * last stage line is the only evidence of WHERE, and the parent puts it in
+ * the refusal message. Never any document content; stage names and sizes only.
+ */
+function trace(stage: string): void {
+  if (process.env.TAXFS_SCRUB_TRACE) console.error(`[scrub] ${stage}`);
+}
+
 /** A US SSN as printed: 123-45-6789, 123 45 6789, or 9 bare digits. */
 const SSN_TEXT = /\b\d{3}[-\s]?\d{2}[-\s]?\d{4}\b/;
 const SSN_TEXT_G = new RegExp(SSN_TEXT.source, 'g');
@@ -181,6 +192,7 @@ export function warmScrubber(): void {
 /** Run OCR over image bytes and return every word with its pixel box
  *  (in the ORIGINAL image's coordinates). */
 export async function ocrWords(png: Uint8Array): Promise<OcrWord[]> {
+  trace('ocr: loading worker');
   const worker = await ocrWorker();
   const { Jimp } = await import('jimp');
   const img = await Jimp.read(Buffer.from(png));
@@ -195,6 +207,7 @@ export async function ocrWords(png: Uint8Array): Promise<OcrWord[]> {
     img.resize({ w: Math.round(img.width / scale) });
     input = await img.getBuffer('image/jpeg', { quality: 90 });
   }
+  trace(`ocr: recognizing ${img.width}x${img.height}${scale > 1 ? ' (downscaled)' : ''}`);
   const { data } = await worker.recognize(input, {}, { blocks: true });
   const words: OcrWord[] = [];
   for (const block of data.blocks ?? []) {
@@ -373,6 +386,7 @@ function pdfjsOptions(bytes: Uint8Array): Record<string, unknown> {
 
 /** Selectable text of every page, via pdfjs (local, no worker network use). */
 export async function pdfTextLayer(bytes: Uint8Array): Promise<string[]> {
+  trace(`pdf: reading text layer (${bytes.length} bytes)`);
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
   const doc = await pdfjs.getDocument(
     pdfjsOptions(bytes) as Parameters<typeof pdfjs.getDocument>[0],
@@ -495,6 +509,7 @@ export async function rasterizePdf(
   // WASM build. A native canvas dependency here repeatedly failed to install
   // on Windows (pnpm optional-dependency linking); WASM ends that class of
   // failure everywhere.
+  trace('pdf: loading render engine');
   const { PDFiumLibrary } = await import('@hyzyla/pdfium');
   const { Jimp } = await import('jimp');
   const lib = await PDFiumLibrary.init();
@@ -504,6 +519,7 @@ export async function rasterizePdf(
     try {
       for (let i = 0; i < doc.getPageCount(); i += 1) {
         if (onlyPages && !onlyPages.includes(i + 1)) continue;
+        trace(`pdf: rendering page ${i + 1}/${doc.getPageCount()}`);
         const rendered = await doc.getPage(i).render({ scale, render: 'bitmap' });
         const img = Jimp.fromBitmap({
           data: Buffer.from(rendered.data),
@@ -808,10 +824,12 @@ async function scrubPdfBytes(bytes: Uint8Array): Promise<ScrubResult> {
   const textHits = textPages.reduce((n, t) => n + (t.match(SSN_TEXT_G)?.length ?? 0), 0);
   // Encrypted documents take the rebuild-from-pixels path for EVERYTHING —
   // pdf-lib cannot parse their streams (selective page-copying included).
+  trace('pdf: encryption check');
   if (await isEncryptedPdf(bytes)) return flattenEncryptedPdf(bytes, textPages, textHits, notes);
   if (textHits > 0) return flattenAndMaskPdf(bytes, textPages, textHits, notes);
 
   // Scanned pages: mask embedded JPEG images in place.
+  trace('pdf: parsing for embedded page images');
   const { PDFDocument, PDFRawStream, PDFName } = await import('pdf-lib');
   const doc = await PDFDocument.load(bytes);
   let masked = 0;
@@ -826,6 +844,7 @@ async function scrubPdfBytes(bytes: Uint8Array): Promise<ScrubResult> {
       continue;
     }
     const raw = obj.getContents();
+    trace(`pdf: scanning embedded image (${raw.length} bytes)`);
     let words: OcrWord[];
     try {
       words = await ocrWords(raw);

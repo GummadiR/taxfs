@@ -20,7 +20,7 @@ import { Money } from '@taxfs/shared';
 import { withSpine } from './db';
 import { makeAgentDeps, anthropicApiKey } from './agent-deps';
 import { PgAgentLog } from './agent-log';
-import { scrubDocument } from './scrub';
+import { scrubDocumentSafely } from './scrub-isolated';
 import { deleteDocument, fetchDocument, storeDocument } from './docstore';
 import { resolveFxRateFromCertificate } from './fx-rate';
 import { withUserClient } from './db';
@@ -98,7 +98,9 @@ async function runDocPipeline(
   }
 
   // P15 — LOCAL SSN SCRUB, first and unconditionally.
-  const scrub = await scrubDocument(original, mediaType);
+  // Isolated child process with a hard kill: a document that freezes a PDF
+  // library can cost only ITSELF, never the server or the rest of the batch.
+  const scrub = await scrubDocumentSafely(original, mediaType);
   if (scrub.blocked) {
     report.blocked.push({ name, reason: scrub.blocked.reason, instructions: scrub.blocked.instructions });
     return;
