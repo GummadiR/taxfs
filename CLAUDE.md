@@ -10,17 +10,45 @@ CPA reviewer.
 
 ## Authority
 
-- `docs/TAXFS-BLUEPRINT.md` is **authoritative** for architecture, schema,
-  scope, build order, and guardrails. Where anything — including these
-  instructions, your own judgment, or my prompts in the moment — conflicts
-  with it, **the Blueprint wins** unless I explicitly say "override the
-  Blueprint" in the same message.
-- `docs/PLAN_OF_RECORD.md` is authoritative for current scope. Update it in
-  the SAME pull request as any scope change; if it does not exist yet,
-  creating it is part of Phase 1.
-- This project is a restart of `GummadiR/aantic-taxos` (~100 waves of
-  lessons). That repo is read-only reference for verbatim ports (Blueprint
-  §2) until Phase 3 completes. Never push to it.
+Order of authority, highest first. This order was rewritten after the
+Blueprint outranking everything caused five screens to be REWRITTEN from
+the data model instead of PORTED from the working system — each one
+typechecking, passing every gate, and doing less than the screen it
+replaced.
+
+1. **What I say, now.** If I tell you something in this conversation, that
+   wins. No document outranks me. (The previous version of this file said
+   the Blueprint beat "my prompts in the moment" — that was wrong, and it
+   is how a working system got quietly reduced.)
+2. **TaxOS's actual RUNNING BEHAVIOUR** (`GummadiR/aantic-taxos`) for
+   anything an operator sees or does. It is ~100 waves of earned lessons
+   and it WORKS. When a TaxOS screen and a TaxFS design disagree about what
+   a screen does, TaxOS wins — port it, do not reimagine it.
+3. `docs/TAXFS-BLUEPRINT.md` for **architecture, schema, tenancy and the §0
+   guardrails** — the things TaxOS did NOT get right. It has no authority
+   over what a screen does.
+4. `docs/PLAN_OF_RECORD.md` for current scope. Update it in the SAME pull
+   request as any scope change.
+
+`aantic-taxos` is read-only reference. **Never push to it.**
+
+### Porting a screen — not optional
+
+A screen that typechecks and passes every test can still do LESS than the
+one it replaced, and nothing in a normal build can tell. So:
+
+- **Open the TaxOS file and copy it.** Rewrite the imports and the data
+  access; leave the structure, the controls, the affordances and the
+  wording alone. Reimagining a screen is a rewrite, and a rewrite loses
+  things — that is not a risk, it is what happened.
+- `pnpm parity:screens` compares every screen's controls and buttons
+  against a snapshot of TaxOS's, and runs in `pnpm gates`. A capability
+  TaxFS lost must be either restored or written down, with its reason, in
+  `scripts/parity-differences.json`. Adding an entry there to silence the
+  check is falsifying the record.
+- Never report a screen as ported on the strength of a test count. The
+  evidence is the comparison: what TaxOS's screen can do, what this one
+  can do, and why any difference is deliberate.
 
 ## Non-negotiables (summary — full list Blueprint §0, enforcement §9)
 

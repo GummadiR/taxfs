@@ -406,6 +406,48 @@ through environment variables.
   gates with graph-derived tie-outs, forms + field-map harness (G10).
 - Phases 4–8 per Blueprint §7.
 
+## Next scope — the 14 capability gaps vs TaxOS
+
+Found by `pnpm parity:screens`, the TaxOS↔TaxFS comparison added
+2026-08-30. Each is a thing an operator could DO in TaxOS and cannot do
+here. They print by name on every run and their reasons live in
+`scripts/parity-differences.json`; this is the order to close them in.
+
+1. **A wrong number cannot be corrected — Review + File It, together.**
+   TaxOS let the operator type a corrected amount onto a Review line and
+   save it (`editFact`): source facts only, refused while a package is
+   locked, routed through an open amendment case once filed. TaxFS has no
+   edit path at all, so a misread or mistyped figure can only be fixed by
+   deleting the whole document and re-uploading. `amendSourceField()` is
+   ported into the spine, with its audit row, and no screen calls it.
+
+   These two ship TOGETHER or not at all: the edit must refuse while a
+   package is locked, and File It has no unlock, so shipping the edit alone
+   replaces one dead end with another. `PackageStore.unlock(id, reason)` is
+   ported in `@taxfs/forms` and enforces the recorded reason; the screen
+   never calls it, so today a locked version is superseded silently. Bring
+   back the version-history table with it.
+
+2. **Documents — the operator's reading must be able to beat the machine's.**
+   TaxOS's confirm carried an `override` checkbox: "my typed value is
+   correct (document differs from scan)". TaxFS refuses a mismatch and
+   offers nothing, so a bad OCR read is unrecoverable on that screen.
+   Restore it WITH the recorded reason — the record is the point.
+
+3. **Get Started — four checkboxes, not a count.** TaxFS asks the operator
+   to work out `addl_std_boxes` (0–4) themselves. Restore TaxOS's four
+   age-65/blind checkboxes and derive the count. The storage rule (the
+   count only, never who) is a G9 guardrail and does not change.
+
+4. **Documents — bulk delete** (tick several, one recompute at the end) and
+   **orphan sweep** (files in storage that nothing references).
+
+5. **Documents — batch-confirm routine items.** Must keep type-to-verify on
+   anything below the confidence floor.
+
+6. **Documents — IRS Wage & Income transcript intake.** TaxFS reconciles
+   against a transcript in the Defense File but has no way to supply one.
+
 ## Operator decisions on record
 
 - Supabase/Vercel region: **NOT YET SET** — the kickoff message carried a

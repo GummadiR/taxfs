@@ -35,6 +35,17 @@ export default async function GetStarted() {
         Filing choices for <span className="font-semibold">{ws.display_name}</span>. No names, SSNs or birth dates
         are asked here — identity never reaches the server.
       </p>
+      {/* The question this page kept prompting: "where DO I enter my name and
+          SSN, then?" Saying only where it does not go leaves the operator
+          hunting. Say where it does. */}
+      <p className="mt-2 rounded border border-slate-200 bg-slate-50 p-2 text-xs text-slate-700"
+        data-testid="identity-pointer">
+        <span className="font-semibold">Looking for name, date of birth, SSN and address?</span> They are entered
+        on <a className="underline" href="/file-it">File It</a>, in the identity panel, and they stay in your
+        browser: held behind a passphrase on this device and typed onto the PDF at download time. They are never
+        sent to the server and never written to the database, so there is nothing personal to leak if the
+        database were ever breached — which is why they are not asked for here.
+      </p>
       <div className="mt-3">
         <PageHelp
           what={'Sets up your return: the tax year and your filing status. TaxFS supports full-year Illinois residents; anything outside scope stops here on purpose rather than producing a wrong return.'}

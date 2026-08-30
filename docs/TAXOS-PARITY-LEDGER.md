@@ -84,7 +84,50 @@ Not regressions; carried forward as-is.
   per-spouse W-2 attribution, Sch B payer detail, 1116 per-country rows,
   6251/AMT
 
-## 7. Port status — COMPLETE
+## 6a. Front-end port audit (2026-08-30) — screens REBUILT, not ported
+
+Section 7 below claimed the port was complete. For the server and the
+packages it was; for the **screens** it was not, and saying so was wrong.
+Five screens had been written fresh against the TaxFS data model rather than
+ported, and each lost substance the original carried. The operator found it
+before this ledger did.
+
+The audit compared every screen's rendered surface against its TaxOS
+original. Findings, and their state:
+
+| Screen | What was lost by rebuilding | State |
+|---|---|---|
+| Review | Lineage: a `?lineage=` query param and a flat list, in place of the drawer — no in-place drill-down, no plain-English origin words, no adds-up ledger line, no grouping of repeated leaves, concept ids and formula refs shown instead of hidden behind "For your CPA" | Ported verbatim |
+| Documents | The confirmation panel showed no evidence: the confirm buttons had migrated to Review, with no document, no box, no confidence, and no type-to-verify on a low-confidence reading | Rebuilt on the fact model with the same substance |
+| Sidebar | Per-step status badges and hover hints; active-section marking; click feedback. Fifteen numbered links, none of which said which one was waiting on you | Ported (`nav-link.tsx`, `nav-status.ts`) |
+| Audit Readiness | Acknowledgment reduced to a bare button writing a list of critic ids to settings — while the §7602 disclosure above it says a ledger showing documented reasoning defends and one showing bare clicks convicts. The ported `RiskLedger`, which enforces exactly that, sat unused | Screen wired through the ledger; typed phrase and rationale restored |
+| Get Started | Said only that identity never reaches the server, never where it IS entered — the operator went looking and could not find it | Pointer to the File It identity panel |
+
+Deliberate differences, NOT regressions:
+
+- TaxOS kept filing identity in an encrypted local file; TaxFS keeps it in
+  the browser behind a passphrase and types it onto the PDF at download
+  time (G9). Stronger, and proven by the journey e2e.
+- TaxOS `Clients` → TaxFS `Workspaces` (§5).
+
+### Still open
+
+- **File It has no unlock path.** TaxOS required an explicit unlock with a
+  recorded reason before a locked package could be superseded (D.5).
+  `PackageStore.unlock(package_id, reason)` is ported in `@taxfs/forms` and
+  enforces it, but the screen never calls it: `buildLockedPackage` inserts
+  a new version unconditionally, so a locked version can be superseded with
+  no reason recorded anywhere. Also missing with it: the version history
+  table and the impact preview.
+
+### The lesson
+
+A ported screen and a rebuilt screen typecheck identically and pass the same
+gates — the gates test behaviour, and a screen that lost a guardrail still
+behaves. What catches it is comparing the rendered surface against the
+original, screen by screen. "Ported" now means that comparison was done.
+
+## 7. Port status — COMPLETE (server and packages; see §6a for screens)
 
 Everything in §2, §3 and §4 is ported and green on the full gate chain
 (2026-08-28): 925 unit tests, 41 Playwright specs against the production
