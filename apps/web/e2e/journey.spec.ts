@@ -42,11 +42,15 @@ test.describe('return journey (local operator, real database)', () => {
     await page.getByTestId('manual-amount').fill('1000');
     await page.getByRole('button', { name: 'Add', exact: true }).click();
     await page.waitForURL(/\/review/);   // the action redirects once committed
-    const rows = page.getByTestId('sourced-facts').locator('tr');
+    // Values now live on Documents, under the document that produced each —
+    // Review is what came OUT, Documents is what went in.
+    await page.goto('/documents');
+    const rows = page.getByTestId('source-list').locator('table tr');
     await expect(rows).toHaveCount(5); // 3 W-2 boxes + 1 interest + 1 typed entry
     // The typed entry IS confirmed (typing is the confirmation); extracted
     // demo values are NOT until the operator says so.
-    await expect(page.getByTestId('sourced-facts')).toContainText('unconfirmed');
+    await expect(page.getByTestId('source-list')).toContainText('not counting yet');
+    await expect(page.getByTestId('source-list')).toContainText('counts');
 
     // And the sidebar SAYS so, without opening anything: the one step that
     // is waiting on the operator wears the count. (This also proves the
@@ -62,10 +66,10 @@ test.describe('return journey (local operator, real database)', () => {
     // Confirmation lives on Documents, beside the document and the box each
     // value was read from — Review never asks you to vouch for a bare number.
     await page.goto('/review');
-    await expect(page.getByTestId('sourced-facts')).toContainText('unconfirmed');
-    await expect(page.getByTestId('confirm-elsewhere')).toContainText('Confirm them on');
-    // ...and there is no confirm control here to press.
-    await expect(page.getByTestId('sourced-facts').getByRole('button', { name: 'Confirm' })).toHaveCount(0);
+    // Review points at Documents and holds no confirm control of its own.
+    await expect(page.getByTestId('inputs-elsewhere')).toContainText('built from');
+    await expect(page.getByTestId('confirm-elsewhere')).toContainText('confirmation');
+    await expect(page.getByTestId('inputs-elsewhere').getByRole('button', { name: 'Confirm' })).toHaveCount(0);
 
     await page.goto('/documents');
     // Each confirm is a server action that redirects back here; waiting for
@@ -78,8 +82,9 @@ test.describe('return journey (local operator, real database)', () => {
       await page.getByTestId(id).click();
       await expect(page.getByTestId(id)).toHaveCount(0);
     }
+    await page.goto('/documents');
+    await expect(page.getByTestId('source-list')).not.toContainText('not counting yet');
     await page.goto('/review');
-    await expect(page.getByTestId('sourced-facts')).not.toContainText('unconfirmed');
     await expect(page.getByTestId('confirm-elsewhere')).toHaveCount(0);
 
     await page.goto('/gates');

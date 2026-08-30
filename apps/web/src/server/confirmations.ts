@@ -125,3 +125,44 @@ export function rescanState(source: SourceDoc, facts: readonly TaxFact[]): Resca
     shortWhy: '',
   };
 }
+
+/** One value a document supplied, for display on that document's own row. */
+export interface SourceValue {
+  fact_id: string;
+  label: string;
+  concept: string;
+  value: string;
+  confirmed: boolean;
+  stale: boolean;
+  /** Which box on the document it was read from, when known. */
+  field: string | null;
+}
+
+/**
+ * The values each source supplied, keyed by source_id.
+ *
+ * These lived only on Review, in one long table divorced from the documents
+ * that produced them — so "what did this W-2 actually give me?" could not be
+ * answered anywhere. They belong beside the document, which is also where
+ * their confirmation lives.
+ */
+export function valuesBySource(facts: readonly TaxFact[]): Map<string, SourceValue[]> {
+  const out = new Map<string, SourceValue[]>();
+  for (const f of facts) {
+    if (f.derivation !== undefined) continue; // computed lines belong on Review
+    for (const p of f.provenance ?? []) {
+      const row: SourceValue = {
+        fact_id: f.fact_id,
+        label: SOURCE_LABELS[f.concept] ?? conceptLabel(f.concept),
+        concept: f.concept,
+        value: f.value.toString(),
+        confirmed: f.status === 'confirmed',
+        stale: f.status === 'stale',
+        field: p.source_field ?? null,
+      };
+      out.set(p.source_id, [...(out.get(p.source_id) ?? []), row]);
+    }
+  }
+  for (const [k, v] of out) out.set(k, v.sort((a, b) => a.label.localeCompare(b.label)));
+  return out;
+}

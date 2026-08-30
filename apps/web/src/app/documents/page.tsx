@@ -11,7 +11,7 @@ import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server
 import { withUserClient } from '@/server/db';
 import { takeBudget } from '@/server/limits';
 import { TAX_YEAR } from '@/server/env';
-import { pendingConfirmations, rescanState, TYPE_TO_VERIFY_BELOW } from '@/server/confirmations';
+import { pendingConfirmations, rescanState, valuesBySource, TYPE_TO_VERIFY_BELOW } from '@/server/confirmations';
 import { Origin } from '@/components/badges';
 
 async function addDemo(formData: FormData) {
@@ -124,6 +124,7 @@ export default async function Documents({ searchParams }: { searchParams: Promis
   }));
   const pending = pendingConfirmations(facts, sources);
   const rescanable = sources.filter((s) => rescanState(s, facts).canRescan);
+  const bySource = valuesBySource(facts);
   return (
     <main>
       <h1 className="text-xl font-black">Documents</h1>
@@ -282,6 +283,37 @@ export default async function Documents({ searchParams }: { searchParams: Promis
               <p className="mt-2 rounded bg-white p-2 text-xs text-slate-700" role="status"
                 data-testid={`row-msg-${s.source_id}`}>{msg}</p>
             ) : null}
+            {/* What this document actually gave your return. These used to sit
+                only on Review, in one long table divorced from the documents
+                that produced them, so "what did this W-2 give me?" could not
+                be answered anywhere. */}
+            {(bySource.get(s.source_id) ?? []).length > 0 ? (
+              <table className="mt-2 w-full text-xs" data-testid={`values-${s.source_id}`}>
+                <tbody>
+                  {(bySource.get(s.source_id) ?? []).map((v) => (
+                    <tr key={v.fact_id} className="border-t border-slate-100">
+                      <td className="py-1 pr-2 text-slate-700" title={v.concept}>{v.label}</td>
+                      <td className="py-1 pr-2 text-slate-400">
+                        {v.field && v.field !== 'attestation' ? v.field : ''}
+                      </td>
+                      <td className="py-1 pr-2 text-right font-mono">{v.value}</td>
+                      <td className="py-1 w-24 text-right">
+                        <span className={`rounded px-1.5 py-0.5 ${
+                          v.stale ? 'bg-amber-100 text-amber-900'
+                          : v.confirmed ? 'bg-green-100 text-green-800'
+                          : 'bg-amber-100 text-amber-900'}`}>
+                          {v.stale ? 'stale' : v.confirmed ? 'counts' : 'not counting yet'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="mt-2 text-xs text-slate-400" data-testid={`no-values-${s.source_id}`}>
+                No values came from this document yet.
+              </p>
+            )}
           </li>
           );
         })}

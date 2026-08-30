@@ -61,7 +61,8 @@ test.describe('reset and delete a workspace', () => {
     await page.goto('/review');
     // The table always renders, and an empty one carries its own row, so
     // "no rows" would be the wrong assertion: assert the empty STATE.
-    await expect(page.getByTestId('sourced-facts')).toContainText('Nothing entered yet.');
+    await page.goto('/documents');
+    await expect(page.getByTestId('source-list')).toContainText('No documents yet.');
   });
 
   test('a mistyped confirmation cannot reach the destructive path', async ({ page }) => {

@@ -125,46 +125,26 @@ export default async function Review() {
           </ul>
         </section>
       ) : null}
-      <section className="mt-4">
-        <h2 className="font-bold">Source values</h2>
-        {/* Confirmation belongs on Documents, next to the document and the box
-            a value was read from — which is the only place the evidence is.
-            It had drifted here, where a bare Confirm button showed a number
-            with nothing to check it against, and then sat in BOTH places at
-            once. Review shows what the return is built from; it does not ask
-            you to vouch for it. */}
-        <p className="mt-0.5 text-xs text-slate-500">
-          What your documents supplied or you entered. Click any amount for its trail.
+      {/* Source values live on Documents now, beside the document that
+          produced each one — which is also where they are confirmed. Review
+          is what came OUT; Documents is what went in. */}
+      <section className="mt-4 rounded border border-slate-200 bg-slate-50 p-3 text-sm"
+        data-testid="inputs-elsewhere">
+        <h2 className="font-bold">What these numbers were built from</h2>
+        <p className="mt-1 text-xs text-slate-600">
+          {sourced.length} value{sourced.length === 1 ? '' : 's'} from your documents and typed entries.
+          Each one is shown on <a className="font-semibold underline" href="/documents">Documents</a>, under
+          the document it came from — with the box it was read from and whether it is counting yet.
+          {unconfirmed > 0 ? (
+            <span className="ml-1 font-semibold text-amber-800" data-testid="confirm-elsewhere">
+              {unconfirmed} still need{unconfirmed === 1 ? 's' : ''} your confirmation and {unconfirmed === 1 ? 'is' : 'are'} not
+              counting toward your return yet — confirm {unconfirmed === 1 ? 'it' : 'them'} there.
+            </span>
+          ) : null}
         </p>
-        {unconfirmed > 0 ? (
-          <p className="mt-1 rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900"
-            data-testid="confirm-elsewhere">
-            <span className="font-semibold">{unconfirmed} value{unconfirmed === 1 ? '' : 's'} still need your
-            confirmation</span> and are not counting toward your return yet. Confirm them on{' '}
-            <a className="font-semibold underline" href="/documents">Documents</a>, where each one is shown
-            beside the document and the box it was read from.
-          </p>
-        ) : null}
-        <table className="mt-2 w-full text-sm">
-          <thead><tr className="text-left text-xs text-slate-500"><th>Line</th><th>Value</th><th>Status</th></tr></thead>
-          <tbody data-testid="sourced-facts">
-            {sourced.map((f) => (
-              <tr key={f.fact_id} className="border-t border-slate-100">
-                <td className="py-1 pr-2">
-                  <span title={f.concept}>{conceptLabel(f.concept)}</span>
-                </td>
-                <td><TraceableAmount factId={f.fact_id} value={f.value.toString()} label={conceptLabel(f.concept)}
-                  stale={f.status === 'stale'} /></td>
-                <td>
-                  <span className={`rounded px-1.5 py-0.5 text-xs ${f.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'}`}>
-                    {f.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {sourced.length === 0 ? <tr><td colSpan={3} className="py-2 text-slate-500">Nothing entered yet.</td></tr> : null}
-          </tbody>
-        </table>
+        <p className="mt-1 text-xs text-slate-500">
+          Or click any amount below to open its full trail back to the document.
+        </p>
       </section>
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <LineTable title="Federal" rows={fedRows} testid="fed-lines" />
