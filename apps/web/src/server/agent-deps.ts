@@ -11,6 +11,7 @@
 import { loadRootEnv } from './load-env';
 import {
   AnthropicProvider,
+  DEFAULT_VISION_MODEL,
   InMemoryAgentLog,
   LlmClient,
   ModelRouter,
@@ -21,7 +22,6 @@ import {
 } from '@taxfs/shared';
 
 const AGENT_IDS = ['extraction', 'extraction_simple', 'interview', 'explanation', 'discovery'];
-const DEFAULT_VISION_MODEL = 'claude-sonnet-4-5';
 
 export function anthropicApiKey(): string | null {
   loadRootEnv();
@@ -76,7 +76,7 @@ export function makeAgentDeps(log?: AgentLogSink): AgentRunDeps {
   if (key) {
     config.routes['extraction'] = {
       provider: 'anthropic',
-      model: process.env.TAXFS_VISION_MODEL ?? DEFAULT_VISION_MODEL,
+      model: process.env.TAXFS_VISION_MODEL ?? DEFAULT_VISION_MODEL /* from the provider */,
       temperature: 0,
       max_retries: 2,
     };
