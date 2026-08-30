@@ -34,13 +34,24 @@ export function UploadDropzone() {
   // forever with no verdict.
   const PER_FILE_TIMEOUT_MS = 4 * 60 * 1000;
 
+  // Files upload CONCURRENTLY (a few at a time): one slow scanned document
+  // must not make the quick digital PDFs behind it wait in line. The batch's
+  // wall time is roughly its slowest file, not the sum of all of them.
+  const CONCURRENT_UPLOADS = 3;
+
   async function uploadAll(files: FileList | File[]): Promise<void> {
     const list = Array.from(files);
     if (list.length === 0) return;
     setError(null);
     const failures: string[] = [];
-    for (const [i, file] of list.entries()) {
-      setProgress({ done: i, total: list.length, current: file.name });
+    const inFlight = new Set<string>();
+    let done = 0;
+    const paint = () =>
+      setProgress({ done, total: list.length, current: [...inFlight].join(', ') });
+
+    async function uploadOne(file: File): Promise<void> {
+      inFlight.add(file.name);
+      paint();
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), PER_FILE_TIMEOUT_MS);
@@ -68,8 +79,22 @@ export function UploadDropzone() {
             ? `"${file.name}": no verdict after ${Math.round(PER_FILE_TIMEOUT_MS / 60000)} minutes — the file was NOT saved. Try it alone, as a PNG/JPEG, or split a long PDF into pages.`
             : `"${file.name}": ${e instanceof Error ? e.message : String(e)}`,
         );
+      } finally {
+        inFlight.delete(file.name);
+        done += 1;
+        paint();
       }
     }
+
+    const queue = [...list];
+    await Promise.all(
+      Array.from({ length: Math.min(CONCURRENT_UPLOADS, queue.length) }, async () => {
+        for (let next = queue.shift(); next; next = queue.shift()) {
+          await uploadOne(next);
+        }
+      }),
+    );
+
     if (failures.length > 0) {
       setError(
         `${failures.length} of ${list.length} file(s) did not land (the rest went through):\n` + failures.join('\n'),
@@ -105,12 +130,13 @@ export function UploadDropzone() {
           <div data-testid="upload-busy">
             <p className="font-semibold">
               {progress.total > 1
-                ? `Reading document ${progress.done + 1} of ${progress.total}: ${progress.current}`
+                ? `Reading ${progress.total - progress.done} of ${progress.total} documents: ${progress.current}`
                 : `Reading ${progress.current}…`}
             </p>
             <p className="mt-1 text-xs text-slate-500">
-              Scanning for SSNs on this machine, then reading the values. Simple forms take seconds; a
-              multi-page encrypted brokerage statement can take a minute or two. Keep this tab open.
+              Scanning for SSNs on this machine, then reading the values. Several files go at once, so
+              one slow scan never holds up the rest. Simple forms take seconds; a scanned image or an
+              encrypted brokerage statement can take a minute or two. Keep this tab open.
             </p>
             <div className="mx-auto mt-2 h-1.5 w-64 overflow-hidden rounded bg-slate-200">
               <div

@@ -166,6 +166,18 @@ async function ocrWorker() {
  */
 const OCR_MAX_DIM = 1800;
 
+/**
+ * Pre-load the heavy machinery (OCR worker + WASM model, ~23 MB) so the
+ * FIRST document of a batch does not pay the cold start. Called
+ * fire-and-forget when the Documents page renders; errors are swallowed —
+ * the real upload path reports them properly.
+ */
+export function warmScrubber(): void {
+  void ocrWorker().catch(() => {});
+  void import('@hyzyla/pdfium').catch(() => {});
+  void import('pdfjs-dist/legacy/build/pdf.mjs').catch(() => {});
+}
+
 /** Run OCR over image bytes and return every word with its pixel box
  *  (in the ORIGINAL image's coordinates). */
 export async function ocrWords(png: Uint8Array): Promise<OcrWord[]> {
@@ -177,8 +189,11 @@ export async function ocrWords(png: Uint8Array): Promise<OcrWord[]> {
   const maxDim = Math.max(img.width, img.height);
   if (maxDim > OCR_MAX_DIM) {
     scale = maxDim / OCR_MAX_DIM;
-    const resized = img.clone().resize({ w: Math.round(img.width / scale) });
-    input = await resized.getBuffer('image/png');
+    // Resize in place (the original bitmap is not needed again) and hand
+    // tesseract a JPEG: encoding is several times faster than PNG at this
+    // size and OCR accuracy is unaffected at quality 90.
+    img.resize({ w: Math.round(img.width / scale) });
+    input = await img.getBuffer('image/jpeg', { quality: 90 });
   }
   const { data } = await worker.recognize(input, {}, { blocks: true });
   const words: OcrWord[] = [];
