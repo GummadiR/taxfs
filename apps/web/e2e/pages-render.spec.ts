@@ -32,3 +32,12 @@ test('styles actually applied (stylesheet parsed, not just served)', async ({ pa
     .evaluate((el) => getComputedStyle(el).maxWidth);
   expect(maxWidth).toBe('1024px');
 });
+
+test('the nav names the exact build running, so a fix can be confirmed on sight', async ({ page }) => {
+  // Born from a real cost: hours were spent debugging behaviour a pull had
+  // already fixed, because nothing on screen said which build was live.
+  await page.goto('/');
+  const stamp = page.getByTestId('build-stamp');
+  await expect(stamp).toBeVisible();
+  await expect(stamp).toHaveText(/^build [0-9a-f]{7}/);
+});

@@ -17,12 +17,12 @@
  */
 import { runExtraction } from '@taxfs/agents';
 import { createHash } from 'node:crypto';
-import { Money, type SourceDoc } from '@taxfs/shared';
+import { Money } from '@taxfs/shared';
 import { withSpine } from './db';
 import { makeAgentDeps, anthropicApiKey } from './agent-deps';
 import { PgAgentLog } from './agent-log';
 import { scrubDocumentSafely } from './scrub-isolated';
-import { deleteDocument, fetchDocument, storeDocument } from './docstore';
+import { deleteDocument, documentDisplayName, fetchDocument, storeDocument } from './docstore';
 import { resolveFxRateFromCertificate } from './fx-rate';
 import { withUserClient } from './db';
 import { TAX_YEAR } from './env';
@@ -87,10 +87,6 @@ async function runDocPipeline(
   mediaType: string,
   original: Uint8Array,
   report: UploadReport,
-  /** Rescan (P26): the existing source this run REPLACES. It is retired only
-   *  at the moment a successful replacement registers — a rejected or failed
-   *  extraction must never cost the operator their stored document. */
-  replace?: SourceDoc,
 ): Promise<void> {
   const kind = UPLOAD_TYPES[mediaType];
   if (!kind) {
@@ -110,7 +106,7 @@ async function runDocPipeline(
   // file and legitimately lands as its own evidence.
   const sha256 = createHash('sha256').update(original).digest('hex');
   const twin = (await withSpine({ userId, workspaceId: ws }, (spine) => spine.getSources(ws, TAX_YEAR)))
-    .find((s) => s.fields['__sha256'] === sha256 && s.source_id !== replace?.source_id);
+    .find((s) => s.fields['__sha256'] === sha256);
   if (twin) {
     const twinName = twin.fields['__filename'] ?? twin.source_id;
     report.blocked.push({
@@ -139,23 +135,7 @@ async function runDocPipeline(
   // The stored artifact is the SCRUBBED copy; extraction reads the same bytes.
   const rawRef = await storeDocument(ws, `${TAX_YEAR}/${docId}-${safeName}`, bytes, outType);
 
-  // On a rescan, the OLD record and file go away only here — immediately
-  // before a successful replacement registers. Every failure path above and
-  // below leaves the operator's existing document untouched.
-  const retireReplaced = async (): Promise<void> => {
-    if (!replace) return;
-    await withSpine({ userId, workspaceId: ws }, (spine) => spine.deleteSource(replace.source_id, { cascade: true }));
-    if (replace.raw_ref !== rawRef) {
-      try {
-        await deleteDocument(replace.raw_ref);
-      } catch {
-        // an orphaned old file is a cleanup nit, never worth failing the rescan
-      }
-    }
-  };
-
   if (!anthropicApiKey()) {
-    await retireReplaced();
     await withSpine({ userId, workspaceId: ws }, async (spine) => {
       await spine.registerSource({
         source_id: docId,
@@ -193,14 +173,11 @@ async function runDocPipeline(
     report.messages.push(
       `Extraction of "${name}" was rejected by validation and produced nothing to review` +
         (run.issues[0] ? ` (${run.issues[0].message})` : '') +
-        (replace
-          ? '. Your existing stored copy was KEPT unchanged — nothing was deleted.'
-          : '. Nothing was guessed — try a clearer scan or enter the document manually below.'),
+        '. Nothing was guessed — try a clearer scan or enter the document manually below.',
     );
     return;
   }
   if (run.status === 'manual_entry') {
-    await retireReplaced();
     await withSpine({ userId, workspaceId: ws }, async (spine) => {
       await spine.registerSource({
         source_id: docId,
@@ -218,7 +195,6 @@ async function runDocPipeline(
   }
 
   const out = run.output;
-  await retireReplaced();
   await withSpine({ userId, workspaceId: ws }, async (spine) => {
     await spine.registerSource({
       source_id: docId,
@@ -277,36 +253,114 @@ export async function uploadDocuments(userId: string, ws: string, files: File[])
 }
 
 /**
- * P26 — re-read a stored document. NON-DESTRUCTIVE by construction (found
- * the hard way: the ported shape deleted first and re-registered after, so
- * a live-extraction rejection or API failure DESTROYED the document — six
- * of an operator's thirteen documents, in one session). The existing source
- * and file are replaced only when the fresh pipeline run successfully
- * registers; every failure leaves them untouched.
+ * P26 — re-read a stored document, IN PLACE.
+ *
+ * Shape matters here, and it is TaxOS's (verified against
+ * aantic-taxos rescanStoredDocument): extraction re-runs against the SAME
+ * source row and the SAME stored file, and the re-read values land as facts
+ * on that row. Nothing is ever deleted, so nothing can be lost — and the
+ * document keeps its id, so a page open in another tab never goes stale.
+ *
+ * The TaxFS port had restructured this into delete-then-rebuild, which also
+ * quietly worked around the spine's rule that sources are immutable. With
+ * extraction off the rebuild always succeeded, so the flaw stayed invisible;
+ * with extraction live, a rejected document was simply destroyed. Four of an
+ * operator's documents were lost that way, on my own instruction to click
+ * Rescan.
  */
 export async function rescanDocument(userId: string, ws: string, sourceId: string): Promise<UploadReport> {
   const report: UploadReport = { messages: [], blocked: [] };
-  const src = await withSpine({ userId, workspaceId: ws }, async (spine) =>
-    (await spine.getSources(ws, TAX_YEAR)).find((x) => x.source_id === sourceId));
+  const { src, hasConfirmedFacts } = await withSpine({ userId, workspaceId: ws }, async (spine) => {
+    const found = (await spine.getSources(ws, TAX_YEAR)).find((x) => x.source_id === sourceId);
+    if (!found) return { src: undefined, hasConfirmedFacts: false };
+    const facts = await spine.getFacts({ taxpayer_id: ws, tax_year: TAX_YEAR });
+    return {
+      src: found,
+      hasConfirmedFacts: facts.some(
+        (f) => f.derivation === undefined && f.status === 'confirmed'
+          && f.provenance?.some((pr) => pr.source_id === sourceId),
+      ),
+    };
+  });
   if (!src) {
-    report.messages.push('Document not found.');
+    report.messages.push(
+      'That document is no longer in this workspace — the page you clicked from was out of date. Reload Documents to see the current list.',
+    );
+    return report;
+  }
+  const name = src.fields['__filename'] ?? documentDisplayName(src.raw_ref) ?? sourceId;
+  // Never re-propose on top of values you already confirmed: that is how a
+  // document gets counted twice.
+  if (hasConfirmedFacts) {
+    report.messages.push(
+      `"${name}" already has confirmed values — nothing to re-scan. Remove it first if you want to start over.`,
+    );
+    return report;
+  }
+  if (!anthropicApiKey()) {
+    report.messages.push(
+      `Live extraction is off on this TaxFS setup (no ANTHROPIC_API_KEY — a machine configuration, not a problem with "${name}"). ` +
+        'Enter its values with Typed entry or Add Data; the stored file stays alongside as the evidence.',
+    );
     return report;
   }
   const bytes = await fetchDocument(src.raw_ref);
   if (!bytes) {
-    report.messages.push('The stored file could not be read back — delete the document and upload it again.');
+    report.messages.push(
+      `The stored file for "${name}" could not be read back — Remove the row and upload the file again. Nothing was changed.`,
+    );
     return report;
   }
   const mediaType = src.raw_ref.endsWith('.pdf') ? 'application/pdf' : 'image/png';
-  const name = src.fields['__filename'] ?? src.raw_ref.split('/').pop() ?? 'document';
+  let run: Awaited<ReturnType<typeof runExtraction>>;
   try {
-    await runDocPipeline(userId, ws, name, mediaType, bytes, report, src);
+    run = await withUserClient(userId, (client) =>
+      runExtraction(
+        makeAgentDeps(new PgAgentLog(client, ws)),
+        {
+          doc_id: sourceId, // SAME id: re-read values replace their own, never duplicate
+          image_ref: src.raw_ref,
+          media: {
+            kind: mediaType === 'application/pdf' ? 'pdf' : 'image',
+            media_type: mediaType,
+            data_base64: Buffer.from(bytes).toString('base64'),
+          },
+          expected_tax_year: TAX_YEAR,
+        },
+        ws,
+      ));
   } catch (e) {
     report.messages.push(
-      `Rescan of "${name}" failed (${e instanceof Error ? e.message : String(e)}). ` +
-        'Your existing stored copy was KEPT unchanged — nothing was deleted.',
+      `Re-scan of "${name}" could not complete (${e instanceof Error ? e.message : String(e)}). ` +
+        'Your document and its stored file are untouched — nothing was deleted.',
     );
+    return report;
   }
+  if (run.status === 'rejected') {
+    report.messages.push(
+      `The re-scan of "${name}" was rejected by validation and produced nothing to review` +
+        (run.issues[0] ? ` (${run.issues[0].message})` : '') +
+        '. Nothing was guessed, and your document is untouched — enter its amounts through Typed entry or Add Data, ' +
+        'or Remove the row and upload a clearer copy.',
+    );
+    return report;
+  }
+  if (run.status === 'manual_entry') {
+    report.messages.push(
+      `"${name}" could not be read as a supported form. Nothing was guessed and your document is untouched — enter it through Typed entry or Add Data.`,
+    );
+    return report;
+  }
+  const out = run.output;
+  const { landed, withheld } = await landProposals(userId, ws, run.proposals);
+  if (run.flags.wrong_year) {
+    report.messages.push(`Heads up: "${name}" is for a different tax year than this return (${TAX_YEAR}). It was flagged, not silently accepted.`);
+  }
+  report.messages.push(
+    `Re-read ${out.fields.length} field(s) from "${name}" — ${landed} value(s) await your confirmation on Review; nothing counts until you confirm it.` +
+      (withheld > 0 ? ` ${withheld} low-confidence field(s) were withheld, never guessed — enter those manually.` : '') +
+      ' The document itself was not modified.',
+  );
   return report;
 }
 
@@ -314,7 +368,9 @@ export async function rescanDocument(userId: string, ws: string, sourceId: strin
 export async function deleteUploadedDocument(userId: string, ws: string, sourceId: string): Promise<string> {
   const src = await withSpine({ userId, workspaceId: ws }, async (spine) =>
     (await spine.getSources(ws, TAX_YEAR)).find((x) => x.source_id === sourceId));
-  if (!src) return 'Document not found.';
+  if (!src) {
+    return 'That document is no longer in this workspace — the page you clicked from was out of date. Reload Documents to see the current list.';
+  }
   try {
     await withSpine({ userId, workspaceId: ws }, (spine) => spine.deleteSource(sourceId, { cascade: true }));
   } catch (e) {
