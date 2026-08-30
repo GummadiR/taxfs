@@ -1,4 +1,3 @@
-import { SubmitButton } from '@/components/submit-button';
 import { LineageProvider, TraceableAmount } from '@/components/lineage';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
@@ -10,25 +9,6 @@ import { withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
 import { buildSummary, conceptLabel, IL_LINE_LABELS, LINE_EXPLAIN, LINE_LABELS } from '@/server/labels';
 import type { TaxFact } from '@taxfs/shared';
-
-async function confirmFactAction(formData: FormData) {
-  'use server';
-  const { userId, ws } = await requireContext();
-  const fact_id = String(formData.get('fact_id'));
-  const source_id = String(formData.get('source_id') ?? '');
-  await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => {
-    await spine.confirmFact(fact_id);
-    if (source_id) {
-      // Confirm the source once every one of its facts is confirmed.
-      const facts = await spine.getFacts({ taxpayer_id: ws.workspace_id, tax_year: TAX_YEAR });
-      const remaining = facts.filter(
-        (f) => f.provenance?.some((p) => p.source_id === source_id) && f.status !== 'confirmed' && f.fact_id !== fact_id,
-      );
-      if (remaining.length === 0) await spine.confirmSource(source_id);
-    }
-  });
-  redirect('/review');
-}
 
 function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFact; label: string; explain?: string }[]; testid: string }) {
   return (
@@ -78,6 +58,7 @@ export default async function Review() {
     text: `Heads up: ${s2.detail} — is there a document or answer to add?`,
   }));
   const sourced = facts.filter((f) => f.derivation === undefined);
+  const unconfirmed = sourced.filter((f) => f.status !== 'confirmed').length;
   const derived = facts.filter((f) => f.derivation !== undefined);
   const summary = buildSummary(facts, filing?.filing_status ?? 'single');
 
@@ -102,9 +83,9 @@ export default async function Review() {
     <main>
       <h1 className="text-xl font-black">Review</h1>
       <p className="mt-1 text-sm text-slate-600">
-        Nothing counts until you confirm it. Click any computed amount to open its full calculation trail —
-        inputs, formula, every step, and the documents behind it. Hover any ⓘ for what a line means and the
-        rule behind it.
+        Every computed line of your return. Click any amount to open its full calculation trail — inputs,
+        formula, every step, and the documents behind it. Hover any ⓘ for what a line means and the rule
+        behind it. Values are confirmed on Documents, beside the evidence.
       </p>
       <div className="mt-3">
         <PageHelp
@@ -113,7 +94,7 @@ export default async function Review() {
             'Numbers appear here after the first gates run — Review and the Gates Board are a loop: run gates, review, fix, re-run.',
             'Check the headline numbers (AGI, total tax, refund) against your expectation.',
             'Click any amount to open its lineage — document → value → calculation → line.',
-            'Confirm every entered value: nothing counts until you do (G8).',
+            'Confirm extracted values on Documents — nothing counts until you do (G8).',
           ]}
         />
       </div>
@@ -145,12 +126,27 @@ export default async function Review() {
         </section>
       ) : null}
       <section className="mt-4">
-        <h2 className="font-bold">Entered values</h2>
+        <h2 className="font-bold">Source values</h2>
+        {/* Confirmation belongs on Documents, next to the document and the box
+            a value was read from — which is the only place the evidence is.
+            It had drifted here, where a bare Confirm button showed a number
+            with nothing to check it against, and then sat in BOTH places at
+            once. Review shows what the return is built from; it does not ask
+            you to vouch for it. */}
         <p className="mt-0.5 text-xs text-slate-500">
-          What you entered or documents supplied — the G8 door: each value counts only after you confirm it.
+          What your documents supplied or you entered. Click any amount for its trail.
         </p>
+        {unconfirmed > 0 ? (
+          <p className="mt-1 rounded border border-amber-300 bg-amber-50 p-2 text-xs text-amber-900"
+            data-testid="confirm-elsewhere">
+            <span className="font-semibold">{unconfirmed} value{unconfirmed === 1 ? '' : 's'} still need your
+            confirmation</span> and are not counting toward your return yet. Confirm them on{' '}
+            <a className="font-semibold underline" href="/documents">Documents</a>, where each one is shown
+            beside the document and the box it was read from.
+          </p>
+        ) : null}
         <table className="mt-2 w-full text-sm">
-          <thead><tr className="text-left text-xs text-slate-500"><th>Line</th><th>Value</th><th>Status</th><th /></tr></thead>
+          <thead><tr className="text-left text-xs text-slate-500"><th>Line</th><th>Value</th><th>Status</th></tr></thead>
           <tbody data-testid="sourced-facts">
             {sourced.map((f) => (
               <tr key={f.fact_id} className="border-t border-slate-100">
@@ -164,21 +160,9 @@ export default async function Review() {
                     {f.status}
                   </span>
                 </td>
-                <td className="text-right">
-                  {f.status !== 'confirmed' ? (
-                    <form action={confirmFactAction}>
-                      <input type="hidden" name="fact_id" value={f.fact_id} />
-                      <input type="hidden" name="source_id" value={f.provenance?.[0]?.source_id ?? ''} />
-                      <SubmitButton className="rounded border border-slate-300 px-2 py-0.5 text-xs" data-testid={`confirm-${f.fact_id}`}
-                        pendingText="Confirming…">
-                        Confirm
-                      </SubmitButton>
-                    </form>
-                  ) : null}
-                </td>
               </tr>
             ))}
-            {sourced.length === 0 ? <tr><td colSpan={4} className="py-2 text-slate-500">Nothing entered yet.</td></tr> : null}
+            {sourced.length === 0 ? <tr><td colSpan={3} className="py-2 text-slate-500">Nothing entered yet.</td></tr> : null}
           </tbody>
         </table>
       </section>

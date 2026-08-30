@@ -17,7 +17,11 @@
       "Delete filing identity from this machine",
       "Save filing context",
       "Save filing identity (encrypted, local only)"
-    ]
+    ],
+    "choices": {
+      "tax_year": 2,
+      "filing_status": 2
+    }
   },
   "documents": {
     "controls": [
@@ -37,7 +41,10 @@
       "Delete selected",
       "Scan again",
       "uploaded"
-    ]
+    ],
+    "choices": {
+      "kind": 61
+    }
   },
   "data": {
     "controls": [
@@ -59,14 +66,18 @@
       "Save carryovers",
       "Save foreign income",
       "Save lot"
-    ]
+    ],
+    "choices": {
+      "term": 2
+    }
   },
   "interview": {
     "controls": [],
     "buttons": [
       "No",
       "Yes"
-    ]
+    ],
+    "choices": {}
   },
   "review": {
     "controls": [
@@ -76,15 +87,18 @@
       "Close",
       "Save",
       "— amounts"
-    ]
+    ],
+    "choices": {}
   },
   "gates": {
     "controls": [],
-    "buttons": []
+    "buttons": [],
+    "choices": {}
   },
   "forms": {
     "controls": [],
-    "buttons": []
+    "buttons": [],
+    "choices": {}
   },
   "file-it": {
     "controls": [
@@ -95,11 +109,15 @@
       "Build package &amp; lock",
       "Mark as filed",
       "Unlock"
-    ]
+    ],
+    "choices": {
+      "channel": 2
+    }
   },
   "efile": {
     "controls": [],
-    "buttons": []
+    "buttons": [],
+    "choices": {}
   },
   "risk": {
     "controls": [
@@ -109,7 +127,8 @@
     "buttons": [
       "Assemble Defense File from the locked package",
       "Record acknowledgment"
-    ]
+    ],
+    "choices": {}
   },
   "amend": {
     "controls": [
@@ -123,7 +142,11 @@
       "Finalize federal amendment",
       "Generate IL-1040-X companion",
       "Open case"
-    ]
+    ],
+    "choices": {
+      "reason": 1,
+      "concept": 1
+    }
   },
   "entities": {
     "controls": [
@@ -143,13 +166,20 @@
       "Save entity",
       "Save expense",
       "Save member"
-    ]
+    ],
+    "choices": {
+      "is_scorp": 2,
+      "category": 1,
+      "k_line": 1,
+      "life_years": 2
+    }
   },
   "business": {
     "controls": [],
     "buttons": [
       "Build business filing packages"
-    ]
+    ],
+    "choices": {}
   },
   "year-round": {
     "controls": [
@@ -175,6 +205,9 @@
       "Record line",
       "Record payment",
       "Save"
-    ]
+    ],
+    "choices": {
+      "concept": 5
+    }
   }
 }

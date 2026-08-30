@@ -237,10 +237,21 @@ export default async function Documents({ searchParams }: { searchParams: Promis
         </div>
       </section>
       <section className="mt-6">
-        <h2 className="font-bold">Typed entry</h2>
-        <form action={addManual} className="mt-2 flex gap-2">
-          <select name="concept" className="rounded border border-slate-300 p-2 text-sm" data-testid="manual-concept">
-            {MANUAL_CONCEPTS.map((c) => <option key={c.concept} value={c.concept}>{c.label}</option>)}
+        <h2 className="font-bold">Typed entry — any amount with no scannable document</h2>
+        <p className="mt-1 text-xs text-slate-600">
+          Itemized deductions, foreign tax paid, tax-exempt interest, estimated payments, HSA/IRA/401(k)
+          contributions, prior-year carryovers, the Form 2210 penalty. Typing a value IS its confirmation —
+          it counts immediately, unlike a value read from a document.
+        </p>
+        <form action={addManual} className="mt-2 flex flex-wrap items-start gap-2">
+          <select name="concept" className="max-w-xl rounded border border-slate-300 p-2 text-sm" data-testid="manual-concept">
+            {[...new Set(MANUAL_CONCEPTS.map((c) => c.group))].map((group) => (
+              <optgroup key={group} label={group}>
+                {MANUAL_CONCEPTS.filter((c) => c.group === group).map((c) => (
+                  <option key={c.concept} value={c.concept}>{c.label}</option>
+                ))}
+              </optgroup>
+            ))}
           </select>
           <input name="amount" required placeholder="Amount" inputMode="decimal"
             className="w-32 rounded border border-slate-300 p-2 text-sm" data-testid="manual-amount" />

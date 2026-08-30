@@ -428,6 +428,22 @@ here. They print by name on every run and their reasons live in
    never calls it, so today a locked version is superseded silently. Bring
    back the version-history table with it.
 
+1a. **DONE — manual entry restored (8 → 66 choices).** The Documents picker
+   had been cut from TaxOS's 61 options to eight, leaving most of a real
+   return unenterable: itemized deductions, foreign tax paid, tax-exempt
+   interest, HSA/IRA/401(k), carryovers, the Form 2210 penalty. Every one
+   had a kernel concept the whole time; only the dropdown was missing.
+   `pnpm parity:screens` now counts what a dropdown OFFERS, not just that a
+   control by that name exists — the blind spot that let a rename excuse a
+   gutted list.
+
+1b. **DONE — confirmation moved back to Documents only.** TaxOS's Review had
+   no confirm buttons at all; its only action was `editFact`. TaxFS put
+   confirmation on Review, and restoring the Documents panel left it in
+   BOTH places. Review now shows source values read-only and points at
+   Documents, where each value sits beside the document and box it came
+   from. Review's edit path (item 1) is still open.
+
 2. **Documents — the operator's reading must be able to beat the machine's.**
    TaxOS's confirm carried an `override` checkbox: "my typed value is
    correct (document differs from scan)". TaxFS refuses a mismatch and

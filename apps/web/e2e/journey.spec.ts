@@ -35,7 +35,10 @@ test.describe('return journey (local operator, real database)', () => {
     await page.getByTestId('add-demo-1099int').click();
 
     await page.goto('/documents');
-    await page.getByTestId('manual-concept').selectOption({ label: 'Federal estimated payments' });
+    // Select by concept id, not by label: the labels are TaxOS's careful
+    // prose about what NOT to combine and which box a figure comes from, and
+    // they get tuned. A copy edit must not fail an unrelated test.
+    await page.getByTestId('manual-concept').selectOption('payments.fed.estimated');
     await page.getByTestId('manual-amount').fill('1000');
     await page.getByRole('button', { name: 'Add', exact: true }).click();
     await page.waitForURL(/\/review/);   // the action redirects once committed
@@ -55,19 +58,29 @@ test.describe('return journey (local operator, real database)', () => {
     await expect(page.getByTestId('nav-status-gates')).toHaveText('not run');
   });
 
-  test('confirm every value, run the gates, board goes green', async ({ page }) => {
+  test('confirm every value ON DOCUMENTS, run the gates, board goes green', async ({ page }) => {
+    // Confirmation lives on Documents, beside the document and the box each
+    // value was read from — Review never asks you to vouch for a bare number.
     await page.goto('/review');
-    // Each confirm is a server action that refreshes the page in place;
-    // waiting for THAT button to detach is the commit signal (URL never
-    // changes, so URL-waiting would race the action).
-    const buttons = page.getByTestId('sourced-facts').getByRole('button', { name: 'Confirm' });
-    const ids = await buttons.evaluateAll((els) => els.map((e) => e.getAttribute('data-testid')));
-    for (const id of ids) {
-      if (!id) continue;
+    await expect(page.getByTestId('sourced-facts')).toContainText('unconfirmed');
+    await expect(page.getByTestId('confirm-elsewhere')).toContainText('Confirm them on');
+    // ...and there is no confirm control here to press.
+    await expect(page.getByTestId('sourced-facts').getByRole('button', { name: 'Confirm' })).toHaveCount(0);
+
+    await page.goto('/documents');
+    // Each confirm is a server action that redirects back here; waiting for
+    // THAT button to detach is the commit signal.
+    for (;;) {
+      const buttons = page.getByTestId('confirm-panel').getByRole('button', { name: 'Confirm this value' });
+      if ((await buttons.count()) === 0) break;
+      const id = await buttons.first().getAttribute('data-testid');
+      if (!id) break;
       await page.getByTestId(id).click();
       await expect(page.getByTestId(id)).toHaveCount(0);
     }
+    await page.goto('/review');
     await expect(page.getByTestId('sourced-facts')).not.toContainText('unconfirmed');
+    await expect(page.getByTestId('confirm-elsewhere')).toHaveCount(0);
 
     await page.goto('/gates');
     await page.getByTestId('run-gates').click();
