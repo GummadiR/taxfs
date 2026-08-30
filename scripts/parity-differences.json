@@ -1,0 +1,72 @@
+{
+  "_README": [
+    "Every place TaxFS's screens can do LESS than TaxOS's, with the reason.",
+    "A plain reason means DELIBERATE — TaxFS made a different, defended choice.",
+    "A reason starting with 'TODO:' means the capability is genuinely missing",
+    "and meant to come back; those print on every run and never expire quietly.",
+    "Nothing may be added here to silence the check. If it is not deliberate,",
+    "it is a TODO, and if it is a TODO it stays visible until it is fixed."
+  ],
+
+  "get-started": {
+    "controls": {
+      "address_line": "G9: identity never reaches the server. Address is entered in the browser vault on File It and typed onto the PDF at download time.",
+      "city": "G9 — see address_line.",
+      "state": "G9 — see address_line.",
+      "zip": "G9 — see address_line.",
+      "tax_year": "TaxFS serves one season at a time (TAXFS_TAX_YEAR); there is no year picker to get wrong. TaxOS's second option existed only to demo an out-of-scope refusal.",
+      "out_of_state": "Equivalent, and stronger: TaxFS asks for an affirmative IL full-year residency attestation in the Interview (attestation.il_residency, packages/agents/src/gaps.ts) rather than a negative checkbox here. The scope guard exists; it moved.",
+      "self_65": "TODO: TaxOS ticked four boxes and derived the count. TaxFS asks the operator to compute the count themselves (addl_std_boxes 0-4), which is arithmetic the app should be doing. Restore the four checkboxes and derive the count client-side — the storage rule (count only, never who) is a G9 guardrail and must not change.",
+      "self_blind": "TODO: see self_65 — same four-checkbox control.",
+      "spouse_65": "TODO: see self_65 — same four-checkbox control.",
+      "spouse_blind": "TODO: see self_65 — same four-checkbox control."
+    },
+    "buttons": {
+      "Save filing context": "Same button, worded 'Save and continue'.",
+      "Save filing identity (encrypted, local only)": "G9: identity moved to the browser vault on File It (identity-panel.tsx), which never sends it to the server at all — stronger than TaxOS's encrypted local file.",
+      "Delete filing identity from this machine": "G9 — the vault's own clear/forget control replaces it."
+    }
+  },
+
+  "documents": {
+    "controls": {
+      "kind": "Same control, named 'concept' — and constrained to the registered concept list rather than a free string.",
+      "override": "TODO: TaxOS let the operator say 'my typed value is correct, the document differs from the scan' and proceed. TaxFS refuses a mismatch and offers nothing, so a misread number is a dead end. Restore the override WITH its recorded reason - the point is that the operator's reading wins over the machine's, on the record.",
+      "source_ids": "TODO: TaxOS could tick several documents and remove them in one pass (one recompute at the end). TaxFS removes one at a time."
+    },
+    "buttons": {
+      "Add manually": "Same button, worded 'Add'.",
+      "Scan again": "Same button, worded 'Rescan'.",
+      "Delete": "Same button, worded 'Remove' — and it covers manual entries too.",
+      "uploaded": "Not a button: an extraction artifact from the 'uploaded' badge inside TaxOS's stub-upload button.",
+      "Delete selected": "TODO: bulk delete — see the source_ids control.",
+      "Delete file": "TODO: TaxOS listed ORPHANED files (in storage, referenced by nothing) and let the operator remove them. TaxFS has no orphan sweep, so a half-finished upload leaves a file nothing points at.",
+      "Batch-confirm routine items": "TODO: TaxOS could confirm a batch of routine low-risk readings in one action. TaxFS confirms one at a time, which is right for a low-confidence value and tedious for a 40-line brokerage import. Any restoration must keep type-to-verify on anything below the confidence floor.",
+      "Connect my IRS account transcript (demo)": "TODO: TaxOS had a stub IRS Wage & Income transcript connect that cross-checked uploaded documents against the transcript. TaxFS assembles transcript reconciliation into the Defense File but has no intake path for the transcript itself."
+    }
+  },
+
+  "review": {
+    "controls": {
+      "value": "TODO: THE BIG ONE. TaxOS let the operator type a corrected amount straight onto the Review line and save it. TaxFS has no way to correct a value before filing at all — a misread or mistyped number can only be fixed by deleting the whole document and re-uploading. The spine already carries amendSourceField() with its audit row; no screen calls it."
+    },
+    "buttons": {
+      "Save": "TODO: the save for the inline correction above."
+    }
+  },
+
+  "file-it": {
+    "controls": {
+      "reason": "TODO: TaxOS required an explicit unlock WITH a recorded reason before a locked package could be superseded (D.5). PackageStore.unlock(package_id, reason) is ported in @taxfs/forms and enforces it; the screen never calls it, so buildLockedPackage inserts a new version unconditionally and no reason is recorded anywhere."
+    },
+    "buttons": {
+      "Unlock": "TODO: see the reason control."
+    }
+  },
+
+  "risk": {
+    "buttons": {
+      "Assemble Defense File from the locked package": "Same capability, as a download link ('Download Defense File') rather than a build button — TaxFS assembles on demand instead of storing a built bundle."
+    }
+  }
+}

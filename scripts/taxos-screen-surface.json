@@ -1,0 +1,180 @@
+{
+  "get-started": {
+    "controls": [
+      "address_line",
+      "city",
+      "filing_status",
+      "out_of_state",
+      "self_65",
+      "self_blind",
+      "spouse_65",
+      "spouse_blind",
+      "state",
+      "tax_year",
+      "zip"
+    ],
+    "buttons": [
+      "Delete filing identity from this machine",
+      "Save filing context",
+      "Save filing identity (encrypted, local only)"
+    ]
+  },
+  "documents": {
+    "controls": [
+      "amount",
+      "kind",
+      "override",
+      "source_ids",
+      "typed_value"
+    ],
+    "buttons": [
+      "Add manually",
+      "Batch-confirm routine items",
+      "Confirm this value",
+      "Connect my IRS account transcript (demo)",
+      "Delete",
+      "Delete file",
+      "Delete selected",
+      "Scan again",
+      "uploaded"
+    ]
+  },
+  "data": {
+    "controls": [
+      "k1_id",
+      "lot_id",
+      "term",
+      "wk_line15",
+      "wk_line21",
+      "wk_line7",
+      "wk_taxable_income"
+    ],
+    "buttons": [
+      "Compute my carryovers",
+      "Re-fetch the rate for this date",
+      "Save 1095-A",
+      "Save K-1",
+      "Save answer",
+      "Save answers",
+      "Save carryovers",
+      "Save foreign income",
+      "Save lot"
+    ]
+  },
+  "interview": {
+    "controls": [],
+    "buttons": [
+      "No",
+      "Yes"
+    ]
+  },
+  "review": {
+    "controls": [
+      "value"
+    ],
+    "buttons": [
+      "Close",
+      "Save",
+      "— amounts"
+    ]
+  },
+  "gates": {
+    "controls": [],
+    "buttons": []
+  },
+  "forms": {
+    "controls": [],
+    "buttons": []
+  },
+  "file-it": {
+    "controls": [
+      "channel",
+      "reason"
+    ],
+    "buttons": [
+      "Build package &amp; lock",
+      "Mark as filed",
+      "Unlock"
+    ]
+  },
+  "efile": {
+    "controls": [],
+    "buttons": []
+  },
+  "risk": {
+    "controls": [
+      "note",
+      "typed"
+    ],
+    "buttons": [
+      "Assemble Defense File from the locked package",
+      "Record acknowledgment"
+    ]
+  },
+  "amend": {
+    "controls": [
+      "concept",
+      "concept_summary",
+      "reason",
+      "reference"
+    ],
+    "buttons": [
+      "Build 1040-X columns",
+      "Finalize federal amendment",
+      "Generate IL-1040-X companion",
+      "Open case"
+    ]
+  },
+  "entities": {
+    "controls": [
+      "asset_id",
+      "category",
+      "entity_id",
+      "is_scorp",
+      "k_line",
+      "life_years",
+      "member_id"
+    ],
+    "buttons": [
+      "Save K line",
+      "Save asset",
+      "Save business",
+      "Save deduction",
+      "Save entity",
+      "Save expense",
+      "Save member"
+    ]
+  },
+  "business": {
+    "controls": [],
+    "buttons": [
+      "Build business filing packages"
+    ]
+  },
+  "year-round": {
+    "controls": [
+      "amount",
+      "concept",
+      "date",
+      "income_date",
+      "miles",
+      "payee",
+      "purpose",
+      "receipt_date",
+      "source",
+      "transcript_value",
+      "trip_date"
+    ],
+    "buttons": [
+      "Amend",
+      "Capture receipt",
+      "Clear all",
+      "Close year (roll registers)",
+      "Log trip",
+      "Record income",
+      "Record line",
+      "Record payment",
+      "Save"
+    ]
+  }
+}
