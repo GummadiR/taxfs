@@ -6,7 +6,7 @@
  * and refused with the stage it froze at, while the server (here: the test
  * process) stays fully alive.
  */
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 
 async function pdfWithText(text: string): Promise<Uint8Array> {
@@ -72,4 +72,38 @@ describe('isolated scrub (killable child process)', () => {
     // Child exits non-zero immediately → honest refusal, no freeze.
     expect(result.blocked).toBeDefined();
   }, 120_000);
+});
+
+/**
+ * The web server must NEVER spawn an OCR worker (§9.1 negative test).
+ *
+ * Found on the operator's Windows machine, in the production build only:
+ * warming the OCR engine on the Documents page spawned tesseract inside the
+ * Next server, whose bundler rewrites module paths — "Cannot find module
+ * 'C:\ROOT\node_modules\...\worker-script\node\index.js'". tesseract throws
+ * that from a worker spawn, asynchronously, so it escaped every catch and
+ * surfaced as an uncaughtException in the running server.
+ *
+ * Environment made it invisible: on Linux, unbundled, the same call resolves
+ * fine, so no Linux test could catch it by outcome. The guard therefore has
+ * to be STRUCTURAL — assert the server never asks for a worker at all.
+ * Scrubbing happens in the isolated child process, which runs plain node
+ * with real paths.
+ */
+describe('the web server never loads the OCR engine', () => {
+  it('warmScrubber prepares the model file WITHOUT creating a tesseract worker', async () => {
+    const createWorker = vi.fn(async () => {
+      throw new Error('a worker must never be created inside the web server');
+    });
+    vi.doMock('tesseract.js', () => ({ createWorker }));
+    try {
+      const { warmScrubber } = await import('../src/server/scrub');
+      warmScrubber();
+      // Give any fire-and-forget promise a chance to run.
+      await new Promise((r) => setTimeout(r, 50));
+      expect(createWorker).not.toHaveBeenCalled();
+    } finally {
+      vi.doUnmock('tesseract.js');
+    }
+  });
 });
