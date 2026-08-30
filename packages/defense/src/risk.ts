@@ -143,6 +143,17 @@ export class RiskLedger {
     return ack;
   }
 
+  /**
+   * Restore previously recorded acknowledgments — for a persistent store,
+   * where the ledger is rebuilt per request rather than living in a session.
+   * These records were validated by acknowledge() when they were created, so
+   * they are NOT re-validated here; acknowledge() stays the one and only
+   * door new records come through, and its rules stay the only rules.
+   */
+  hydrate(records: readonly AckRecord[]): void {
+    for (const r of records) this.acks.push(r);
+  }
+
   /** Ledger access for the platform's OWN surfaces only — never bundled into IRS-facing output. */
   ledger(): readonly AckRecord[] {
     return this.acks;

@@ -112,6 +112,39 @@ describe('acknowledgment ledger (G.2)', () => {
     expect(ack.note).toMatch(/engagement letter/);
   });
 
+  it('hydration restores recorded acks WITHOUT becoming a second door into the ledger', () => {
+    // A persistent store rebuilds the ledger per request, so it must be able
+    // to load what was already recorded. The risk is that hydration becomes
+    // a way to write records that acknowledge() would have refused — so this
+    // pins that hydrate only READS BACK, and that new records still go
+    // through the one validated door.
+    const first = new RiskLedger(clock);
+    const weak = run([finding({ finding_id: 'w-1', critic_id: 'IRS-AUTHORITY', authority_grade: 'weak_or_none' })]);
+    const item = first
+      .assembleProfile({ taxpayer_id: 'tp', tax_year: 2025, rule_version: 'rv', gateRuns: [weak] })
+      .items[0]!;
+    const ack = first.acknowledge({
+      item, user_id: 'u1', disclosure_shown: DISCLOSURE,
+      note: 'Position rests on the 2024 engagement letter and the payment trail in the vault.',
+    });
+
+    // A fresh ledger, given that record, shows the item acknowledged again.
+    const rebuilt = new RiskLedger(clock);
+    rebuilt.hydrate([ack]);
+    const reassembled = rebuilt.assembleProfile({ taxpayer_id: 'tp', tax_year: 2025, rule_version: 'rv', gateRuns: [weak] });
+    expect(reassembled.items[0]?.status).toBe('acknowledged');
+    expect(rebuilt.ledger()).toHaveLength(1);
+
+    // And the rules did not move: a bare acknowledgment on a weak-authority
+    // item is still refused on the hydrated ledger (negative test, §9.1).
+    const other = run([finding({ finding_id: 'w-2', critic_id: 'IRS-OTHER', authority_grade: 'weak_or_none' })]);
+    const otherItem = rebuilt
+      .assembleProfile({ taxpayer_id: 'tp', tax_year: 2025, rule_version: 'rv', gateRuns: [other] })
+      .items[0]!;
+    expect(() => rebuilt.acknowledge({ item: otherItem, user_id: 'u1', disclosure_shown: DISCLOSURE }))
+      .toThrow(/rationale/);
+  });
+
   it('acks persist across regeneration only while the item substance is unchanged (D.5 scoped cascade)', () => {
     const ledger = new RiskLedger(clock);
     const original = finding({});

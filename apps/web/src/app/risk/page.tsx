@@ -7,7 +7,7 @@
  */
 import { redirect } from 'next/navigation';
 import { appConfigured, requireContext } from '@/server/context';
-import { ACK_COPY, acknowledgeFinding, getRisk } from '@/server/risk';
+import { ACK_COPY, ACK_PHRASE, acknowledgeFinding, getRisk } from '@/server/risk';
 import { Severity } from '@/components/badges';
 import { PageHelp } from '@/components/pagehelp';
 import { SubmitButton } from '@/components/submit-button';
@@ -15,13 +15,20 @@ import { SubmitButton } from '@/components/submit-button';
 async function ackAction(formData: FormData) {
   'use server';
   const { userId, ws } = await requireContext();
-  await acknowledgeFinding(userId, ws.workspace_id, String(formData.get('finding_id') ?? ''));
-  redirect('/risk');
+  const refused = await acknowledgeFinding(userId, ws.workspace_id, {
+    findingId: String(formData.get('finding_id') ?? ''),
+    typed: String(formData.get('typed') ?? ''),
+    note: String(formData.get('note') ?? ''),
+  });
+  // A refusal comes back as its reason, so the operator can fix it in place
+  // rather than meeting a stack trace.
+  redirect(refused ? `/risk?msg=${encodeURIComponent(refused)}` : '/risk');
 }
 
-export default async function Risk() {
+export default async function Risk({ searchParams }: { searchParams: Promise<{ msg?: string }> }) {
   if (!appConfigured()) redirect('/');
   const { userId, ws } = await requireContext();
+  const { msg } = await searchParams;
   const dto = await getRisk(userId, ws.workspace_id);
   return (
     <main className="max-w-3xl space-y-4">
@@ -34,6 +41,10 @@ export default async function Risk() {
         ]}
       />
       <p className="rounded border border-slate-200 bg-slate-50 p-3 text-sm" data-testid="risk-overview">{dto.overview}</p>
+      {msg ? (
+        <p role="status" data-testid="risk-msg"
+          className="rounded border border-amber-300 bg-amber-50 p-3 text-sm">{msg}</p>
+      ) : null}
 
       {dto.items.length > 0 ? (
         <ul className="space-y-3" data-testid="risk-items">
@@ -45,12 +56,39 @@ export default async function Risk() {
               </div>
               <p className="mt-1 text-xs">{item.message}</p>
               {item.acknowledged ? (
-                <p className="mt-2 text-xs font-semibold text-emerald-700" data-testid="ack-done">Acknowledged — recorded in the platform ledger.</p>
+                <div className="mt-2 rounded bg-emerald-50 p-2" data-testid="ack-done">
+                  <p className="text-xs font-semibold text-emerald-800">
+                    Acknowledged — recorded in the platform ledger{item.ack_at ? ` on ${item.ack_at.slice(0, 10)}` : ''}.
+                  </p>
+                  {item.ack_note ? (
+                    <p className="mt-1 text-xs text-slate-700" data-testid={`ack-note-shown-${item.critic_id}`}>
+                      <span className="font-semibold">Your reasoning: </span>{item.ack_note}
+                    </p>
+                  ) : null}
+                </div>
               ) : (
-                <form action={ackAction} className="mt-2">
+                /* The ledger's own rule, made visible: a compelled record
+                   showing documented reasoning defends; one showing bare
+                   clicks convicts. So the reasoning box and the typed phrase
+                   are the acknowledgment — not a button. */
+                <form action={ackAction} className="mt-2 space-y-1.5 rounded bg-slate-50 p-2">
                   <input type="hidden" name="finding_id" value={item.finding_id} />
-                  <SubmitButton className="rounded border border-slate-400 px-2 py-1 text-xs" data-testid={`ack-${item.finding_id}`}>
-                    Acknowledge (I have reviewed this)
+                  <label className="block text-xs font-semibold" htmlFor={`note-${item.finding_id}`}>
+                    Your reasoning{item.note_required ? ' (required for this item — weak authority)' : ' (encouraged)'} —
+                    a compelled ledger showing documented reasoning defends; a bare click does not
+                  </label>
+                  <textarea id={`note-${item.finding_id}`} name="note" rows={2}
+                    className="w-full rounded border border-slate-300 p-1 text-xs"
+                    data-testid={`ack-note-${item.critic_id}`} />
+                  <label className="block text-xs font-semibold" htmlFor={`typed-${item.finding_id}`}>
+                    Type “{ACK_PHRASE}” to record that you reviewed this item
+                  </label>
+                  <input id={`typed-${item.finding_id}`} name="typed" autoComplete="off"
+                    className="w-48 rounded border border-slate-300 p-1 font-mono text-xs"
+                    data-testid={`ack-input-${item.critic_id}`} />
+                  <SubmitButton className="ml-2 rounded bg-slate-900 px-2 py-1 text-xs font-semibold text-white"
+                    data-testid={`ack-${item.critic_id}`} pendingText="Recording…">
+                    Record acknowledgment
                   </SubmitButton>
                 </form>
               )}

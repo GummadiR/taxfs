@@ -44,6 +44,15 @@ test.describe('return journey (local operator, real database)', () => {
     // The typed entry IS confirmed (typing is the confirmation); extracted
     // demo values are NOT until the operator says so.
     await expect(page.getByTestId('sourced-facts')).toContainText('unconfirmed');
+
+    // And the sidebar SAYS so, without opening anything: the one step that
+    // is waiting on the operator wears the count. (This also proves the
+    // status query runs against the real schema — it is deliberately
+    // best-effort in the layout, so a broken query would show no badge at
+    // all rather than an error.)
+    await expect(page.getByTestId('nav-status-documents')).toContainText('to confirm');
+    await expect(page.getByTestId('nav-status-get-started')).toHaveText('done');
+    await expect(page.getByTestId('nav-status-gates')).toHaveText('not run');
   });
 
   test('confirm every value, run the gates, board goes green', async ({ page }) => {
@@ -95,6 +104,21 @@ test.describe('return journey (local operator, real database)', () => {
     await page.getByTestId('build-package').click();
     await expect(page.getByTestId('package-list')).toContainText('v1');
     await expect(page.getByTestId('package-list')).toContainText('locked');
+  });
+
+  test('the sidebar tracks the finished return — nothing left waiting', async ({ page }) => {
+    await page.goto('/review');
+    // Every step that was attention-coloured mid-journey has resolved.
+    await expect(page.getByTestId('nav-status-documents')).not.toContainText('to confirm');
+    await expect(page.getByTestId('nav-status-review')).toHaveText('computed');
+    await expect(page.getByTestId('nav-status-file-it')).toHaveText('locked');
+    // The badge carries its explanation on hover, not just a word.
+    await expect(page.getByTestId('nav-status-file-it')).toHaveCount(1);
+    const gates = page.getByTestId('nav-status-gates');
+    await expect(gates).toHaveText(/all passed|passed · \d+ advisory/);
+    // The section you are on is marked — half the confusion was not being
+    // able to tell where you already are.
+    await expect(page.locator('nav a[aria-current="page"]')).toHaveText(/Review/);
   });
 
   test('the downloaded 1040 carries the typed identity — filled in the BROWSER, never on the server', async ({ page }) => {
