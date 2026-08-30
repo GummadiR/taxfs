@@ -76,10 +76,18 @@ test.describe('return journey (local operator, real database)', () => {
     await expect(fed).toContainText('Adjusted gross income');
     await expect(fed).not.toContainText('fed.agi');
     await expect(page.getByTestId('review-summary')).toContainText('total income');
-    // Every amount is the drilldown link.
-    await fed.locator('tr', { hasText: 'Adjusted gross income' }).getByRole('link').click();
-    await expect(page.getByTestId('lineage-drawer')).toBeVisible();
-    await expect(page.getByTestId('lineage-drawer')).toContainText('round_half_up');
+    // Every amount opens the lineage drawer (the ported TaxOS component):
+    // human labels, a plain-English origin word, and the machine detail kept
+    // behind "For your CPA" rather than shown as raw ids.
+    await fed.locator('tr', { hasText: 'Adjusted gross income' }).getByRole('button').click();
+    const drawer = page.getByTestId('lineage-drawer');
+    await expect(drawer).toBeVisible();
+    await expect(drawer).toContainText('Where this number comes from');
+    await expect(drawer).toContainText('Adjusted gross income');
+    // The technical proof is present but collapsed, not dumped on the reader.
+    await expect(drawer.getByTestId('lineage-technical')).toContainText('For your CPA');
+    await drawer.getByTestId('lineage-technical').click();
+    await expect(drawer.getByTestId('lineage-technical')).toContainText('round_half_up');
   });
 
   test('File It locks a package row', async ({ page }) => {

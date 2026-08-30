@@ -1,22 +1,15 @@
 import { SubmitButton } from '@/components/submit-button';
+import { LineageProvider, TraceableAmount } from '@/components/lineage';
 import { redirect } from 'next/navigation';
 import { PageHelp } from '@/components/pagehelp';
 import { appConfigured, requireContext } from '@/server/context';
 import { withSpine } from '@/server/db';
 import { TAX_YEAR } from '@/server/env';
-import type { LineageNode } from '@taxfs/spine';
 import { detectSignals } from '@taxfs/agents';
 import { withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
-import {
-  buildSummary,
-  conceptLabel,
-  docTitle,
-  IL_LINE_LABELS,
-  LINE_EXPLAIN,
-  LINE_LABELS,
-} from '@/server/labels';
-import type { SourceDoc, TaxFact } from '@taxfs/shared';
+import { buildSummary, conceptLabel, IL_LINE_LABELS, LINE_EXPLAIN, LINE_LABELS } from '@/server/labels';
+import type { TaxFact } from '@taxfs/shared';
 
 async function confirmFactAction(formData: FormData) {
   'use server';
@@ -37,36 +30,6 @@ async function confirmFactAction(formData: FormData) {
   redirect('/review');
 }
 
-function LineageView({ node, sources, depth = 0 }: { node: LineageNode; sources: SourceDoc[]; depth?: number }) {
-  const explain = LINE_EXPLAIN[node.fact.concept];
-  return (
-    <div className={depth > 0 ? 'ml-4 border-l border-slate-200 pl-3' : ''}>
-      <div className="text-xs">
-        <span className="font-semibold" title={node.fact.concept}>{conceptLabel(node.fact.concept)}</span>{' '}
-        = {node.fact.value.toString()}
-        {explain ? (
-          <span className="ml-1 cursor-help text-slate-400" title={explain} aria-label={explain}>ⓘ</span>
-        ) : null}
-      </div>
-      {node.calculation ? (
-        <div className="mt-1 text-xs text-slate-600">
-          <div className="font-mono text-[10px] text-slate-400">{node.calculation.formula_ref} · {node.calculation.rule_version}</div>
-          <ul className="list-disc pl-4">
-            {node.calculation.steps.map((s, i) => <li key={i}>{s}</li>)}
-          </ul>
-          {(node.inputs ?? []).map((n) => <LineageView key={n.fact.fact_id} node={n} sources={sources} depth={depth + 1} />)}
-        </div>
-      ) : (
-        <div className="text-[10px] text-slate-400">
-          from {(node.sources ?? [])
-            .map((x) => docTitle(sources.find((s) => s.source_id === x.source_id) ?? ({ source_id: x.source_id, type: x.type, raw_ref: '', fields: {} } as unknown as SourceDoc)))
-            .join(', ') || 'source document'}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFact; label: string; explain?: string }[]; testid: string }) {
   return (
     <section className="rounded border border-slate-200 bg-white p-4 text-sm" data-testid={testid}>
@@ -82,10 +45,8 @@ function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFa
                 ) : null}
               </td>
               <td className="py-1.5 text-right">
-                <a className="underline decoration-dotted underline-offset-2" title="Open the full calculation trail"
-                  href={`/review?lineage=${encodeURIComponent(fact.fact_id)}`}>
-                  {fact.value.toString()}
-                </a>
+                <TraceableAmount factId={fact.fact_id} value={fact.value.toString()} label={label}
+                  stale={fact.status === 'stale'} />
               </td>
             </tr>
           ))}
@@ -98,13 +59,11 @@ function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFa
   );
 }
 
-export default async function Review({ searchParams }: { searchParams: Promise<{ lineage?: string }> }) {
+export default async function Review() {
   if (!appConfigured()) redirect('/');
   const { userId, ws } = await requireContext();
-  const { lineage } = await searchParams;
-  const { facts, lineageNode, sources } = await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => ({
+  const { facts, sources } = await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => ({
     facts: await spine.getFacts({ taxpayer_id: ws.workspace_id, tax_year: TAX_YEAR }),
-    lineageNode: lineage ? await spine.getLineage(lineage).catch(() => null) : null,
     sources: await spine.getSources(ws.workspace_id, TAX_YEAR),
   }));
   const { history, filing } = await withUserClient(userId, async (client) => ({
@@ -139,6 +98,7 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
     .map((fact) => ({ fact, label: conceptLabel(fact.concept), ...(LINE_EXPLAIN[fact.concept] ? { explain: LINE_EXPLAIN[fact.concept] } : {}) }));
 
   return (
+    <LineageProvider>
     <main>
       <h1 className="text-xl font-black">Review</h1>
       <p className="mt-1 text-sm text-slate-600">
@@ -197,7 +157,8 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
                 <td className="py-1 pr-2">
                   <span title={f.concept}>{conceptLabel(f.concept)}</span>
                 </td>
-                <td>{f.value.toString()}</td>
+                <td><TraceableAmount factId={f.fact_id} value={f.value.toString()} label={conceptLabel(f.concept)}
+                  stale={f.status === 'stale'} /></td>
                 <td>
                   <span className={`rounded px-1.5 py-0.5 text-xs ${f.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-900'}`}>
                     {f.status}
@@ -239,9 +200,8 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
                     {explain ? <span className="ml-0.5 cursor-help text-slate-400" title={explain}>ⓘ</span> : null}
                   </td>
                   <td className="py-1.5 text-right">
-                    <a className="underline decoration-dotted underline-offset-2" href={`/review?lineage=${encodeURIComponent(fact.fact_id)}`}>
-                      {fact.value.toString()}
-                    </a>
+                    <TraceableAmount factId={fact.fact_id} value={fact.value.toString()} label={label}
+                      stale={fact.status === 'stale'} />
                   </td>
                 </tr>
               ))}
@@ -249,14 +209,7 @@ export default async function Review({ searchParams }: { searchParams: Promise<{
           </table>
         </details>
       ) : null}
-      {lineageNode ? (
-        <section className="mt-6 rounded border border-slate-200 bg-slate-50 p-3" data-testid="lineage-drawer">
-          <h2 className="font-bold">
-            How {conceptLabel(lineageNode.fact.concept)} was computed
-          </h2>
-          <LineageView node={lineageNode} sources={sources} />
-        </section>
-      ) : null}
     </main>
+    </LineageProvider>
   );
 }
