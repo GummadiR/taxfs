@@ -8,7 +8,7 @@
 import { useState } from 'react';
 // Client-safe subpath: the forms barrel reaches node:fs (template
 // loading) and must never enter a browser chunk.
-import { fillIdentity, incompleteIdentityMessage, missingIdentityFields, type FilingIdentity } from '@taxfs/forms/identity';
+import { fillIdentity, hasIdentityLayout, incompleteIdentityMessage, missingIdentityFields, type FilingIdentity } from '@taxfs/forms/identity';
 import { loadIdentity, saveIdentity } from '@/lib/identity/vault';
 
 interface PdfRef {
@@ -59,6 +59,15 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
     // Refuse BEFORE fetching: regenerating and hash-verifying the artifact is
     // real work, and there is nothing to fill it with.
     if (withIdentity) {
+      // Refuse a form with no Step-1 block BEFORE promising anything:
+      // fillIdentity passes such a form through untouched, so without this the
+      // status line would claim "identity filled" over an unwritten PDF.
+      if (!hasIdentityLayout(ref.form_id)) {
+        return setStatus(
+          `Not downloaded — ${ref.label} has no name/SSN block, so nothing could be filled in. `
+          + 'The identity-filled copies are the 1040 and IL-1040.',
+        );
+      }
       const missing = missingIdentityFields(id, ref.form_id, joint);
       if (missing.length > 0) return setStatus(`Not downloaded — ${incompleteIdentityMessage(missing)}`);
     }

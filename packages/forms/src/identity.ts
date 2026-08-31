@@ -202,6 +202,18 @@ export function missingIdentityFields(
   return missing;
 }
 
+/**
+ * Does this form carry a Step-1 identity block at all?
+ *
+ * A caller that offers an "identity filled" download MUST check this first.
+ * fillIdentity passes a non-identity form through untouched (right for
+ * Schedule B), so without this the caller would report a filled identity over
+ * a PDF it never wrote to — the P92 swallowed-failure shape, one layer up.
+ */
+export function hasIdentityLayout(formId: string): formId is '1040' | 'IL1040' {
+  return formId === '1040' || formId === 'IL1040';
+}
+
 /** The refusal, in one place, so the UI and the fill can never disagree. */
 export function incompleteIdentityMessage(missing: string[]): string {
   return (
@@ -223,7 +235,11 @@ export async function fillIdentity(
   identity: FilingIdentity,
   opts: { joint?: boolean; allowIncomplete?: boolean } = {},
 ): Promise<Uint8Array> {
-  if (formId !== '1040' && formId !== 'IL1040') return pdfBytes;
+  // A form with no identity block (Schedule B, say) passes through untouched —
+  // that is correct, not a failure. What must never happen is a CALLER telling
+  // the operator "identity filled" over such a pass-through; hasIdentityLayout
+  // exists so the caller can refuse before promising anything.
+  if (!hasIdentityLayout(formId)) return pdfBytes;
   if (!opts.allowIncomplete) {
     const missing = missingIdentityFields(identity, formId, opts.joint ?? false);
     if (missing.length > 0) throw new Error(incompleteIdentityMessage(missing));

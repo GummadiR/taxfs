@@ -135,6 +135,12 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
       ) : null}
       <section className="mt-6">
         <h2 className="font-bold">Locked packages</h2>
+        <p className="mt-1 text-xs text-slate-600" data-testid="package-list-help">
+          Every lock keeps its own immutable row — manifest, validation report and artifact hashes — so a
+          filed return can always be reproduced. That is why there is no delete: removing a version would
+          destroy the record of what was filed. The download buttons at the bottom of this page always serve
+          the NEWEST version{rows[0] ? ` (v${rows[0].version})` : ''}; earlier versions stay as history.
+        </p>
         <table className="mt-2 w-full text-sm" data-testid="package-list">
           <thead><tr className="text-left text-xs text-slate-500"><th>Version</th><th>Status</th><th>Forms</th><th>Created</th></tr></thead>
           <tbody>
