@@ -61,3 +61,66 @@ export async function listTraces(client: pg.Client, ws: string, limit = 100): Pr
   );
   return r.rows.map((row) => ({ ...row, ts: (row.ts as Date).toISOString() }));
 }
+
+/**
+ * One row per THING READ, not per model call.
+ *
+ * A re-scan reuses the document's own id and stored file, so its prompt is
+ * byte-identical to the first read and lands on the same input hash. Grouping
+ * on (agent, input hash) therefore collapses a document's reads into one row
+ * whose size is how many times it has been read — and whose `answers` count
+ * says whether those reads AGREED, since the sink stores an output hash (a
+ * hash, never the text) beside every call.
+ */
+export interface TraceGroup {
+  key: string;
+  agent: string;
+  model: string;
+  input_hash: string;
+  calls: number;
+  first: string;
+  last: string;
+  /** Distinct answers across the group's calls. 1 ⇒ every read agreed. */
+  answers: number;
+  rejected: number;
+  retried: number;
+  issues: string[];
+}
+
+export function groupTraces(rows: TraceRow[]): TraceGroup[] {
+  const byKey = new Map<string, TraceGroup>();
+  const answersByKey = new Map<string, Set<string>>();
+  for (const r of rows) {
+    const key = `${r.agent}|${r.input_hash}`;
+    const detail = r.detail as { output_hash?: string; issues?: { message: string }[] };
+    const answers = answersByKey.get(key) ?? new Set<string>();
+    if (detail.output_hash) answers.add(detail.output_hash);
+    answersByKey.set(key, answers);
+    const g = byKey.get(key);
+    if (!g) {
+      byKey.set(key, {
+        key,
+        agent: r.agent,
+        model: r.model,
+        input_hash: r.input_hash,
+        calls: 1,
+        first: r.ts,
+        last: r.ts,
+        answers: answers.size,
+        rejected: r.validation === 'rejected' ? 1 : 0,
+        retried: r.validation === 'retried' ? 1 : 0,
+        issues: (detail.issues ?? []).map((i) => i.message),
+      });
+      continue;
+    }
+    g.calls += 1;
+    // Rows arrive newest first, so every later row is older than `first`.
+    g.first = r.ts < g.first ? r.ts : g.first;
+    g.last = r.ts > g.last ? r.ts : g.last;
+    g.answers = answers.size;
+    if (r.validation === 'rejected') g.rejected += 1;
+    if (r.validation === 'retried') g.retried += 1;
+    for (const i of detail.issues ?? []) if (!g.issues.includes(i.message)) g.issues.push(i.message);
+  }
+  return [...byKey.values()].sort((a, b) => (a.last < b.last ? 1 : -1));
+}
