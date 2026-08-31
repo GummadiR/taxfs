@@ -50,7 +50,7 @@ describe.skipIf(!TEST_DB_URL)('hardening (rate budgets + agent traces)', () => {
     await takeBudget(b, wsB, USER_B, 'build_package'); // different user: fine
   });
 
-  it('PgAgentLog lands hash-only rows readable by the trace viewer', async () => {
+  it('PgAgentLog lands hash-only rows, workspace-scoped and readable back', async () => {
     const { PgAgentLog, listTraces } = await import('../../apps/web/src/server/agent-log');
     const log = new PgAgentLog(a, ws);
     log.record({
