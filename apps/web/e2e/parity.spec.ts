@@ -309,10 +309,22 @@ test.describe('Real document upload (scrub + store, extraction off)', () => {
 
     await rescan.click();
     await page.waitForURL(/\/documents\?msg=/);
-    await expect(page.getByTestId('docs-msg')).toContainText('extraction is off');
+    // The answer appears ON THE ROW that was clicked, not in a banner at the
+    // top of a long page ten rows above the button — which read as "I clicked
+    // it and nothing happened", and gave no way to tell which document had
+    // just been re-scanned.
+    await expect(page.getByTestId(`row-msg-${docId}`)).toContainText('extraction is off');
+    await expect(page.getByTestId('docs-msg')).toHaveCount(0);
     // Same document, same id, same name — nothing deleted, nothing recreated.
     await expect(page.getByTestId('source-list').locator('li', { hasText: '2025.SAMPLE.w2.pdf' })).toHaveCount(1);
     await expect(page.locator(`[data-testid="rescan-${docId}"]`)).toHaveCount(1);
+
+    // And a document whose values are CONFIRMED is not offered a re-scan at
+    // all: the action would refuse, so the control must not be there.
+    const confirmedRows = page.locator('[data-testid^="rescan-na-"]');
+    if ((await confirmedRows.count()) > 0) {
+      await expect(confirmedRows.first()).toBeVisible();
+    }
   });
 
   test('deleting the upload removes the source and its stored file', async ({ page }) => {

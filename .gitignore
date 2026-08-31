@@ -6,6 +6,23 @@ test-results/
 playwright-report/
 .env
 .env.local
-.taxos-mask.json
 *.tsbuildinfo
 .taxfs-docs/
+
+# ---------------------------------------------------------------------------
+# REAL TAX DATA — never commit. This repository is PUBLIC.
+#
+# The benchmark harness ships a committed TEMPLATE whose own instructions say
+# to copy it to `2025.REAL.return1.json` and fill in your actual figures from
+# your professionally-prepared return. TaxOS gitignored that filename; this
+# repo did not, so following the template's own instructions would have
+# published a complete tax return. Year-agnostic on purpose — 2026 and every
+# season after it are covered without anyone remembering to add a line.
+# ---------------------------------------------------------------------------
+rules/fixtures/benchmark-returns/*REAL*.json
+!rules/fixtures/benchmark-returns/*REAL*.template.json
+
+# The operator's real-names list for the document masker, under either
+# project's name (the file is local-only and never needed by the app).
+.taxos-mask.json
+.taxfs-mask.json

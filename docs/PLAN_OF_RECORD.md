@@ -428,6 +428,166 @@ here. They print by name on every run and their reasons live in
    never calls it, so today a locked version is superseded silently. Bring
    back the version-history table with it.
 
+1a. **DONE — manual entry restored (8 → 66 choices).** The Documents picker
+   had been cut from TaxOS's 61 options to eight, leaving most of a real
+   return unenterable: itemized deductions, foreign tax paid, tax-exempt
+   interest, HSA/IRA/401(k), carryovers, the Form 2210 penalty. Every one
+   had a kernel concept the whole time; only the dropdown was missing.
+   `pnpm parity:screens` now counts what a dropdown OFFERS, not just that a
+   control by that name exists — the blind spot that let a rename excuse a
+   gutted list.
+
+1b. **DONE — confirmation moved back to Documents only.** TaxOS's Review had
+   no confirm buttons at all; its only action was `editFact`. TaxFS put
+   confirmation on Review, and restoring the Documents panel left it in
+   BOTH places. Review now shows source values read-only and points at
+   Documents, where each value sits beside the document and box it came
+   from. Review's edit path (item 1) is still open.
+
+1c. **DONE — the §6654 penalty can no longer be silently zero; the AMOUNT
+   is still blocked on rule data.** `penalty.fed.estimated_tax` is a pure
+   input that both kernels subtract from what is owed, and nothing on any
+   screen ever asked for it. So a return with a real underpayment printed
+   "you owe $X" with no hint that the IRS may add to it, and "no penalty"
+   was indistinguishable from "nobody looked" — the CPA's return carried a
+   Form 2210 penalty where TaxFS carried none.
+
+   Shipped: critic `ACC-EST-PENALTY-UNDETERMINED` (gate 5, Flag) fires when
+   tax after credits less withholding reaches the §6654(e)(1) de-minimis
+   floor and no penalty has been entered; and the Review plain-English
+   total now says outright whether it includes one. Both name the floor
+   from rule data, never a literal.
+
+   NOT shipped, and deliberately: the penalty AMOUNT. It needs the
+   quarterly §6621 underpayment interest rates, which are not in
+   `rules/fixtures/2025.ESTTAX.json` — that file's safe-harbour
+   percentages, due dates and annualisation factors are all still marked
+   `PLACEHOLDER — verify`. Computing a penalty from an invented rate would
+   violate non-negotiable #2 and would look MORE authoritative than the
+   honest gap. `requiredAnnualPayment()` in `packages/defense/src/esttax.ts`
+   already computes `penalty_exposure` and is called from nothing but its
+   own test; wiring it up waits on cited rates and on prior-year tax/AGI
+   reaching the gate context (the safe harbour under §6654(d)(1)(B) can
+   cancel the penalty entirely, and neither figure is available there
+   today).
+
+   **Operator decision needed:** supply the 2025–2026 §6621 rates with
+   their citation, or accept that TaxFS reports the exposure and the IRS
+   bills the amount.
+
+   **Still open — the Illinois side.** `penalty.il.estimated_tax` (IL-2210)
+   is the same shape of pure input and has the same silent-zero problem,
+   but there is no Illinois de-minimis floor in the rule data, so the
+   federal critic's test cannot be reused and inventing a threshold is the
+   same violation. It needs IL rule data before it can be built.
+
+1d. **DONE — the premium tax credit silently assumed a household of ONE
+   whenever the size was not entered.** Found by auditing the general class
+   the Form 2210 gap belonged to: kernel inputs no screen can supply.
+
+   Correction to a first reading of this audit: `ptc.household_size` DOES
+   have an intake path — Add Data shows a "Household size" form once a
+   1095-A premium is detected (`app/data/page.tsx`). The first pass compared
+   only against the typed-entry picker and wrongly concluded there was no
+   path anywhere. What is true is narrower and still serious: that form is
+   a prompt, not a gate. It appears only when `PTC_PREMIUM` is already
+   present, and nothing requires an answer.
+
+   Both kernels did `Money.max(1, sum(household_size))`, so a skipped
+   prompt silently became a tax family of one. The federal
+   poverty line is computed FROM that size and the credit is measured as a
+   percentage of FPL, so a real family lands far higher up the scale. On
+   the return1 fixture with a $12,000/$14,000/$9,000 1095-A:
+
+   | tax family size | result |
+   |---|---|
+   | 1 (the old silent default) | repay the entire $9,000 advance credit |
+   | 4 (the truth) | a $1,400 credit |
+
+   A **$10,400 swing** from a default nobody typed and no screen could
+   override. Both kernels defaulted identically, so they AGREED and the
+   divergence check could not see it — a reminder that dual-kernel
+   agreement proves consistency, not correctness.
+
+   Fixed: BOTH kernels now THROW when 1095-A facts are present without the
+   family size, so a skipped prompt refuses instead of assuming. The four
+   1095-A concepts are also added to the typed-entry picker under a new
+   "Health coverage (1095-A)" group — the Add Data card only appears once a
+   premium has been extracted, so with extraction off there was no way to
+   supply any of them by hand.
+
+   `runGates` now catches kernel refusals and renders them, because it had
+   no error handling at all: a refusal became an unhandled server-action
+   error and the operator saw a blank framework error page instead of the
+   sentence naming what to enter. That failure mode pre-dated this change
+   and applied to every other kernel refusal too.
+
+   **Still open from the same audit:** `FOREIGN_INCOME_LTCG_FCY` has an
+   extraction mapping and a critic but no manual entry path, so with
+   extraction off it cannot be supplied.
+
+1f. **DONE — re-running the carryover worksheet REPLACES its previous run.**
+   1e added detection (a blocking gate-0 critic) and a red warning, but
+   neither could clean up a duplicate already saved, and the operator had no
+   obvious way to: two worksheet runs appear on Documents as two rows both
+   labelled only `USER_ENTRY`.
+
+   The mechanism: `computeCarryoversFrom2024` minted
+   `worksheet-caploss-${crypto.randomUUID()}` on EVERY run, so a second run
+   created a second source and a second confirmed fact per concept. Nothing
+   deduplicated. "Run the worksheet again" has always meant "replace what I
+   entered" to the operator; it silently meant "add".
+
+   It now deletes every existing `worksheet-caploss-*` source (cascade,
+   the same contract document removal uses) before saving, and SAYS how many
+   it replaced. Safe to delete the whole source: one carries nothing but the
+   two carryover concepts. This SELF-HEALS a return that already carries a
+   doubled carryover — one re-run corrects it.
+
+   Not covered, and left to the gate-0 critic: the same concept typed on
+   Documents. A `manual-*` source can carry several concepts, so superseding
+   one would destroy the others; a fact-level delete is not on the spine
+   contract (`deleteSource` is source-level), and adding one is an
+   architectural change needing an ADR.
+
+1e. **DONE — a capital-loss carryover entered twice was subtracted twice.**
+   THE root cause of the CPA tie-out gap, found by arithmetic rather than
+   by reading code: entering the carryovers moved total income by 84,820,
+   which is EXACTLY 2 x the 42,410 of carryovers (367,696 - 2 x 42,410 =
+   282,876, the figure on screen to the dollar).
+
+   The kernel reads every concept with `sumOfConcept`, which ADDS every
+   confirmed fact. Right for wages and interest; silently wrong for a
+   Schedule D carryover, which is one figure from one worksheet. The Add
+   Data card looked it up with `.find()`, so the screen displayed ONE entry
+   under a green "Already on your return — nothing further is needed" while
+   the return used two.
+
+   | line | TaxFS | CPA |
+   |---|---:|---:|
+   | Schedule D capital gain | 48,517 | 89,824 |
+   | Total income | 282,876 | 328,668 |
+   | Total tax | 35,277 | 43,859 |
+   | balance | 2,509 refund | 11,362 due |
+
+   Everything downstream followed: taxable income, the NIIT (correct for
+   its own AGI: (282,876-250,000) x 3.8% = 1,249), and the §904 limitation
+   on the foreign tax credit, which scales with US tax. Itemized deductions
+   (32,961), QBID (29) and Additional Medicare (90) matched the CPA to the
+   dollar throughout, which is what identified this as an INPUT defect and
+   not a computation one.
+
+   Fixed: `SINGULAR_CONCEPTS` in shared names the figures that can never
+   legitimately arrive twice (both carryovers, the 8962 family size, both
+   2210 penalties), and critic `ACC-SINGULAR-CONCEPT-DOUBLED` fires Error on
+   gate 0 when one has more than one confirmed fact — blocking, because the
+   operator cannot see the duplicate on any screen. The Add Data card now
+   COUNTS entries and shows a red warning instead of the green all-clear.
+
+   Wages, interest, dividends and HSA employer contributions are explicitly
+   NOT on the list, with a test pinning that: they genuinely have several
+   payers, and listing one would block a correct return.
+
 2. **Documents — the operator's reading must be able to beat the machine's.**
    TaxOS's confirm carried an `override` checkbox: "my typed value is
    correct (document differs from scan)". TaxFS refuses a mismatch and
@@ -447,6 +607,138 @@ here. They print by name on every run and their reasons live in
 
 6. **Documents — IRS Wage & Income transcript intake.** TaxFS reconciles
    against a transcript in the Defense File but has no way to supply one.
+
+## Coverage audit (2026-08-30) — what is NOT built
+
+Audited against the code, not against memory, after the operator asked
+whether comprehensive HSA/retirement/income validation was covered. Much of
+it is; these are the parts that are NOT, each verified by reading the
+computing code and its tests. Ordered by consequence.
+
+### A. The goldens certify the kernel against SUPERSEDED LAW
+
+`packages/kernel/test/helpers.ts` loads `rules/fixtures/2025.FED.json`
+(`rule_version 2025.FED.0.0.1-PLACEHOLDER`, every value tagged
+"PLACEHOLDER — verify"). The app loads `2025.FED.1.0.json`, verified
+against Rev. Proc. 2024-40 and Rev. Proc. 2025-32 §3.01. They disagree,
+and the golden side is PRE-OBBBA:
+
+| parameter | goldens | app |
+|---|---|---|
+| standard_deduction.single | 15,000 | 15,750 |
+| standard_deduction.mfj | 30,000 | 31,500 |
+| standard_deduction.mfs | 15,000 | 15,750 |
+| standard_deduction.hoh | 22,500 | 23,625 |
+| ptc.fpl_base / per_additional / cliff_pct | round stand-ins | published |
+
+So ~40 goldens and 992 unit tests prove the kernel correct on figures the
+app never uses. This is the session's recurring defect one layer down:
+validating against something other than what ships.
+
+NOT a swap — the files have different SHAPES (a `{value,status}` wrapper;
+`mfj` vs `married_filing_jointly`), so 19 of 22 kernel test files fail at
+LOAD when pointed at the verified release. And golden expectations must NOT
+be regenerated from the kernel: they would then prove only that the kernel
+agrees with itself. Each expectation needs deriving independently.
+
+Interim guard shipped: `packages/kernel/test/rule-data-drift.test.ts` pins
+today's divergence and FAILS on any new one, so the gap can shrink but
+never silently grow.
+
+### B. The whole retirement DISTRIBUTION side is unmodeled
+
+Zero code anywhere for rollovers, Roth conversions/recharacterisation,
+basis recovery, or RMDs (and the §4974 shortfall excise). 1099-R handling
+is "trust box 2a": `box1_gross` is extracted (`extraction.ts:76`) and has
+no `CONCEPT_BY_FIELD` entry, so gross is discarded and never reconciled;
+box 7 (distribution code) is not read at all. A rollover reported with a
+taxable amount is invisible. The 10% §72(t) tax applies a rate to a
+FULLY operator-supplied "amount subject to the tax" — no age test, no
+§72(t)(2) exceptions, no derivation from the 1099-R.
+
+Also absent: HSA distributions entirely (Form 8889 Part II, the 20%
+non-qualified additional tax); partial-year HDHP proration and the
+last-month/testing-period rules (§223(b)(7)-(8)), despite `guides.ts:135`
+telling the operator month-based limits matter.
+
+### C. Income categories with no computation at all
+
+| 1040 line | Category | State |
+|---|---|---|
+| 6a/6b | Social Security | extracted, and used ONLY as an Illinois subtraction. NO federal §86/Pub 915 taxable-portion worksheet. Declared `in_development` in 2025.CAPABILITIES.json; gate 1 blocks it |
+| Sch 1 L5 | Rental real estate (Sch E Part I) | no intake path AND no computation |
+| Sch 1 L7 | Unemployment (1099-G) | zero occurrences repo-wide |
+| Sch 1 L8 | Other income | absent (the `other_income_*` ids are entity Sch K items) |
+| Sch 1 L1/L2 | State tax refunds; alimony | absent |
+
+4a/4b and 5a/5b are ONE undifferentiated `income.retirement` bucket — no
+separate IRA-distribution line.
+
+Credits: **no Child Tax Credit and no EITC anywhere.**
+
+### D. Form 8606 is write-only
+
+Current-year nondeductible IRA amounts are emitted with
+`formula_ref FED.F8606.LINE1`, but there is no prior-year basis carry-in,
+no cumulative basis register, no Part I pro-rata recovery, and NO 8606 in
+`rules/fixtures/forms/2025.FORMS.FED.json`. A critic tells the operator to
+file it by hand.
+
+### E. Computed retirement amounts never reach form lines
+
+`2025.FORMS.FED.json` maps only `1040.5b ← fed.retirement.total` and
+`SCH2.8 ← fed.tax.early_distribution`. There is no SCH1.13 (HSA), SCH1.16
+(SEP), SCH1.20 (IRA), or 1040 line 1h (excess deferral). The HSA/IRA/SEP
+excises reach the return only inside the `SCH2.21` aggregate, whose label
+still reads "Part II total other taxes (SE + 8959 + 8960)" — stale and now
+understated.
+
+### F. Guardrails that exist but cannot fire
+
+- `IRS-INCOME-RECON` reconciles every income fact against an IRS Wage &
+  Income transcript. Production has NO `IRS_WI_TRANSCRIPT` intake path, so
+  `applies_when` returns false and the critic silently never runs. It
+  fires only in tests.
+- The P98 retirement critics are registered by the web app but NOT by
+  `packages/gates/src/harness.ts:152` — so a harness-driven run skips them.
+- `sep.min_compensation` (§408(k)(2) eligibility) is loaded and never read.
+  The SIMPLE §408(p)(2)(E) 110% small-employer limits are declared
+  not-modeled in the rule note with no code to flag a filer claiming them.
+
+### G. Critics the operator believed existed
+
+Of six named — CPA, Tax Compliance, Tax Rule, Calculation, Evidence, Tax
+Auditor — **four do not exist at all**, by that name or an equivalent.
+"Accountant" is a LENS tag shared by 21 critics, not a critic.
+`ACC-TIEOUT-FORM` is the Calculation equivalent and
+`ACC-EVID-SUFFICIENCY` the Evidence one. There are 24 real critics, but
+only gates 2, 4 and 5 have any; gates 0, 1, 3 and 6 are hardcoded engine
+checks.
+
+### H. Foreign-currency gaps (15CA/15CB)
+
+- The rate is looked up at the date PRINTED ON THE CERTIFICATE, which for a
+  15CA/15CB is the REMITTANCE date — routinely weeks or months after the
+  sale §1001 wants. There is no separate sale-date field; the code's own
+  comments read "remittance / sale date" as though they were one thing.
+  Now stated explicitly in the lookup message, the Add Data hint and the
+  kernel's lineage trail, with the override path named. A real sale-date
+  field remains open.
+- One rate is applied to both proceeds and basis (strictly: sale-date and
+  acquisition-date respectively) — already recorded in the trail.
+- NO critic detects a 15CA/15CB gain that OVERLAPS a 1099-B entry for the
+  same sale. The kernel prevents the legacy-line double count; it cannot
+  see the same sale entered through two intake paths.
+
+### Other verified-fine areas (recorded so they are not re-audited)
+
+Income sequence is deterministic and form-ordered; two independent kernels
+must agree on 12 headline lines across 40 goldens, with isolation enforced.
+HSA/IRA/Roth/401(k) CONTRIBUTION limits, §219(g) deductibility phase-out
+(MAGI × filing status × W-2 box 13), Roth MAGI phase-out, the 60–63 super
+catch-up (correctly replacing, not stacking), Schedule D/8949 with wash
+sales and carryovers, and K-1 basis/§465/§469 are all implemented with
+tests. Form 1116 is byte-identical to TaxOS (322 lines, verbatim).
 
 ## Operator decisions on record
 

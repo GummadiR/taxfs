@@ -28,7 +28,7 @@ export interface AddDataDto {
     doc_date: string | null; currency: string | null;
     has_income: boolean; has_ltcg: boolean; has_rate: boolean;
   };
-  caploss: { st: string | null; lt: string | null; from_worksheet: boolean };
+  caploss: { st: string | null; lt: string | null; from_worksheet: boolean; st_entries: number; lt_entries: number };
 }
 
 function titleOf(src: SourceDoc | undefined): string | null {
@@ -96,8 +96,16 @@ export async function getAddData(userId: string, ws: string): Promise<AddDataDto
   const hasForeignIncome = facts.some((f) => f.concept === C.FOREIGN_INCOME || f.concept === C.FOREIGN_INCOME_FCY);
   const hasLtcg = facts.some((f) => f.concept === 'foreign.income.passive.ltcg.foreign_currency');
   // P86 — surface what is ALREADY saved for the capital-loss carryover.
-  const stFact = facts.find((f) => f.concept === C.CAPLOSS_CO_ST_PRIOR);
-  const ltFact = facts.find((f) => f.concept === C.CAPLOSS_CO_LT_PRIOR);
+  // COUNT them, do not just find one. A carryover saved by the worksheet AND
+  // typed again on Documents is subtracted TWICE by the kernel, which sums
+  // every confirmed fact; this card used to `.find()` the first and display
+  // it alone, so the screen showed one entry while the return used two.
+  const confirmedFor = (concept: string) =>
+    facts.filter((f) => f.concept === concept && f.derivation === undefined && f.status === 'confirmed');
+  const stAll = confirmedFor(C.CAPLOSS_CO_ST_PRIOR);
+  const ltAll = confirmedFor(C.CAPLOSS_CO_LT_PRIOR);
+  const stFact = stAll[0];
+  const ltFact = ltAll[0];
   const fromWorksheet = [stFact, ltFact].some(
     (f) => f?.provenance?.[0]?.source_id.startsWith('worksheet-caploss-') === true,
   );
@@ -108,6 +116,9 @@ export async function getAddData(userId: string, ws: string): Promise<AddDataDto
       st: stFact?.value.toString() ?? null,
       lt: ltFact?.value.toString() ?? null,
       from_worksheet: fromWorksheet,
+      // >1 means the kernel is subtracting this carryover more than once.
+      st_entries: stAll.length,
+      lt_entries: ltAll.length,
     },
     brokerage: [...byTitle.entries()].map(([source_title, concepts]) => ({ source_title, concepts })),
     ptc: {

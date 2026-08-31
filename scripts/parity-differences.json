@@ -30,7 +30,7 @@
 
   "documents": {
     "controls": {
-      "kind": "Same control, named 'concept' — and constrained to the registered concept list rather than a free string.",
+      "kind": "Same control, named 'concept' — and constrained to the registered concept list rather than a free string. Its list was cut from 61 choices to 8, which is what the widest-dropdown check now exists to catch; restored to 66 across seven optgroups.",
       "override": "TODO: TaxOS let the operator say 'my typed value is correct, the document differs from the scan' and proceed. TaxFS refuses a mismatch and offers nothing, so a misread number is a dead end. Restore the override WITH its recorded reason - the point is that the operator's reading wins over the machine's, on the record.",
       "source_ids": "TODO: TaxOS could tick several documents and remove them in one pass (one recompute at the end). TaxFS removes one at a time."
     },

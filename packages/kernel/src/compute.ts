@@ -205,7 +205,7 @@ export function compute(input: KernelInput): KernelResult {
       // P68 — two things a foreign certificate CANNOT settle, said plainly on
       // the record because getting either wrong is a large, quiet error.
       'THE US GAIN IS NOT THE CERTIFICATE FIGURE: a foreign certificate states income chargeable under FOREIGN law — India, for instance, indexes the cost of acquisition for inflation and the US does not (§1001: amount realized − adjusted basis, no indexation). Enter the US-measured gain, not the remittance and not the foreign chargeable amount.',
-      `SIMPLIFIED: one exchange rate is applied to everything. Strictly the amount realized is translated at the SALE-date spot rate and the basis at the ACQUISITION-date rate, so a long-held asset carries an exchange component this single rate cannot express (recorded gap). ${fcyLtcg.inputs.length > 0 ? 'The long-term portion supplied here must reflect the US holding period (§1222(3): more than one year) — not the foreign law\'s own long-term test.' : 'No long-term portion was supplied, so ALL of this is taxed at ordinary rates.'}`,
+      `SIMPLIFIED: one exchange rate is applied to everything. Strictly the amount realized is translated at the SALE-date spot rate and the basis at the ACQUISITION-date rate, so a long-held asset carries an exchange component this single rate cannot express (recorded gap). WHICH DATE THIS RATE CAME FROM MATTERS: a 15CA/15CB certifies money LEAVING the country, which routinely happens weeks or months after the sale, and an automatic lookup can only use the date the certificate prints. §1001 wants the SALE date. Check the rate's own date against your sale date; if they differ, supply the sale-date rate. ${fcyLtcg.inputs.length > 0 ? 'The long-term portion supplied here must reflect the US holding period (§1222(3): more than one year) — not the foreign law\'s own long-term test.' : 'No long-term portion was supplied, so ALL of this is taxed at ordinary rates.'}`,
     );
   }
 
@@ -1976,7 +1976,19 @@ export function compute(input: KernelInput): KernelResult {
     const aptc = sumOfConcept(input, C.PTC_APTC);
     if (premium.inputs.length > 0 || slcsp.inputs.length > 0 || aptc.inputs.length > 0) {
       if (!fed.ptc) throw new Error('kernel: 1095-A facts present but rule data lacks ptc parameters');
+      // The tax family size sets the FPL the credit is measured against, so
+      // it is not a figure that may be assumed. It used to fall back to a
+      // household of ONE whenever it was absent. Add Data does prompt for it
+      // once a 1095-A premium is detected, but that is a prompt, not a gate:
+      // skip it and a family of four was scored far higher up the FPL scale
+      // and, near the 400% cliff, repaid the entire advance credit. Missing
+      // data THROWS; it never defaults.
       const sizeRaw = sumOfConcept(input, C.PTC_HOUSEHOLD_SIZE);
+      if (sizeRaw.inputs.length === 0) {
+        throw new Error(
+          'kernel: 1095-A facts are on the return but the tax family size (ptc.household_size, Form 8962 line 1) is missing. It sets the federal poverty line the premium credit is measured against and cannot be assumed — enter it on Documents.',
+        );
+      }
       const size = Money.max(Money.fromString('1'), sizeRaw.total.roundToDollar());
       const fpl = Money.fromString(fed.ptc.fpl_base).add(
         Money.fromString(fed.ptc.fpl_per_additional).mulRate(size.sub(Money.fromString('1')).toString()),

@@ -70,3 +70,65 @@ describe('comparing button labels', () => {
     expect(reduce('Save filing context')).not.toBe(reduce('Save filing identity'));
   });
 });
+
+/**
+ * The dropdown blind spot (found the hard way).
+ *
+ * The manual-entry picker was `kind` in TaxOS and `concept` here. Comparing
+ * control NAMES made that look like a rename, and it was excused as one —
+ * while the list behind it went from 61 choices to 8, leaving most of a real
+ * return unenterable: itemized deductions, foreign tax paid, tax-exempt
+ * interest, the estimated-tax penalty. Same control, a fraction of the
+ * capability, and the checker said nothing.
+ */
+describe('counting what a dropdown actually offers', () => {
+  it('counts options written out literally', () => {
+    const s = surfaceOf([`
+      <select name="kind">
+        <option value="a">A</option>
+        <option value="b">B</option>
+        <option value="c">C</option>
+      </select>
+    `]);
+    expect(s.choices['kind']).toBe(3);
+  });
+
+  it('counts options rendered from a mapped array — a looped list is not an empty one', () => {
+    const s = surfaceOf([`
+      const MANUAL = [{ concept: 'a' }, { concept: 'b' }, { concept: 'c' }, { concept: 'd' }];
+      export function P() {
+        return <select name="concept">{MANUAL.map((c) => <option key={c.concept}>{c.concept}</option>)}</select>;
+      }
+    `]);
+    // Four from the array; the single literal <option> inside the loop is the
+    // template for them, so it must not be added on top.
+    expect(s.choices['concept']).toBe(5);
+  });
+
+  it('resolves the array through a filter, as an optgroup render does', () => {
+    const s = surfaceOf([`
+      const MANUAL = [{ g: 'x' }, { g: 'x' }, { g: 'y' }];
+      export function P() {
+        return <select name="concept">
+          {GROUPS.map((g) => <optgroup key={g}>{MANUAL.filter((c) => c.g === g).map((c) => <option/>)}</optgroup>)}
+        </select>;
+      }
+    `]);
+    expect(s.choices['concept']).toBeGreaterThanOrEqual(3);
+  });
+
+  it('SEES a gutted list — the regression that shipped (negative test)', () => {
+    const big = `const L = [${'{a:1},'.repeat(61)}]; <select name="kind">{L.map(() => <option/>)}</select>`;
+    const small = `const L = [${'{a:1},'.repeat(8)}]; <select name="concept">{L.map(() => <option/>)}</select>`;
+    const before = Math.max(...Object.values(surfaceOf([big]).choices));
+    const after = Math.max(...Object.values(surfaceOf([small]).choices));
+    expect(before).toBeGreaterThan(60);
+    expect(after).toBeLessThan(10);
+    // The comparison the checker makes: keeping under 60% of the choices fails.
+    expect(after).toBeLessThan(before * 0.6);
+  });
+
+  it('a select with no name is skipped rather than counted under a wrong key', () => {
+    expect(surfaceOf(['<select><option/><option/></select>']).choices).toEqual({});
+  });
+});

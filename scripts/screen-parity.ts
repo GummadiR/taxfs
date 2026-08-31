@@ -13,6 +13,7 @@
  *
  *   - every form control (input / select / textarea) by its `name`
  *   - every button by its label
+ *   - how many CHOICES each dropdown offers
  *
  * Copy is deliberately NOT compared: rewording is legitimate, and comparing
  * prose would drown the real signal in noise. A missing control or a missing
@@ -60,7 +61,7 @@ interface ScreenMap {
 
 const SCREENS: ScreenMap[] = [
   { taxos: 'get-started', taxfs: 'get-started' },
-  { taxos: 'documents', taxfs: 'documents' },
+  { taxos: 'documents', taxfs: 'documents', taxfsExtra: ['server/demo-docs.ts'] },
   { taxos: 'data', taxfs: 'data' },
   { taxos: 'interview', taxfs: 'interview' },
   {
@@ -86,6 +87,19 @@ export interface ScreenSurface {
   controls: string[];
   /** Label of every button — what the operator can do. */
   buttons: string[];
+  /**
+   * Literal <option> count per select `name`.
+   *
+   * The blind spot this closes: the manual-entry dropdown was named `kind` in
+   * TaxOS and `concept` here, which looked like a rename and was excused as
+   * one — while the list behind it went from 61 choices to 8, leaving most of
+   * a real return unenterable. Same control, a fraction of the capability.
+   * Options written literally are counted directly; options rendered from a
+   * `.map()` are counted by resolving that array's literal length in the
+   * scanned sources, so a list keeps its size whether it is typed out or
+   * looped over.
+   */
+  choices: Record<string, number>;
 }
 
 const CONTROL_TAGS = new Set(['input', 'select', 'textarea']);
@@ -146,6 +160,20 @@ export function reduce(label: string): string {
 export function surfaceOf(sources: string[]): ScreenSurface {
   const controls = new Set<string>();
   const buttons = new Set<string>();
+  const choices: Record<string, number> = {};
+  /** `const NAME = [...]` lengths, so a mapped <option> list can be sized. */
+  const arrayLengths = new Map<string, number>();
+  for (const text of sources) {
+    const sf = ts.createSourceFile('a.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const collect = (n: ts.Node): void => {
+      if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer
+          && ts.isArrayLiteralExpression(n.initializer)) {
+        arrayLengths.set(n.name.text, n.initializer.elements.length);
+      }
+      n.forEachChild(collect);
+    };
+    collect(sf);
+  }
   for (const text of sources) {
     const sf = ts.createSourceFile('x.tsx', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const walk = (n: ts.Node): void => {
@@ -160,11 +188,33 @@ export function surfaceOf(sources: string[]): ScreenSurface {
         const label = buttonLabel(n);
         if (label) buttons.add(label);
       }
+      if (ts.isJsxElement(n) && tagName(n.openingElement) === 'select') {
+        const name = stringAttr(n.openingElement, 'name');
+        if (name) {
+          let literal = 0;
+          const mapped = new Set<string>();
+          const scan = (x: ts.Node): void => {
+            if ((ts.isJsxOpeningElement(x) || ts.isJsxSelfClosingElement(x)) && tagName(x) === 'option') literal += 1;
+            // `X.map(...)` / `X.filter(...).map(...)` — the list behind the loop.
+            if (ts.isCallExpression(x) && ts.isPropertyAccessExpression(x.expression)) {
+              let root: ts.Expression = x.expression.expression;
+              while (ts.isCallExpression(root) && ts.isPropertyAccessExpression(root.expression)) {
+                root = root.expression.expression;
+              }
+              if (ts.isIdentifier(root)) mapped.add(root.text);
+            }
+            x.forEachChild(scan);
+          };
+          n.forEachChild(scan);
+          const fromArrays = [...mapped].reduce((sum, id) => sum + (arrayLengths.get(id) ?? 0), 0);
+          choices[name] = Math.max(choices[name] ?? 0, literal + fromArrays);
+        }
+      }
       n.forEachChild(walk);
     };
     walk(sf);
   }
-  return { controls: [...controls].sort(), buttons: [...buttons].sort() };
+  return { controls: [...controls].sort(), buttons: [...buttons].sort(), choices };
 }
 
 function readAll(paths: string[]): string[] {
@@ -185,8 +235,18 @@ const SNAPSHOT = join(repoRoot, 'scripts/taxos-screen-surface.json');
 const DIFFERENCES = join(repoRoot, 'scripts/parity-differences.json');
 
 interface Differences {
-  [screen: string]: { controls?: Record<string, string>; buttons?: Record<string, string> };
+  [screen: string]: {
+    controls?: Record<string, string>;
+    buttons?: Record<string, string>;
+    /** Key '*' excuses the widest-dropdown comparison for that screen. */
+    choices?: Record<string, string>;
+  };
 }
+
+/** Below this many choices a list is too small for the ratio to mean anything. */
+const CHOICE_FLOOR = 5;
+/** Keeping at least this share of the reference's choices passes. */
+const CHOICE_TOLERANCE = 0.6;
 
 function snapshot(taxosRoot: string): number {
   if (!existsSync(join(taxosRoot, 'apps/web/src/app'))) {
@@ -252,6 +312,18 @@ function compare(): number {
     for (const label of ref.buttons) {
       if (mineReduced.has(reduce(label))) continue;
       record(excused.buttons?.[label], `${m.taxfs}: the operator could press “${label}” in TaxOS and cannot here`);
+    }
+    // A dropdown that survived as a control but lost most of its list is a
+    // lost capability wearing the same name. Compare the biggest list on the
+    // screen, so a rename between the repos does not hide a gutted one.
+    const widest = (s2: ScreenSurface): number => Math.max(0, ...Object.values(s2.choices));
+    const refWide = widest(ref);
+    const mineWide = widest(mine);
+    if (refWide >= CHOICE_FLOOR && mineWide < refWide * CHOICE_TOLERANCE) {
+      record(
+        excused.choices?.['*'],
+        `${m.taxfs}: the widest dropdown offers ${mineWide} choices where TaxOS offered ${refWide}`,
+      );
     }
   }
 

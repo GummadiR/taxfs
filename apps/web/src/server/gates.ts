@@ -2,6 +2,8 @@
 import {
   CriticRegistry,
   Orchestrator,
+  createDuplicateSingularCritics,
+  createEstTaxPenaltyCritics,
   createF7RemainingCritics,
   createP98RetirementCritics,
   createStep1Critics,
@@ -9,6 +11,7 @@ import {
 import { EventBus, type Clock, type FilingContext, type GateRun } from '@taxfs/shared';
 import type { SpineBackend } from '@taxfs/spine';
 import { releases } from './rules';
+import { estTaxRules } from './yearround';
 
 class RealClock implements Clock {
   nowIso(): string {
@@ -18,7 +21,7 @@ class RealClock implements Clock {
 
 export function buildOrchestrator(spine: SpineBackend, filing: FilingContext): Orchestrator {
   const registry = new CriticRegistry();
-  for (const critic of [...createStep1Critics(), ...createF7RemainingCritics(), ...createP98RetirementCritics()]) {
+  for (const critic of [...createStep1Critics(), ...createF7RemainingCritics(), ...createP98RetirementCritics(), ...createEstTaxPenaltyCritics(), ...createDuplicateSingularCritics()]) {
     registry.register(critic);
   }
   return new Orchestrator(
@@ -28,6 +31,9 @@ export function buildOrchestrator(spine: SpineBackend, filing: FilingContext): O
     filing,
     { fed: releases().fedRules, il: releases().ilRules },
     new RealClock(),
+    // §6654 de-minimis floor, so the est-tax critic can tell "a penalty is
+    // possible" from "it cannot be". Without it the critic stays silent.
+    estTaxRules(),
   );
 }
 

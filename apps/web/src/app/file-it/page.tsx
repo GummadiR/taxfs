@@ -164,6 +164,7 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
       </section>
       <IdentityPanel
         workspaceId={ws.workspace_id}
+        joint={filing?.filing_status === 'mfj'}
         pdfs={(rows[0]?.pdfs ?? []).map((p) => ({ ...p, package_id: rows[0]!.package_id }))}
       />
     </main>

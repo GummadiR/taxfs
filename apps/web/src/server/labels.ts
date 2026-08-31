@@ -6,8 +6,8 @@
  * lineage. Deliberately figure-free — dollar amounts live in rule-data and
  * the lineage, never baked into prose where they could drift.
  */
-import type { SourceDoc, TaxFact } from '@taxfs/shared';
-import { documentDisplayName } from './docstore';
+import { C, Money, type SourceDoc, type TaxFact } from '@taxfs/shared';
+import { documentDisplayName } from './doc-ref';
 import { TAX_YEAR } from './env';
 
 /** Federal Review lines, in reading order. Lines render only when computed. */
@@ -251,7 +251,17 @@ export function fmtUsd(v: string): string {
 
 /** Compose the top-of-Review narrative from computed facts — reads what the
  *  kernel emitted, computes nothing. */
-export function buildSummary(facts: readonly TaxFact[], filingStatus: string): { fed: string[]; il: string[] } | null {
+export function buildSummary(
+  facts: readonly TaxFact[],
+  filingStatus: string,
+  /**
+   * The §6654(e)(1) de-minimis balance-due floor, from rule data. Passed in
+   * rather than looked up here because this module is deliberately
+   * figure-free. Omitted → the penalty sentence is not written at all,
+   * because without the floor we cannot say whether one is even possible.
+   */
+  estTaxPenaltyFloor?: string,
+): { fed: string[]; il: string[] } | null {
   const v = (concept: string): string | null =>
     facts.find((f) => f.concept === concept && f.derivation !== undefined)?.value.toString() ?? null;
   const totalIncome = v('fed.total_income');
@@ -300,6 +310,26 @@ export function buildSummary(facts: readonly TaxFact[], filingStatus: string): {
         ? `You have paid in ${fmtUsd(payments)}, so you owe ${fmtUsd(refund.slice(1))} with the return.`
         : `You have paid in ${fmtUsd(payments)}, so your refund is ${fmtUsd(refund)}.`,
     );
+  }
+  // §6654: "you owe X" is only the whole truth if X includes any
+  // underpayment penalty. A penalty entered by the operator is already inside
+  // refund_or_due (both kernels subtract it), so say it is counted. With none
+  // entered and the balance at or above the de-minimis floor, the sentence
+  // above is INCOMPLETE, and silence would read as "TaxFS computed zero".
+  if (refund && estTaxPenaltyFloor !== undefined) {
+    const entered = facts.find(
+      (f) => f.concept === C.FED_EST_TAX_PENALTY && f.derivation === undefined && f.status === 'confirmed',
+    );
+    if (entered) {
+      fed.push(`That figure includes the ${fmtUsd(entered.value.toString())} Form 2210 underpayment penalty you entered.`);
+    } else if (refund.startsWith('-')) {
+      const owed = Money.fromString(refund.slice(1));
+      if (!owed.lt(Money.fromString(estTaxPenaltyFloor))) {
+        fed.push(
+          `That figure does NOT include a Form 2210 underpayment penalty. Owing ${fmtUsd(refund.slice(1))} is at or above the §6654(e)(1) floor, so the IRS may charge one — the prior-year safe harbour may also cancel it. TaxFS has not computed an amount and is not claiming it is zero. See the Gates board.`,
+        );
+      }
+    }
   }
   const il: string[] = [];
   const ilBase = v('il.base_income');

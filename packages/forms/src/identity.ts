@@ -163,12 +163,71 @@ export function applyIlIdentityFields(form: Form, id: FilingIdentity): void {
  *  Step-1 identity blocks). Errors are LOUD: a value that cannot land in its
  *  field must never silently print an empty box (the P92 lesson — the old
  *  swallow-and-continue printed a return with no SSN). */
+/**
+ * What a filable Step 1 needs, in the operator's words. Returns [] when the
+ * identity is complete.
+ *
+ * setIfPresent SKIPS an absent value by design — that is right for an
+ * optional field and wrong for a required one, because the two are
+ * indistinguishable at the point of filling. Without this check an EMPTY
+ * identity fills nothing, throws nothing, and hands back a PDF whose Step 1
+ * is blank while the UI reports success: exactly the swallowed-failure shape
+ * of P92, one layer up. The IL-1040 asks for name, full SSN, DOB and address
+ * on its face (P81), so a blank Step 1 is not a filable return.
+ *
+ * `joint` adds the spouse's fields — on a joint return an unnamed spouse is
+ * as unfilable as an unnamed taxpayer.
+ */
+export function missingIdentityFields(
+  identity: FilingIdentity,
+  formId: '1040' | 'IL1040' | string,
+  joint = false,
+): string[] {
+  const missing: string[] = [];
+  const blank = (v: string | undefined): boolean => (v ?? '').trim() === '';
+  const person = (p: PersonIdentity | undefined, who: string): void => {
+    if (blank(p?.first_name)) missing.push(`${who} first name`);
+    if (blank(p?.last_name)) missing.push(`${who} last name`);
+    // A partial SSN never reaches a form: 9 digits or it is missing.
+    if ((ssnDigits(p?.ssn) ?? '').length !== 9) missing.push(`${who} SSN (9 digits)`);
+    // Only the IL-1040 face carries a date of birth.
+    if (formId === 'IL1040' && blank(p?.dob)) missing.push(`${who} date of birth`);
+  };
+  person(identity.taxpayer, 'Your');
+  if (joint) person(identity.spouse, "Spouse's");
+  if (blank(identity.address_line)) missing.push('Street address');
+  if (blank(identity.city)) missing.push('City');
+  if (blank(identity.state)) missing.push('State');
+  if (blank(identity.zip)) missing.push('ZIP');
+  return missing;
+}
+
+/** The refusal, in one place, so the UI and the fill can never disagree. */
+export function incompleteIdentityMessage(missing: string[]): string {
+  return (
+    `nothing was filled in — ${missing.join(', ')} ${missing.length === 1 ? 'is' : 'are'} empty. ` +
+    'If you saved your details earlier, enter your passphrase and press Load first; ' +
+    'otherwise type them above. (They never leave this browser.)'
+  );
+}
+
+/**
+ * Fill the Step-1 identity block. REFUSES an incomplete identity rather than
+ * returning a PDF with silently empty boxes — see missingIdentityFields.
+ * Pass `{ allowIncomplete: true }` only for the deliberate identity-blank
+ * download, where empty boxes are the point.
+ */
 export async function fillIdentity(
   pdfBytes: Uint8Array,
   formId: '1040' | 'IL1040' | string,
   identity: FilingIdentity,
+  opts: { joint?: boolean; allowIncomplete?: boolean } = {},
 ): Promise<Uint8Array> {
   if (formId !== '1040' && formId !== 'IL1040') return pdfBytes;
+  if (!opts.allowIncomplete) {
+    const missing = missingIdentityFields(identity, formId, opts.joint ?? false);
+    if (missing.length > 0) throw new Error(incompleteIdentityMessage(missing));
+  }
   const doc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true, updateMetadata: false });
   if (formId === '1040') applyIdentityFields(doc.getForm(), identity);
   else applyIlIdentityFields(doc.getForm(), identity);

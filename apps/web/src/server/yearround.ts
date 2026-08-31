@@ -36,7 +36,7 @@ const PRIOR_TAX_KEY = 'esttax.prior_year_tax';
 function captureRules() {
   return loadCaptureRules(readFixture(`rules/fixtures/${TAX_YEAR}.CAPTURE-RULES.json`));
 }
-function estTaxRules() {
+export function estTaxRules() {
   return loadEstTaxRules(readFixture(`rules/fixtures/${TAX_YEAR}.ESTTAX.json`));
 }
 

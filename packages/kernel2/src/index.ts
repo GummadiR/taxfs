@@ -655,6 +655,14 @@ export function computeHeadlines(input: Kernel2Input): HeadlineLines {
   const ptcSlcsp = sum(facts, 'ptc.annual_slcsp');
   const ptcAptc = sum(facts, 'ptc.annual_aptc');
   if ((!ptcPremium.isZero() || !ptcSlcsp.isZero() || !ptcAptc.isZero()) && fed.ptc) {
+    // Same rule as kernel: the tax family size is never assumed. Kept in
+    // step deliberately — both kernels defaulted to one, so they AGREED on
+    // the wrong answer and the divergence check could not see it.
+    if (!facts.some((f) => f.concept === 'ptc.household_size')) {
+      throw new Error(
+        'kernel2: 1095-A facts are on the return but the tax family size (ptc.household_size, Form 8962 line 1) is missing. It sets the federal poverty line the premium credit is measured against and cannot be assumed — enter it on Documents.',
+      );
+    }
     const size = Money.max(D('1'), sum(facts, 'ptc.household_size'));
     const fpl = D(fed.ptc.fpl_base).add(D(fed.ptc.fpl_per_additional).mulRate(size.sub(D('1')).toString()));
     const income = Money.max(Money.zero(), agi);

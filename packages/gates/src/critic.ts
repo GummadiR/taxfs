@@ -29,6 +29,15 @@ export interface CriticContext {
   filing: FilingContext;
   fed_rules: RuleSet;
   il_rules: RuleSet;
+  /**
+   * §6654 / Form 2210 parameters, when the caller has them. Typed
+   * STRUCTURALLY rather than imported from @taxfs/defense: gates has no
+   * dependency on defense today, and one critic needing one threshold is not
+   * a reason to add a package edge. OPTIONAL on purpose, so every existing
+   * orchestrator construction site keeps compiling and a critic that needs
+   * it declares so in applies_when.
+   */
+  esttax_rules?: { de_minimis_balance_due: string };
 }
 
 /** A finding as produced by a critic; the gate engine assigns finding_id + gate. */
