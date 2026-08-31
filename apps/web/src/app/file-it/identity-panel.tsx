@@ -16,9 +16,18 @@ interface PdfRef {
   artifact_id: string;
   form_id: string;
   label: string;
+  /** Which locked version this artifact belongs to. */
+  version: number;
 }
 
 export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceId: string; joint?: boolean; pdfs: PdfRef[] }) {
+  // Every locked version keeps its own artifacts, and a version you already
+  // FILED is the one you may need a copy of later — so the download buttons
+  // must not be pinned to the newest. Newest is the default because it is
+  // what a fresh lock produces.
+  const versions = [...new Set(pdfs.map((p) => p.version))].sort((a, b) => b - a);
+  const [version, setVersion] = useState(versions[0] ?? 0);
+  const shown = pdfs.filter((p) => p.version === version);
   const [passphrase, setPassphrase] = useState('');
   const [status, setStatus] = useState<string>('');
   /** Which click is in flight — every button disables while one runs, so a
@@ -89,12 +98,29 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
       }
     }
     const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' }));
+    const name = `${ref.form_id}${withIdentity ? '' : '-identity-blank'}.pdf`;
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${ref.form_id}${withIdentity ? '' : '-identity-blank'}.pdf`;
+    a.download = name;
+    a.rel = 'noopener';
+    // The anchor must be IN the document: a detached one is ignored outright
+    // by some browsers, so the click did nothing and the button just went
+    // back to normal.
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
-      setStatus(`${ref.label} downloaded${withIdentity ? ' with identity filled in this browser' : ' (identity blank)'}.`);
+    a.remove();
+    // Revoke LATER. Revoking synchronously after click() destroys the blob
+    // before the browser has finished reading it, which cancels the download
+    // silently — the operator sees "Preparing…", then nothing, and no error.
+    // That is what made this look like it had done nothing at all.
+    globalThis.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      // Say the FILENAME: a download that lands in the browser's downloads
+      // folder is invisible from this page, and "downloaded" alone left the
+      // operator hunting for something they could not see.
+      setStatus(
+        `${name} saved to your browser's downloads${withIdentity ? ', with your name and SSN filled in on this machine' : ' (identity deliberately blank)'}.`,
+      );
     } finally {
       setBusy(null);
     }
@@ -154,6 +180,22 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
       {pdfs.length > 0 ? (
         <div className="mt-4">
           <h3 className="text-sm font-semibold">Print-ready downloads (filled in this browser)</h3>
+          {versions.length > 1 ? (
+            <label className="mt-1 block text-xs text-slate-600">
+              Version to download{' '}
+              <select
+                data-testid="download-version"
+                value={version}
+                onChange={(e) => setVersion(Number(e.target.value))}
+                className="rounded border border-slate-300 p-1 text-xs"
+              >
+                {versions.map((v) => (
+                  <option key={v} value={v}>v{v}{v === versions[0] ? ' (newest)' : ''}</option>
+                ))}
+              </select>
+              {' '}— each locked version keeps its own PDFs, so a version you already filed stays retrievable.
+            </label>
+          ) : null}
           {/* Say what is missing BEFORE the click. The panel starts empty on
               every page load — a saved identity lives encrypted in this
               browser and only comes back when you press Load — so "I printed
@@ -163,7 +205,7 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
             // hardcoded one: only the IL-1040 face carries a date of birth,
             // so demanding it when there is no IL form to print is nagging
             // about a field nothing needs.
-            const strictest = pdfs.some((p) => p.form_id === 'IL1040') ? 'IL1040' : '1040';
+            const strictest = shown.some((p) => p.form_id === 'IL1040') ? 'IL1040' : '1040';
             const missing = missingIdentityFields(id, strictest, joint);
             return missing.length === 0 ? (
               <p className="mt-1 text-xs text-emerald-700" data-testid="identity-ready">
@@ -178,7 +220,7 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
             );
           })()}
           <div className="mt-2 flex flex-wrap gap-2">
-            {pdfs.map((ref) => (
+            {shown.map((ref) => (
               <span key={ref.artifact_id} className="flex gap-1">
                 <button onClick={() => download(ref, true)} data-testid={`download-${ref.form_id}`} disabled={busy !== null}
                   className="rounded bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-wait disabled:opacity-60">

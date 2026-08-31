@@ -138,8 +138,9 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
         <p className="mt-1 text-xs text-slate-600" data-testid="package-list-help">
           Every lock keeps its own immutable row — manifest, validation report and artifact hashes — so a
           filed return can always be reproduced. That is why there is no delete: removing a version would
-          destroy the record of what was filed. The download buttons at the bottom of this page always serve
-          the NEWEST version{rows[0] ? ` (v${rows[0].version})` : ''}; earlier versions stay as history.
+          destroy the record of what was filed. Every version stays downloadable — pick it in{' '}
+          <span className="font-semibold">Print-ready downloads</span> below, which opens on the newest
+          {rows[0] ? ` (v${rows[0].version})` : ''}.
         </p>
         <table className="mt-2 w-full text-sm" data-testid="package-list">
           <thead><tr className="text-left text-xs text-slate-500"><th>Version</th><th>Status</th><th>Forms</th><th>Created</th></tr></thead>
@@ -171,7 +172,9 @@ export default async function FileIt({ searchParams }: { searchParams: Promise<{
       <IdentityPanel
         workspaceId={ws.workspace_id}
         joint={filing?.filing_status === 'mfj'}
-        pdfs={(rows[0]?.pdfs ?? []).map((p) => ({ ...p, package_id: rows[0]!.package_id }))}
+        // EVERY locked version's artifacts, not just the newest: a version
+        // you already filed is the one you may need a copy of later.
+        pdfs={rows.flatMap((r) => r.pdfs.map((p) => ({ ...p, package_id: r.package_id, version: r.version })))}
       />
     </main>
   );
