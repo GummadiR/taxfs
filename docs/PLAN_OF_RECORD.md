@@ -526,6 +526,44 @@ here. They print by name on every run and their reasons live in
    extraction mapping and a critic but no manual entry path, so with
    extraction off it cannot be supplied.
 
+1e. **DONE — a capital-loss carryover entered twice was subtracted twice.**
+   THE root cause of the CPA tie-out gap, found by arithmetic rather than
+   by reading code: entering the carryovers moved total income by 84,820,
+   which is EXACTLY 2 x the 42,410 of carryovers (367,696 - 2 x 42,410 =
+   282,876, the figure on screen to the dollar).
+
+   The kernel reads every concept with `sumOfConcept`, which ADDS every
+   confirmed fact. Right for wages and interest; silently wrong for a
+   Schedule D carryover, which is one figure from one worksheet. The Add
+   Data card looked it up with `.find()`, so the screen displayed ONE entry
+   under a green "Already on your return — nothing further is needed" while
+   the return used two.
+
+   | line | TaxFS | CPA |
+   |---|---:|---:|
+   | Schedule D capital gain | 48,517 | 89,824 |
+   | Total income | 282,876 | 328,668 |
+   | Total tax | 35,277 | 43,859 |
+   | balance | 2,509 refund | 11,362 due |
+
+   Everything downstream followed: taxable income, the NIIT (correct for
+   its own AGI: (282,876-250,000) x 3.8% = 1,249), and the §904 limitation
+   on the foreign tax credit, which scales with US tax. Itemized deductions
+   (32,961), QBID (29) and Additional Medicare (90) matched the CPA to the
+   dollar throughout, which is what identified this as an INPUT defect and
+   not a computation one.
+
+   Fixed: `SINGULAR_CONCEPTS` in shared names the figures that can never
+   legitimately arrive twice (both carryovers, the 8962 family size, both
+   2210 penalties), and critic `ACC-SINGULAR-CONCEPT-DOUBLED` fires Error on
+   gate 0 when one has more than one confirmed fact — blocking, because the
+   operator cannot see the duplicate on any screen. The Add Data card now
+   COUNTS entries and shows a red warning instead of the green all-clear.
+
+   Wages, interest, dividends and HSA employer contributions are explicitly
+   NOT on the list, with a test pinning that: they genuinely have several
+   payers, and listing one would block a correct return.
+
 2. **Documents — the operator's reading must be able to beat the machine's.**
    TaxOS's confirm carried an `override` checkbox: "my typed value is
    correct (document differs from scan)". TaxFS refuses a mismatch and

@@ -315,6 +315,30 @@ export const FED_INCOME_CONCEPTS: readonly string[] = [
 /** Concepts a third-party form is expected to report (doc-match / transcript).
  *  P14.9: interest/dividend/capital-gain facts may also arrive on a combined
  *  brokerage statement (CONSOLIDATED-1099) — any listed form satisfies. */
+/**
+ * Concepts that are SINGULAR by law: each is exactly one figure on exactly
+ * one line, taken from one worksheet. The kernel reads every concept with
+ * `sumOfConcept`, which ADDS every confirmed fact — right for wages (many
+ * W-2s) and interest (many 1099-INTs), and silently wrong for these, where a
+ * second entry is never a second source, only the same figure counted twice.
+ *
+ * This is not hypothetical: a capital-loss carryover entered on both the Add
+ * Data worksheet and the Documents typed-entry picker doubled, taking
+ * $42,410 off Schedule D with nothing on any screen to say so. The Add Data
+ * card uses `.find()`, so it showed ONE entry while the kernel summed two.
+ *
+ * Adding a concept here asserts it can never legitimately arrive twice.
+ * Wages, interest, dividends and HSA employer contributions must NOT be
+ * here — those genuinely have several payers.
+ */
+export const SINGULAR_CONCEPTS: readonly string[] = [
+  C.CAPLOSS_CO_ST_PRIOR, // Schedule D line 6, from the Carryover Worksheet
+  C.CAPLOSS_CO_LT_PRIOR, // Schedule D line 14, from the Carryover Worksheet
+  C.PTC_HOUSEHOLD_SIZE, // Form 8962 line 1 — a COUNT; two entries of 4 make 8
+  C.FED_EST_TAX_PENALTY, // Form 2210 — one figure for the return
+  C.IL_EST_TAX_PENALTY, // IL-2210 — likewise
+];
+
 export const THIRD_PARTY_FORM_BY_CONCEPT: Readonly<Record<string, readonly string[]>> = {
   [C.WAGES]: ['W-2'],
   [C.INTEREST]: ['1099-INT', 'CONSOLIDATED-1099'],

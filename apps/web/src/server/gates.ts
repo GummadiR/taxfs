@@ -2,6 +2,7 @@
 import {
   CriticRegistry,
   Orchestrator,
+  createDuplicateSingularCritics,
   createEstTaxPenaltyCritics,
   createF7RemainingCritics,
   createP98RetirementCritics,
@@ -20,7 +21,7 @@ class RealClock implements Clock {
 
 export function buildOrchestrator(spine: SpineBackend, filing: FilingContext): Orchestrator {
   const registry = new CriticRegistry();
-  for (const critic of [...createStep1Critics(), ...createF7RemainingCritics(), ...createP98RetirementCritics(), ...createEstTaxPenaltyCritics()]) {
+  for (const critic of [...createStep1Critics(), ...createF7RemainingCritics(), ...createP98RetirementCritics(), ...createEstTaxPenaltyCritics(), ...createDuplicateSingularCritics()]) {
     registry.register(critic);
   }
   return new Orchestrator(

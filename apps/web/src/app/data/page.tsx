@@ -409,7 +409,24 @@ export default async function DataEntry({ searchParams }: { searchParams: Promis
             vertically with no framing, so the helper read as step 1 and the
             entry boxes as a mandatory step 2. They are alternatives: say so,
             and show what is already saved so "done" is visible. */}
-        {detected.caploss.st !== null || detected.caploss.lt !== null ? (
+        {detected.caploss.st_entries > 1 || detected.caploss.lt_entries > 1 ? (
+          /* The kernel SUMS every confirmed fact for a concept, so a
+             carryover saved by the worksheet and typed again on Documents is
+             subtracted twice. This card used to show only the first entry,
+             under a green "nothing further is needed" — which is how a
+             doubled carryover stayed invisible while it moved thousands. */
+          <p
+            className="mt-2 rounded border border-red-300 bg-red-50 p-2 text-xs text-red-900"
+            data-testid="caploss-duplicate"
+          >
+            <span className="font-semibold">Entered more than once — your return is subtracting it twice.</span>{' '}
+            {detected.caploss.st_entries > 1 ? `Short-term has ${detected.caploss.st_entries} entries. ` : ''}
+            {detected.caploss.lt_entries > 1 ? `Long-term has ${detected.caploss.lt_entries} entries. ` : ''}
+            A carryover is ONE figure from the Carryover Worksheet, so a second entry is the same loss counted
+            again, not a second source. Open <a className="font-semibold underline" href="/documents">Documents</a>{' '}
+            and remove all but one. The gates block filing until you do.
+          </p>
+        ) : detected.caploss.st !== null || detected.caploss.lt !== null ? (
           <p
             className="mt-2 rounded border border-emerald-300 bg-emerald-50 p-2 text-xs text-emerald-900"
             data-testid="caploss-saved"
