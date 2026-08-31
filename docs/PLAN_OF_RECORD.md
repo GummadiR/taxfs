@@ -444,6 +444,43 @@ here. They print by name on every run and their reasons live in
    Documents, where each value sits beside the document and box it came
    from. Review's edit path (item 1) is still open.
 
+1c. **DONE — the §6654 penalty can no longer be silently zero; the AMOUNT
+   is still blocked on rule data.** `penalty.fed.estimated_tax` is a pure
+   input that both kernels subtract from what is owed, and nothing on any
+   screen ever asked for it. So a return with a real underpayment printed
+   "you owe $X" with no hint that the IRS may add to it, and "no penalty"
+   was indistinguishable from "nobody looked" — the CPA's return carried a
+   Form 2210 penalty where TaxFS carried none.
+
+   Shipped: critic `ACC-EST-PENALTY-UNDETERMINED` (gate 5, Flag) fires when
+   tax after credits less withholding reaches the §6654(e)(1) de-minimis
+   floor and no penalty has been entered; and the Review plain-English
+   total now says outright whether it includes one. Both name the floor
+   from rule data, never a literal.
+
+   NOT shipped, and deliberately: the penalty AMOUNT. It needs the
+   quarterly §6621 underpayment interest rates, which are not in
+   `rules/fixtures/2025.ESTTAX.json` — that file's safe-harbour
+   percentages, due dates and annualisation factors are all still marked
+   `PLACEHOLDER — verify`. Computing a penalty from an invented rate would
+   violate non-negotiable #2 and would look MORE authoritative than the
+   honest gap. `requiredAnnualPayment()` in `packages/defense/src/esttax.ts`
+   already computes `penalty_exposure` and is called from nothing but its
+   own test; wiring it up waits on cited rates and on prior-year tax/AGI
+   reaching the gate context (the safe harbour under §6654(d)(1)(B) can
+   cancel the penalty entirely, and neither figure is available there
+   today).
+
+   **Operator decision needed:** supply the 2025–2026 §6621 rates with
+   their citation, or accept that TaxFS reports the exposure and the IRS
+   bills the amount.
+
+   **Still open — the Illinois side.** `penalty.il.estimated_tax` (IL-2210)
+   is the same shape of pure input and has the same silent-zero problem,
+   but there is no Illinois de-minimis floor in the rule data, so the
+   federal critic's test cannot be reused and inventing a threshold is the
+   same violation. It needs IL rule data before it can be built.
+
 2. **Documents — the operator's reading must be able to beat the machine's.**
    TaxOS's confirm carried an `override` checkbox: "my typed value is
    correct (document differs from scan)". TaxFS refuses a mismatch and

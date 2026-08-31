@@ -8,6 +8,7 @@ import { detectSignals } from '@taxfs/agents';
 import { withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
 import { buildSummary, conceptLabel, IL_LINE_LABELS, LINE_EXPLAIN, LINE_LABELS } from '@/server/labels';
+import { estTaxRules } from '@/server/yearround';
 import type { TaxFact } from '@taxfs/shared';
 
 function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFact; label: string; explain?: string }[]; testid: string }) {
@@ -60,7 +61,7 @@ export default async function Review() {
   const sourced = facts.filter((f) => f.derivation === undefined);
   const unconfirmed = sourced.filter((f) => f.status !== 'confirmed').length;
   const derived = facts.filter((f) => f.derivation !== undefined);
-  const summary = buildSummary(facts, filing?.filing_status ?? 'single');
+  const summary = buildSummary(facts, filing?.filing_status ?? 'single', estTaxRules().de_minimis_balance_due);
 
   // Headline lines in reading order (curated), then anything else computed.
   const pick = (labels: [string, string][]) =>

@@ -52,6 +52,9 @@ export class Orchestrator {
     private readonly filing: FilingContext,
     private readonly rules: { fed: RuleSet; il: RuleSet },
     private readonly clock: Clock,
+    /** §6654 parameters, when the caller has them. Optional: without it the
+     *  est-tax critic stays silent rather than guessing a threshold. */
+    private readonly esttaxRules?: { de_minimis_balance_due: string },
   ) {}
 
   gateState(gate: GateId, jur: Jurisdiction): GateStateValue {
@@ -187,6 +190,7 @@ export class Orchestrator {
           filing: this.filing,
           fed_rules: this.rules.fed,
           il_rules: this.rules.il,
+          ...(this.esttaxRules ? { esttax_rules: this.esttaxRules } : {}),
         };
         for (const critic of this.registry.forGate(gate, jur)) {
           if (critic.applies_when(ctx)) drafts.push(...critic.evaluate(ctx));
