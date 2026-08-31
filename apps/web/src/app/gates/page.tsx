@@ -33,10 +33,24 @@ async function runGates() {
     return filingContext(client, ws.workspace_id);
   });
   if (!filing) redirect('/get-started');
-  await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => {
-    await buildOrchestrator(spine, filing).runAll();
-  });
-  redirect('/gates');
+  // The kernel REFUSES rather than assumes when a required figure is
+  // missing (non-negotiable #2), and those refusals name exactly what to
+  // enter. Without this catch the refusal became an unhandled server-action
+  // error and the operator saw a blank framework error page instead of the
+  // sentence telling them what to do — a real message replaced by no
+  // message at the moment it mattered most.
+  let refusal: string | null = null;
+  try {
+    await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => {
+      await buildOrchestrator(spine, filing).runAll();
+    });
+  } catch (err) {
+    if (!(err instanceof Error)) throw err;
+    // `redirect()` throws by design; never swallow it.
+    if ((err as { digest?: string }).digest?.startsWith('NEXT_REDIRECT')) throw err;
+    refusal = err.message;
+  }
+  redirect(refusal === null ? '/gates' : `/gates?refused=${encodeURIComponent(refusal)}`);
 }
 
 /** One finding line, with doc ids resolved to real document names, plus the
@@ -70,8 +84,9 @@ function Findings({ items, sources, tone }: { items: BoardFinding[]; sources: So
   );
 }
 
-export default async function GatesBoard() {
+export default async function GatesBoard({ searchParams }: { searchParams: Promise<{ refused?: string }> }) {
   if (!appConfigured()) redirect('/');
+  const refused = (await searchParams).refused;
   const { userId, ws } = await requireContext();
   const { gateRuns, sources } = await withSpine({ userId, workspaceId: ws.workspace_id }, async (spine) => ({
     gateRuns: (await spine.inspect(ws.workspace_id)).gateRuns,
@@ -96,6 +111,17 @@ export default async function GatesBoard() {
         Seven gates (0–6), run separately for Federal and Illinois. Gates 0–4 and 6 block on any error; gate 5
         warns and never blocks a lawful return. Open “What does this gate check?” under any gate for the story.
       </p>
+      {refused ? (
+        <section className="mt-3 rounded border border-red-300 bg-red-50 p-3" data-testid="gates-refused">
+          <h2 className="text-sm font-bold text-red-900">The gates could not run — a required figure is missing</h2>
+          <p className="mt-1 text-sm text-red-900">{refused}</p>
+          <p className="mt-1 text-xs text-red-800">
+            Nothing was computed and nothing was saved. TaxFS refuses to assume a figure it was not given, because
+            an assumed number would print on the return as though it had been verified. Enter what is named above,
+            then run the gates again.
+          </p>
+        </section>
+      ) : null}
       <div className="mt-3">
         <PageHelp
           what={'Two checklists: the computational gates 0–6 in the table below (run separately for Federal and Illinois; 0–4 and 6 must be green to file) and, further down, the broader engagement lifecycle 0–13 that wraps around them.'}

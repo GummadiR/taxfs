@@ -146,6 +146,15 @@ export const MANUAL_CONCEPTS: {
   { concept: C.IL_OTHER_STATE_CREDIT, label: 'IL credit for tax paid to another state (Schedule CR)', jurisdiction: ['IL'], group: 'Payments & other taxes' },
   { concept: C.IL_USE_TAX, label: 'IL use tax on out-of-state purchases (IL-1040 line 21)', jurisdiction: ['IL'], group: 'Payments & other taxes' },
   { concept: C.IL_PTE_CREDIT, label: 'IL pass-through entity tax credit (Sch K-1-P/K-1-T)', jurisdiction: ['IL'], group: 'Payments & other taxes' },
+  // 1095-A / Form 8962. The household SIZE is the one the kernel cannot
+  // guess: it sets the federal poverty line the credit is measured against,
+  // and a family of four scored as a household of one lands far higher up
+  // the FPL scale — often past the 400% cliff, which repays the whole
+  // advance credit. It had no intake path at all until now.
+  { concept: C.PTC_PREMIUM, label: 'Marketplace premiums paid for the year (1095-A column A annual total)', jurisdiction: ['FED'], group: 'Health coverage (1095-A)' },
+  { concept: C.PTC_SLCSP, label: 'Second-lowest-cost silver plan premium (1095-A column B annual total)', jurisdiction: ['FED'], group: 'Health coverage (1095-A)' },
+  { concept: C.PTC_APTC, label: 'Advance premium tax credit already paid to the insurer (1095-A column C annual total)', jurisdiction: ['FED'], group: 'Health coverage (1095-A)' },
+  { concept: C.PTC_HOUSEHOLD_SIZE, label: 'Tax family size for the premium credit — a COUNT of people, not dollars (Form 8962 line 1); required whenever a 1095-A is on the return', jurisdiction: ['FED'], group: 'Health coverage (1095-A)' },
 ];
 
 export async function addDemoDoc(spine: SpineBackend, ws: string, doc: DemoDoc): Promise<void> {

@@ -481,6 +481,51 @@ here. They print by name on every run and their reasons live in
    federal critic's test cannot be reused and inventing a threshold is the
    same violation. It needs IL rule data before it can be built.
 
+1d. **DONE — the premium tax credit silently assumed a household of ONE
+   whenever the size was not entered.** Found by auditing the general class
+   the Form 2210 gap belonged to: kernel inputs no screen can supply.
+
+   Correction to a first reading of this audit: `ptc.household_size` DOES
+   have an intake path — Add Data shows a "Household size" form once a
+   1095-A premium is detected (`app/data/page.tsx`). The first pass compared
+   only against the typed-entry picker and wrongly concluded there was no
+   path anywhere. What is true is narrower and still serious: that form is
+   a prompt, not a gate. It appears only when `PTC_PREMIUM` is already
+   present, and nothing requires an answer.
+
+   Both kernels did `Money.max(1, sum(household_size))`, so a skipped
+   prompt silently became a tax family of one. The federal
+   poverty line is computed FROM that size and the credit is measured as a
+   percentage of FPL, so a real family lands far higher up the scale. On
+   the return1 fixture with a $12,000/$14,000/$9,000 1095-A:
+
+   | tax family size | result |
+   |---|---|
+   | 1 (the old silent default) | repay the entire $9,000 advance credit |
+   | 4 (the truth) | a $1,400 credit |
+
+   A **$10,400 swing** from a default nobody typed and no screen could
+   override. Both kernels defaulted identically, so they AGREED and the
+   divergence check could not see it — a reminder that dual-kernel
+   agreement proves consistency, not correctness.
+
+   Fixed: BOTH kernels now THROW when 1095-A facts are present without the
+   family size, so a skipped prompt refuses instead of assuming. The four
+   1095-A concepts are also added to the typed-entry picker under a new
+   "Health coverage (1095-A)" group — the Add Data card only appears once a
+   premium has been extracted, so with extraction off there was no way to
+   supply any of them by hand.
+
+   `runGates` now catches kernel refusals and renders them, because it had
+   no error handling at all: a refusal became an unhandled server-action
+   error and the operator saw a blank framework error page instead of the
+   sentence naming what to enter. That failure mode pre-dated this change
+   and applied to every other kernel refusal too.
+
+   **Still open from the same audit:** `FOREIGN_INCOME_LTCG_FCY` has an
+   extraction mapping and a critic but no manual entry path, so with
+   extraction off it cannot be supplied.
+
 2. **Documents — the operator's reading must be able to beat the machine's.**
    TaxOS's confirm carried an `override` checkbox: "my typed value is
    correct (document differs from scan)". TaxFS refuses a mismatch and

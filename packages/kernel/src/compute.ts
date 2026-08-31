@@ -1976,7 +1976,19 @@ export function compute(input: KernelInput): KernelResult {
     const aptc = sumOfConcept(input, C.PTC_APTC);
     if (premium.inputs.length > 0 || slcsp.inputs.length > 0 || aptc.inputs.length > 0) {
       if (!fed.ptc) throw new Error('kernel: 1095-A facts present but rule data lacks ptc parameters');
+      // The tax family size sets the FPL the credit is measured against, so
+      // it is not a figure that may be assumed. It used to fall back to a
+      // household of ONE whenever it was absent. Add Data does prompt for it
+      // once a 1095-A premium is detected, but that is a prompt, not a gate:
+      // skip it and a family of four was scored far higher up the FPL scale
+      // and, near the 400% cliff, repaid the entire advance credit. Missing
+      // data THROWS; it never defaults.
       const sizeRaw = sumOfConcept(input, C.PTC_HOUSEHOLD_SIZE);
+      if (sizeRaw.inputs.length === 0) {
+        throw new Error(
+          'kernel: 1095-A facts are on the return but the tax family size (ptc.household_size, Form 8962 line 1) is missing. It sets the federal poverty line the premium credit is measured against and cannot be assumed — enter it on Documents.',
+        );
+      }
       const size = Money.max(Money.fromString('1'), sizeRaw.total.roundToDollar());
       const fpl = Money.fromString(fed.ptc.fpl_base).add(
         Money.fromString(fed.ptc.fpl_per_additional).mulRate(size.sub(Money.fromString('1')).toString()),
