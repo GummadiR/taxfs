@@ -26,7 +26,7 @@ export default async function FormsView() {
           what={'The draft return rendered as form lines (1040, schedules, IL-1040) — a preview of what will print. Every value is calculation-backed; the mapping layer does no math.'}
           doThis={[
             'Click a form header to expand or collapse it; the headline number shows while collapsed.',
-            'Use “Preview official PDF” to see the draft on the REAL government form (mapped forms only).',
+            'Use “Preview official PDF” to see the draft on the REAL government form (mapped forms only). It is a PREVIEW: the numbers are there, your name, SSN and address are NOT — identity never reaches the server, so it can only be filled in your browser. The copy you print and sign comes from File It.',
             'Anything missing or off, fix at the source (Documents / Review), not here — the locked package on File It stays the official artifact.',
           ]}
         />
@@ -70,7 +70,7 @@ export default async function FormsView() {
                     rel="noreferrer"
                     data-testid={`formpdf-${f.form_id}`}
                   >
-                    Preview official PDF ↗
+                    Preview official PDF (draft — no name/SSN) ↗
                   </a>
                 ) : (
                   <span
