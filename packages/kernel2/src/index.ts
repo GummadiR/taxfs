@@ -324,7 +324,7 @@ function inboundK1s(
   return { scheTotal: R(scheTotal), qbiNet: R(qbiNet), niitPassiveNet, f4797Total: R(f4797Total) };
 }
 
-interface SchdResult { line7: Money; ncg: Money }
+interface SchdResult { line7: Money; ncg: Money; grossPositive: Money }
 
 /** Schedule D straight-line: lot netting with §1091 add-back, §1211(b) cap.
  *  `fcy` is converted foreign income from the 15CA/15CB path (P25): reported
@@ -361,7 +361,7 @@ function scheduleD(
   const cap = D(fs === 'mfs' ? schd.capital_loss_cap_mfs : schd.capital_loss_cap);
   const line7 = combined.isNegative() ? Money.max(combined, cap.neg()) : combined;
   const ncg = Money.max(Money.zero(), Money.max(Money.zero(), lt).sub(Money.max(Money.zero(), st.neg())));
-  return { line7: R(line7), ncg: R(ncg) };
+  return { line7: R(line7), ncg: R(ncg), grossPositive: R(Money.max(Money.zero(), st).add(Money.max(Money.zero(), lt))) };
 }
 
 export function computeHeadlines(input: Kernel2Input): HeadlineLines {
@@ -588,6 +588,8 @@ export function computeHeadlines(input: Kernel2Input): HeadlineLines {
   const hasSchaComponent = !schaMedicalRaw.isZero() || !schaStateOther.isZero() || !schaPersonalProp.isZero()
     || !schaMortgage.isZero() || !schaPoints.isZero() || !schaInvInt.isZero() || !schaCharity.isZero();
   let itemizedTotal = R(sum(facts, 'deduction.itemized.total'));
+  // Form 1116 line 3a needs the ALLOWED medical (post-§213 floor).
+  let schaMedicalAllowed = Money.zero();
   if (fed.schedule_a) {
     const sa = fed.schedule_a;
     const isMfs = fs === 'mfs';
@@ -608,6 +610,7 @@ export function computeHeadlines(input: Kernel2Input): HeadlineLines {
     if (worthRunning) {
       const medFloor = R(agi.mulFraction(sa.medical_agi_floor_pct, '1'));
       const medAllowed = Money.max(Money.zero(), schaMedicalRaw.sub(medFloor));
+      schaMedicalAllowed = medAllowed;
       itemizedTotal = medAllowed
         .add(saltAllowed)
         .add(schaMortgage).add(schaPoints).add(schaInvInt)
@@ -780,7 +783,32 @@ export function computeHeadlines(input: Kernel2Input): HeadlineLines {
       ? Money.zero()
       : R(pref.sub(pref.mulFraction(cgRate, topRate)));
     const worldwide = Money.max(Money.zero(), taxable.sub(worldwideReduction));
-    const capped = Money.min(adjusted, worldwide);
+    // Form 1116 Part I lines 3-4: deductions are apportioned AGAINST
+    // foreign-source income by gross foreign ÷ gross income from all
+    // sources. Line 3a is the itemized deductions NOT definitely related
+    // (residence real-estate tax, medical, personal property); state INCOME
+    // tax is excluded, being definitely related to the income the state
+    // taxed. The standard deduction, when taken, goes on 3a whole. Line 3e
+    // is GROSS, so capital losses netted into Schedule D are added back.
+    // Kept in step with the kernel - the divergence check caught exactly
+    // this kind of one-sided edit last time.
+    const usesItemized = deduction.eq(itemizedTotal);
+    const notDefinitelyRelated = usesItemized
+      ? R(sum(facts, 'il.property_tax.residence')).add(schaMedicalAllowed).add(schaPersonalProp)
+      : deduction;
+    const grossAllSources = totalIncome.add(
+      schd ? Money.max(Money.zero(), schd.grossPositive.sub(schd.line7)) : Money.zero(),
+    );
+    const grossForeign = R(foreignGross);
+    const mortgageForApportionment = schaMortgage.add(schaPoints);
+    const apportioned = grossAllSources.gt(Money.zero())
+      ? R(notDefinitelyRelated.mulFraction(grossForeign.toString(), grossAllSources.toString()))
+      : Money.zero();
+    const mortgageApportioned = grossAllSources.gt(Money.zero())
+      ? R(mortgageForApportionment.mulFraction(grossForeign.toString(), grossAllSources.toString()))
+      : Money.zero();
+    const netForeign = Money.max(Money.zero(), adjusted.sub(apportioned.add(mortgageApportioned)));
+    const capped = Money.min(netForeign, worldwide);
     const usTaxBefore = fedTax.add(ptcRepay);
     const limitation = worldwide.gt(Money.zero())
       ? R(usTaxBefore.mulFraction(capped.toString(), worldwide.toString()))

@@ -252,6 +252,10 @@ export function compute(input: KernelInput): KernelResult {
 
   let schdTotalFact: TaxFact | null = null;
   let schdNcgFact: TaxFact | null = null;
+  // Form 1116 line 3e is GROSS income from all sources, so capital LOSSES
+  // netted into the Schedule D line must be added back. Captured here where
+  // the raw per-term totals exist; consumed in the §904 block far below.
+  let schdGrossPositive: Money | null = null;
   if (schdActive) {
     if (!fed.schd) throw new Error('kernel: Schedule D facts present but rule data lacks schedule_d parameters');
     const lotInputs: TaxFact[] = [];
@@ -322,6 +326,7 @@ export function compute(input: KernelInput): KernelResult {
     const ltNet = ltRaw.sub(ltCoPrior.total);
     if (!stCoPrior.total.isZero()) stSteps.push(`ST carryover from prior year −${stCoPrior.total.toString()}`);
     if (!ltCoPrior.total.isZero()) ltSteps.push(`LT carryover from prior year −${ltCoPrior.total.toString()}`);
+    schdGrossPositive = Money.max(Money.zero(), stRaw).add(Money.max(Money.zero(), ltRaw));
     const stNetFact = em.emit({
       concept: C.FED_SCHD_ST_NET, jurisdiction: ['FED'], inputs: [...lotInputs, ...stCoPrior.inputs, ...stInputs],
       formula_ref: 'FED.SCHD.PART1.ST_NET', rule_version: rvFed,
@@ -1719,6 +1724,8 @@ export function compute(input: KernelInput): KernelResult {
   }
 
   let schaTotalFact: TaxFact | null = null;
+  // Hoisted: Form 1116 line 3a needs the ALLOWED medical (post-§213 floor).
+  let schaMedicalAllowed = Money.zero();
   if (schaActive) {
     const sa = fed.schedule_a!;
 
@@ -1736,6 +1743,7 @@ export function compute(input: KernelInput): KernelResult {
         value: medicalAllowed,
       });
     }
+    schaMedicalAllowed = medicalAllowed;
 
     // Line 5 — state/local income tax PAID + real estate + personal property.
     const saltInputs = [
@@ -2305,9 +2313,64 @@ export function compute(input: KernelInput): KernelResult {
         ? Money.zero()
         : usPreferential.sub(usPreferential.mulFraction(ltcgRate, topOrdinaryRate)).roundToDollar();
       const worldwide = Money.max(Money.zero(), taxableFact.value.sub(worldwideReduction));
+
+      // ---------- FORM 1116 PART I, LINES 3 AND 4 ----------
+      // Deductions are apportioned AGAINST foreign-source income, which the
+      // kernel did not model at all — so the numerator, the limitation and
+      // the credit all came out too generous. Verified line-for-line against
+      // a professionally prepared Form 1116:
+      //
+      //   3a  certain itemized deductions          17,144
+      //   3d  GROSS foreign source income         106,766
+      //   3e  GROSS income from all sources       371,473
+      //   3f  3d ÷ 3e                              0.2874
+      //   3g  3c × 3f                               4,927
+      //   4a  home mortgage interest × 3f           1,053
+      //   6   total deductions                      5,980
+      //
+      // Line 3a is the itemized deductions NOT definitely related to any
+      // income: the residence real-estate tax, medical, personal property
+      // tax. State INCOME tax is excluded — it is definitely related to the
+      // income the state taxed. On that return 3a was 17,144, which is
+      // exactly SALT 28,337 less Illinois income tax withheld 11,193, and
+      // the kernel already holds the residence property tax as a fact
+      // (Schedule A line 5b / Schedule ICR), so nothing new is asked of the
+      // operator. When the standard deduction is taken it goes on 3a whole.
+      //
+      // Line 3e is GROSS, so capital losses netted into the Schedule D line
+      // are added back: 328,668 + 42,410 carryovers + 395 short-term loss
+      // = 371,473, to the dollar.
+      const usesItemized = schaTotalFact !== null
+        ? deductionFact.value.eq(schaTotalFact.value.roundToDollar())
+        : deductionFact.value.eq(itemizedDirect.total.roundToDollar());
+      const notDefinitelyRelated = usesItemized
+        ? ilPropTaxFacts.total.roundToDollar()
+            .add(schaMedicalAllowed)
+            .add(schaPersonalProp.total.roundToDollar())
+        : deductionFact.value;
+      const grossAllSources = totalIncomeFact.value.add(
+        schdGrossPositive === null
+          ? Money.zero()
+          : Money.max(Money.zero(), schdGrossPositive.sub(capGainLineFact.value)),
+      );
+      const grossForeign = foreignGross.total.roundToDollar();
+      const mortgageForApportionment = schaMortgage.total.roundToDollar()
+        .add(schaPoints.total.roundToDollar());
+      const apportioned = grossAllSources.gt(Money.zero())
+        ? notDefinitelyRelated
+            .mulFraction(grossForeign.toString(), grossAllSources.toString())
+            .roundToDollar()
+        : Money.zero();
+      const mortgageApportioned = grossAllSources.gt(Money.zero())
+        ? mortgageForApportionment
+            .mulFraction(grossForeign.toString(), grossAllSources.toString())
+            .roundToDollar()
+        : Money.zero();
+      const foreignDeductions = apportioned.add(mortgageApportioned);
+      const netForeign = Money.max(Money.zero(), adjustedForeign.sub(foreignDeductions));
       const usTaxBefore = taxFact.value.add(part1Val);
       // The ratio is capped at 1: foreign-source income cannot exceed worldwide.
-      const cappedForeign = Money.min(adjustedForeign, worldwide);
+      const cappedForeign = Money.min(netForeign, worldwide);
       const limitation = worldwide.gt(Money.zero())
         ? usTaxBefore.mulFraction(cappedForeign.toString(), worldwide.toString()).roundToDollar()
         : Money.zero();
@@ -2325,7 +2388,9 @@ export function compute(input: KernelInput): KernelResult {
               ? ''
               : `, of which long-term capital gain ${ltcgPart.toString()} is scaled by ${ltcgRate} ÷ ${topOrdinaryRate} = ${scaledLtcg.toString()} (§904(b)(2)(B) rate differential)`
           }`,
-          `adjusted foreign-source taxable income (line 17) = ${adjustedForeign.toString()}`,
+          `deductions apportioned to foreign income (Part I): ${notDefinitelyRelated.toString()} ${usesItemized ? 'of itemized deductions not definitely related (residence real-estate tax, medical, personal property — state INCOME tax is excluded, being definitely related to the income the state taxed)' : '(standard deduction)'} × ${grossForeign.toString()} ÷ ${grossAllSources.toString()} gross income from all sources = ${apportioned.toString()} (line 3g)${mortgageForApportionment.isZero() ? '' : `, plus home mortgage interest ${mortgageForApportionment.toString()} × the same ratio = ${mortgageApportioned.toString()} (line 4a)`} → total ${foreignDeductions.toString()} (line 6)`,
+          `net foreign-source taxable income (line 7) = ${adjustedForeign.toString()} − ${foreignDeductions.toString()} = ${netForeign.toString()}`,
+          `adjusted foreign-source taxable income (line 17) = ${netForeign.toString()}`,
           `worldwide taxable income (line 18) = ${worldwide.toString()}${
             worldwideReduction.isZero()
               ? ''

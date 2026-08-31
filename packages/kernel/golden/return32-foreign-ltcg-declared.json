@@ -1,7 +1,7 @@
 {
  "name": "return32-foreign-ltcg-declared",
  "description": "P68 foreign long-term gain DECLARED: 8,000,000 foreign units at 80/USD = 100,000, all long-term, with 800,000 units (10,000) of foreign tax. Lands on Sch D Part II and is taxed preferentially; Form 1116 \u00a7904(b)(2)(B) scales it.",
- "note": "Hand-verified: AGI 220,000; taxable 190,000. QDCGT ordinary 90,000 -> 11,400; preferential 100,000 with 6,000 in the 0% band and 94,000 x 15%=14,100 -> tax 25,500. FTC limit = 25,500 x (40,541/190,000) = 5,441 < 10,000 paid. Liability 20,059; wh 20,000 -> owe 59. PLACEHOLDER rules. \u00a7904(b)(2)(B)(ii) CORRECTION: the rate-differential adjustment applies to ENTIRE taxable income (Form 1116 line 18) as well as to foreign-source income, and the kernel previously scaled only the numerator. HAND-VERIFIED on return27: adjusted foreign-source = 50,000 x 15/37 = 20,270; the reduction to worldwide = 50,000 - 20,270 = 29,730, so line 18 = 135,000 - 29,730 = 105,270; limitation = 22,000 x 20,270/105,270 = 4,236 (was 3,303 on the unadjusted 135,000). Independently confirmed against a professionally prepared return whose Form 1116 line 18 was 239,975 against taxable income of 295,678 - a reduction of exactly (net capital gain + qualified dividends) x (1 - 15/37). The credit rises in every affected golden and stays at or below foreign tax paid.",
+ "note": "Hand-verified: AGI 220,000; taxable 190,000. QDCGT ordinary 90,000 -> 11,400; preferential 100,000 with 6,000 in the 0% band and 94,000 x 15%=14,100 -> tax 25,500. FTC limit = 25,500 x (40,541/190,000) = 5,441 < 10,000 paid. Liability 20,059; wh 20,000 -> owe 59. PLACEHOLDER rules. \u00a7904(b)(2)(B)(ii) CORRECTION: the rate-differential adjustment applies to ENTIRE taxable income (Form 1116 line 18) as well as to foreign-source income, and the kernel previously scaled only the numerator. HAND-VERIFIED on return27: adjusted foreign-source = 50,000 x 15/37 = 20,270; the reduction to worldwide = 50,000 - 20,270 = 29,730, so line 18 = 135,000 - 29,730 = 105,270; limitation = 22,000 x 20,270/105,270 = 4,236 (was 3,303 on the unadjusted 135,000). Independently confirmed against a professionally prepared return whose Form 1116 line 18 was 239,975 against taxable income of 295,678 - a reduction of exactly (net capital gain + qualified dividends) x (1 - 15/37). The credit rises in every affected golden and stays at or below foreign tax paid. FORM 1116 PART I: deductions are now apportioned against foreign-source income (lines 3 and 4), which was not modelled at all. HAND-VERIFIED on return27, which takes the STANDARD deduction so it lands whole on line 3a: 3a 15,000; 3d gross foreign 50,000; 3e gross income from all sources 150,000; 3f 0.33333; 3g 5,000; line 1a 50,000 x 15/37 = 20,270; line 7 = 20,270 - 5,000 = 15,270; line 18 = 105,270; limitation = 22,000 x 15,270/105,270 = 3,191. The kernel independently produced 3,191. Verified line-for-line against a professionally prepared Form 1116 whose 3a was 17,144 (SALT 28,337 less state income tax withheld 11,193 - state INCOME tax is definitely related and is NOT apportioned), 3e 371,473 (total income plus 42,410 of carryovers and a 395 short-term loss added back, because line 3e is GROSS), 3f 0.2874, 3g 4,927 and 4a 1,053 (mortgage interest at the same ratio). Credits FALL here, as they must: apportioned deductions shrink the numerator.",
  "filing_status": "mfj",
  "il_exemption_count": 2,
  "facts": [
@@ -66,11 +66,11 @@
  "expected": {
   "fed.schd.lt_net": "100000",
   "fed.schd.net_capital_gain": "100000",
-  "fed.credit.foreign_tax": "7919",
+  "fed.credit.foreign_tax": "5256",
   "fed.agi": "220000",
   "fed.taxable_income": "190000",
   "fed.tax.total": "25500",
-  "fed.tax.liability.total": "17581",
-  "fed.refund_or_due": "2419"
+  "fed.tax.liability.total": "20244",
+  "fed.refund_or_due": "-244"
  }
 }
