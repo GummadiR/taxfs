@@ -28,9 +28,12 @@ function appUrl(adminUrl: string): string {
   url.password = 'taxfs_app_test_pw';
   return url.href;
 }
+// The journeys seed from the demo W-2 / 1099-INT, which are OFF in the app
+// unless asked for — they inject invented income and must never be one
+// stray click away on a real return.
 const appEnv: Record<string, string> = ADMIN_DB
-  ? { TAXFS_LOCAL_OPERATOR: '1', TAXFS_DATABASE_URL: appUrl(ADMIN_DB) }
-  : {};
+  ? { TAXFS_LOCAL_OPERATOR: '1', TAXFS_DATABASE_URL: appUrl(ADMIN_DB), TAXFS_DEMO_DOCS: '1' }
+  : { TAXFS_DEMO_DOCS: '1' };
 
 export default defineConfig({
   testDir: './e2e',

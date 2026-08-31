@@ -30,6 +30,19 @@ export function localOperatorMode(): boolean {
   return on;
 }
 
+/**
+ * Demo seed documents (a fake W-2 and 1099-INT) are OFF unless explicitly
+ * asked for. They were plain buttons on Documents, so one stray click put
+ * $50,000 of invented wages into a real return, where the row then looked
+ * like any other. Scaffolding that injects income has no business sitting
+ * next to a real upload on a return that goes to the IRS.
+ *
+ * The e2e journeys seed from them, so they are gated rather than deleted.
+ */
+export function demoDocsEnabled(): boolean {
+  return process.env.TAXFS_DEMO_DOCS === '1';
+}
+
 /** Fixed identity for local-operator mode (synthetic; never a real person). */
 export const LOCAL_OPERATOR_UUID = '77777777-7777-4777-8777-777777777777';
 
