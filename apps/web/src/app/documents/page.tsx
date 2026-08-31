@@ -10,7 +10,7 @@ import { withSpine } from '@/server/db';
 import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server/demo-docs';
 import { withUserClient } from '@/server/db';
 import { takeBudget } from '@/server/limits';
-import { TAX_YEAR } from '@/server/env';
+import { demoDocsEnabled, TAX_YEAR } from '@/server/env';
 import { pendingConfirmations, rescanState, sourceTitle, valuesBySource, TYPE_TO_VERIFY_BELOW } from '@/server/confirmations';
 import { Origin } from '@/components/badges';
 
@@ -321,17 +321,24 @@ export default async function Documents({ searchParams }: { searchParams: Promis
         })}
         {sources.length === 0 ? <li className="text-sm text-slate-500">No documents yet.</li> : null}
       </ul>
-      <section className="mt-6">
-        <h2 className="font-bold">Add a demo document</h2>
-        <div className="mt-2 flex gap-2">
-          {DEMO_DOCS.map((d) => (
-            <form key={d.id} action={addDemo}>
-              <input type="hidden" name="doc" value={d.id} />
-              <SubmitButton className="rounded border border-slate-300 px-3 py-2 text-sm" data-testid={`add-${d.id}`} pendingText="Adding…">{d.label}</SubmitButton>
-            </form>
-          ))}
-        </div>
-      </section>
+      {demoDocsEnabled() ? (
+        <section className="mt-6 rounded border border-amber-300 bg-amber-50 p-3">
+          <h2 className="font-bold text-amber-900">Add a demo document — NOT real income</h2>
+          <p className="mt-1 text-xs text-amber-900">
+            These invent a W-2 and a 1099-INT so the app can be demonstrated on an empty return. They put
+            fabricated income on the return exactly as a real document would. Shown only because
+            TAXFS_DEMO_DOCS=1 is set; never on a return you intend to file.
+          </p>
+          <div className="mt-2 flex gap-2">
+            {DEMO_DOCS.map((d) => (
+              <form key={d.id} action={addDemo}>
+                <input type="hidden" name="doc" value={d.id} />
+                <SubmitButton className="rounded border border-amber-400 bg-white px-3 py-2 text-sm" data-testid={`add-${d.id}`} pendingText="Adding…">{d.label}</SubmitButton>
+              </form>
+            ))}
+          </div>
+        </section>
+      ) : null}
       <section className="mt-6">
         <h2 className="font-bold">Typed entry — any amount with no scannable document</h2>
         <p className="mt-1 text-xs text-slate-600">
