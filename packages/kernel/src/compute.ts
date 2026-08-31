@@ -2283,7 +2283,28 @@ export function compute(input: KernelInput): KernelResult {
         ? ltcgPart
         : ltcgPart.mulFraction(ltcgRate, topOrdinaryRate);
       const adjustedForeign = foreignGross.total.roundToDollar().sub(ltcgPart).add(scaledLtcg).roundToDollar();
-      const worldwide = taxableFact.value;
+      // §904(b)(2)(B)(ii): the SAME rate-differential adjustment applies to
+      // ENTIRE taxable income (Form 1116 line 18), not only to the
+      // foreign-source numerator. Scaling one side and not the other
+      // understates the ratio, the limitation, and therefore the credit —
+      // and every dollar of credit lost is a dollar of extra US tax.
+      //
+      // Verified against a professionally prepared return: taxable income
+      // 295,678 with net capital gain 89,824 + qualified dividends 3,857
+      // gave line 18 = 239,975, a reduction of 55,703 — exactly
+      // (89,824 + 3,857) x (1 - 15/37). Leaving the denominator raw put the
+      // credit at 6,118 where the preparer had 7,539.
+      const usPreferential = Money.min(
+        Money.max(
+          Money.zero(),
+          capGainLineFact.value.roundToDollar().add(qualDivTotal.value.roundToDollar()),
+        ),
+        taxableFact.value,
+      );
+      const worldwideReduction = Money.fromString(topOrdinaryRate).isZero()
+        ? Money.zero()
+        : usPreferential.sub(usPreferential.mulFraction(ltcgRate, topOrdinaryRate)).roundToDollar();
+      const worldwide = Money.max(Money.zero(), taxableFact.value.sub(worldwideReduction));
       const usTaxBefore = taxFact.value.add(part1Val);
       // The ratio is capped at 1: foreign-source income cannot exceed worldwide.
       const cappedForeign = Money.min(adjustedForeign, worldwide);
@@ -2305,7 +2326,11 @@ export function compute(input: KernelInput): KernelResult {
               : `, of which long-term capital gain ${ltcgPart.toString()} is scaled by ${ltcgRate} ÷ ${topOrdinaryRate} = ${scaledLtcg.toString()} (§904(b)(2)(B) rate differential)`
           }`,
           `adjusted foreign-source taxable income (line 17) = ${adjustedForeign.toString()}`,
-          `worldwide taxable income (line 18) = ${worldwide.toString()}; ratio (line 19) = ${ratio}`,
+          `worldwide taxable income (line 18) = ${worldwide.toString()}${
+            worldwideReduction.isZero()
+              ? ''
+              : ` (taxable income ${taxableFact.value.toString()} reduced by ${worldwideReduction.toString()} — the same §904(b)(2)(B) rate differential applied to US net capital gain + qualified dividends ${usPreferential.toString()})`
+          }; ratio (line 19) = ${ratio}`,
           `limitation (line 21) = US tax before credits ${usTaxBefore.toString()} × ratio = ${limitation.toString()}`,
           `credit (line 35) = min(foreign tax, limitation) = ${allowed.toString()} (→ Sch 3 line 1)`,
           'SIMPLIFIED: passive category only; deductions allocable to foreign income are not modeled; the rate differential uses the marginal preferential rate rather than splitting across rate buckets (recorded gaps)',

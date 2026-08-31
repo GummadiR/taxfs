@@ -770,10 +770,20 @@ export function computeHeadlines(input: Kernel2Input): HeadlineLines {
     }
     const scaled = D(topRate).isZero() ? foreignLtcg : foreignLtcg.mulFraction(cgRate, topRate);
     const adjusted = R(foreignGross.sub(foreignLtcg).add(scaled));
-    const capped = Money.min(adjusted, taxable);
+    // §904(b)(2)(B)(ii): the rate-differential adjustment applies to ENTIRE
+    // taxable income (Form 1116 line 18) as well as to the foreign-source
+    // numerator. Scaling only the numerator understates the ratio, so the
+    // limitation and the credit come out too small. Kept in step with the
+    // kernel deliberately - this is the sort of one-sided adjustment the
+    // divergence check exists to catch, and did.
+    const worldwideReduction = D(topRate).isZero()
+      ? Money.zero()
+      : R(pref.sub(pref.mulFraction(cgRate, topRate)));
+    const worldwide = Money.max(Money.zero(), taxable.sub(worldwideReduction));
+    const capped = Money.min(adjusted, worldwide);
     const usTaxBefore = fedTax.add(ptcRepay);
-    const limitation = taxable.gt(Money.zero())
-      ? R(usTaxBefore.mulFraction(capped.toString(), taxable.toString()))
+    const limitation = worldwide.gt(Money.zero())
+      ? R(usTaxBefore.mulFraction(capped.toString(), worldwide.toString()))
       : Money.zero();
     ftc = Money.min(foreignTax, limitation);
     }
