@@ -371,3 +371,51 @@ export function humanizeDocRefs(text: string, sources: readonly SourceDoc[]): st
   }
   return out;
 }
+
+/**
+ * Why a Review line reads what it does, when the figure alone would mislead.
+ *
+ * Schedule E page 2 showed a bare $0 on a return holding four confirmed K-1
+ * losses. That zero is correct arithmetic: a scanned K-1 carries the
+ * ENTITY's numbers, while the two facts that decide whether a loss is
+ * deductible — opening basis (§704(d) / §1366(d)) and material
+ * participation (§469) — are the RECIPIENT'S and appear nowhere on the
+ * paper. Absent them the kernel takes the conservative reading, zero basis
+ * absorbs nothing, and the whole loss suspends.
+ *
+ * The Gates Board already says so, once per K-1 (ACC-K1-COMPLETE). But the
+ * operator reads the number on Review, and there $27,777 had gone missing
+ * behind a zero with nothing to suggest anything was wrong. A suspended
+ * loss is not a lost one — it carries forward — and the line should say
+ * that where it is read, not only where the gates are.
+ *
+ * Presentation only: every figure comes from facts the kernel already
+ * emitted, and nothing here computes tax.
+ */
+const K1_SUSPENDED_RE = /^k1\..+\.(basis|passive)_suspended\.out$/;
+
+export function lineNote(concept: string, derived: readonly TaxFact[]): string | null {
+  if (concept !== 'fed.sche.k1_total') return null;
+  const suspended = derived.filter((f) => K1_SUSPENDED_RE.test(f.concept));
+  if (suspended.length === 0) return null;
+  const totalOf = (kind: 'basis' | 'passive') =>
+    suspended
+      .filter((f) => f.concept.endsWith(`${kind}_suspended.out`))
+      .reduce((sum, f) => sum.add(f.value), Money.zero());
+  const basis = totalOf('basis');
+  const passive = totalOf('passive');
+  const total = basis.add(passive);
+  if (total.isZero()) return null;
+  const reasons: string[] = [];
+  if (!basis.isZero()) {
+    reasons.push(
+      `${fmtUsd(basis.toString())} for want of basis — a K-1 does not state your opening basis, so until you enter it on Add Data the kernel has to assume zero and a loss can absorb nothing`,
+    );
+  }
+  if (!passive.isZero()) {
+    reasons.push(
+      `${fmtUsd(passive.toString())} under the §469 passive-loss limit — a passive loss deducts only against passive income, and a K-1 does not state whether you materially participate`,
+    );
+  }
+  return `${fmtUsd(total.toString())} of K-1 loss is NOT in this figure: ${reasons.join('; and ')}. Suspended losses are not lost — they carry forward. The Gates Board names each K-1 that needs finishing.`;
+}

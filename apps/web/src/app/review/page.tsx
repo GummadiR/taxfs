@@ -7,22 +7,32 @@ import { TAX_YEAR } from '@/server/env';
 import { detectSignals } from '@taxfs/agents';
 import { withUserClient } from '@/server/db';
 import { filingContext } from '@/server/filing';
-import { buildSummary, conceptLabel, IL_LINE_LABELS, LINE_EXPLAIN, LINE_LABELS } from '@/server/labels';
+import { buildSummary, conceptLabel, IL_LINE_LABELS, LINE_EXPLAIN, LINE_LABELS, lineNote } from '@/server/labels';
 import { estTaxRules } from '@/server/yearround';
 import type { TaxFact } from '@taxfs/shared';
 
-function LineTable({ title, rows, testid }: { title: string; rows: { fact: TaxFact; label: string; explain?: string }[]; testid: string }) {
+interface LineRow { fact: TaxFact; label: string; explain?: string; note?: string }
+
+function LineTable({ title, rows, testid }: { title: string; rows: LineRow[]; testid: string }) {
   return (
     <section className="rounded border border-slate-200 bg-white p-4 text-sm" data-testid={testid}>
       <h2 className="font-bold">{title}</h2>
       <table className="mt-2 w-full">
         <tbody>
-          {rows.map(({ fact, label, explain }) => (
+          {rows.map(({ fact, label, explain, note }) => (
             <tr key={fact.fact_id} className="border-t border-slate-100">
               <td className="py-1.5 pr-2">
                 <span title={fact.concept}>{label}</span>
                 {explain ? (
                   <span className="ml-0.5 cursor-help text-slate-400" title={explain} aria-label={explain}>ⓘ</span>
+                ) : null}
+                {/* A figure that is arithmetically right can still mislead —
+                    a suspended K-1 loss reads as a bare $0. Say so HERE, on
+                    the line being read, not only on the Gates Board. */}
+                {note ? (
+                  <p className="mt-0.5 max-w-prose text-xs text-amber-800" data-testid={`line-note-${fact.concept}`}>
+                    {note}
+                  </p>
                 ) : null}
               </td>
               <td className="py-1.5 text-right">
@@ -68,9 +78,15 @@ export default async function Review() {
     labels
       .map(([concept, label]) => {
         const fact = derived.find((f) => f.concept === concept);
-        return fact ? { fact, label, ...(LINE_EXPLAIN[concept] ? { explain: LINE_EXPLAIN[concept] } : {}) } : null;
+        if (!fact) return null;
+        const note = lineNote(concept, derived);
+        return {
+          fact, label,
+          ...(LINE_EXPLAIN[concept] ? { explain: LINE_EXPLAIN[concept] } : {}),
+          ...(note ? { note } : {}),
+        };
       })
-      .filter((x): x is { fact: TaxFact; label: string; explain?: string } => x !== null);
+      .filter((x): x is LineRow => x !== null);
   const fedRows = pick(LINE_LABELS);
   const ilRows = pick(IL_LINE_LABELS);
   const headline = new Set([...fedRows, ...ilRows].map((r) => r.fact.fact_id));
