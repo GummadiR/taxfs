@@ -175,6 +175,14 @@ test.describe('return journey (local operator, real database)', () => {
     const waiting = page.waitForEvent('download');
     await page.getByTestId('download-1040').click();
     const download = await waiting;
+    // The status must NAME the file. A download lands in the browser's
+    // downloads folder, invisible from this page: "downloaded" alone left the
+    // operator hunting for something they could not see, and reported success
+    // even when the click had produced nothing. (Playwright's Chromium
+    // tolerated a detached anchor and an immediately-revoked object URL, so
+    // this spec stayed green while a real browser dropped the file.)
+    await expect(page.getByTestId('identity-status')).toContainText('1040.pdf');
+    await expect(page.getByTestId('identity-status')).toContainText('downloads');
     const bytes = await readFile((await download.path())!);
     const doc = await PDFDocument.load(new Uint8Array(bytes));
     const form = doc.getForm();

@@ -89,12 +89,29 @@ export function IdentityPanel({ workspaceId, joint = false, pdfs }: { workspaceI
       }
     }
     const url = URL.createObjectURL(new Blob([bytes as Uint8Array<ArrayBuffer>], { type: 'application/pdf' }));
+    const name = `${ref.form_id}${withIdentity ? '' : '-identity-blank'}.pdf`;
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${ref.form_id}${withIdentity ? '' : '-identity-blank'}.pdf`;
+    a.download = name;
+    a.rel = 'noopener';
+    // The anchor must be IN the document: a detached one is ignored outright
+    // by some browsers, so the click did nothing and the button just went
+    // back to normal.
+    a.style.display = 'none';
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
-      setStatus(`${ref.label} downloaded${withIdentity ? ' with identity filled in this browser' : ' (identity blank)'}.`);
+    a.remove();
+    // Revoke LATER. Revoking synchronously after click() destroys the blob
+    // before the browser has finished reading it, which cancels the download
+    // silently — the operator sees "Preparing…", then nothing, and no error.
+    // That is what made this look like it had done nothing at all.
+    globalThis.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      // Say the FILENAME: a download that lands in the browser's downloads
+      // folder is invisible from this page, and "downloaded" alone left the
+      // operator hunting for something they could not see.
+      setStatus(
+        `${name} saved to your browser's downloads${withIdentity ? ', with your name and SSN filled in on this machine' : ' (identity deliberately blank)'}.`,
+      );
     } finally {
       setBusy(null);
     }
