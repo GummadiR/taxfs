@@ -49,6 +49,11 @@ describe('a singular figure entered twice is caught before it can be filed', () 
     expect(out![0]!.message).toContain('75648');
     // And point at both facts, so neither has to be hunted for.
     expect(out![0]!.affected).toEqual(['ws', 'typed']);
+    // The message must name the SOURCE of each entry: two entries of the
+    // same amount are indistinguishable by value, and Documents shows them
+    // as rows headed only "USER_ENTRY".
+    expect(out![0]!.message).toContain('from s:ws');
+    expect(out![0]!.message).toContain('from s:typed');
   });
 
   it('catches the short-term carryover the same way', () => {

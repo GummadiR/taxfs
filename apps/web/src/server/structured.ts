@@ -293,7 +293,28 @@ export async function computeCarryoversFrom2024(userId: string, ws: string, form
   const r = computeCarryoverWorksheet({ taxable_income, schd_line7, schd_line15, schd_line21 });
 
   const sourceId = `worksheet-caploss-${crypto.randomUUID()}`;
+  let superseded = 0;
   await withSpine({ userId, workspaceId: ws }, async (spine) => {
+    // A capital-loss carryover is SINGULAR: Schedule D line 6 and line 14
+    // each take one figure. Every run of this worksheet used to mint a fresh
+    // source with a fresh UUID, so running it twice left TWO confirmed facts
+    // per concept and the kernel — which sums every confirmed fact — took the
+    // loss off Schedule D twice. That is exactly what happened on a real
+    // return: $42,410 of carryover subtracted as $84,820, with the Add Data
+    // card showing one entry because it looked the value up with `.find()`.
+    //
+    // Re-running the worksheet now REPLACES the previous run rather than
+    // adding to it, which is what "run the worksheet again" has always
+    // meant to the operator. Safe to delete the whole source: a
+    // worksheet-caploss source carries nothing but these two concepts.
+    // Cascade drops the derived layer, so the next gate run rebuilds it —
+    // the same contract document removal already uses.
+    const prior = (await spine.getSources(ws, TAX_YEAR))
+      .filter((x) => x.source_id.startsWith('worksheet-caploss-'));
+    for (const old of prior) {
+      await spine.deleteSource(old.source_id, { cascade: true });
+      superseded += 1;
+    }
     await spine.registerSource({
       source_id: sourceId,
       taxpayer_id: ws,
@@ -330,7 +351,10 @@ export async function computeCarryoversFrom2024(userId: string, ws: string, form
     await save(C.CAPLOSS_CO_ST_PRIOR, r.st_carryover, 'st_carryover');
     await save(C.CAPLOSS_CO_LT_PRIOR, r.lt_carryover, 'lt_carryover');
   });
-  return `Worksheet complete and SAVED: short-term carryover ${r.st_carryover.toString()}, long-term ${r.lt_carryover.toString()}. The full step trail is on the worksheet source.`;
+  const replaced = superseded > 0
+    ? ` This REPLACED ${superseded} earlier worksheet ${superseded === 1 ? 'entry' : 'entries'}, so the carryover is counted once — re-run the gates to rebuild the return.`
+    : '';
+  return `Worksheet complete and SAVED: short-term carryover ${r.st_carryover.toString()}, long-term ${r.lt_carryover.toString()}. The full step trail is on the worksheet source.${replaced}`;
 }
 
 /** P74 — look up AND SAVE the ECB rate for the certificate's own date. */

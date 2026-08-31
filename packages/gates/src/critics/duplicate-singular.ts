@@ -41,13 +41,22 @@ export const accSingularConceptEnteredTwice: Critic = {
       const dupes = sourcedFor(ctx, concept);
       if (dupes.length < 2) continue;
       const total = dupes.reduce((sum, f) => sum.add(f.value), dupes[0]!.value.sub(dupes[0]!.value));
-      const amounts = dupes.map((f) => f.value.toString()).join(' + ');
+      // Name the SOURCE each entry came from, not just the amount. Two
+      // entries of the same figure are indistinguishable by value, and on
+      // Documents they appear as rows headed only "USER_ENTRY" — so a
+      // message that omits the source id leaves the operator hunting.
+      const amounts = dupes
+        .map((f) => {
+          const src = f.provenance?.[0]?.source_id;
+          return src === undefined ? f.value.toString() : `${f.value.toString()} (from ${src})`;
+        })
+        .join(' + ');
       findings.push({
         critic_id: this.id,
         lens: 'ACCOUNTANT',
         severity: 'Error',
         affected: dupes.map((f) => f.fact_id),
-        message: `${concept} is entered ${dupes.length} times (${amounts}) and the kernel ADDS them, so the return is using ${total.toString()}. This figure is singular — it is one line taken from one worksheet, so a second entry is the same amount counted twice, not a second source. Remove all but one on Documents. Until then every number downstream of it is wrong, including what you owe.`,
+        message: `${concept} is entered ${dupes.length} times (${amounts}) and the kernel ADDS them, so the return is using ${total.toString()}. This figure is singular — it is one line taken from one worksheet, so a second entry is the same amount counted twice, not a second source. On Documents, open the sources named above, check what each one holds, and Remove all but one. Until then every number downstream of it is wrong, including what you owe.`,
         fix_ref: 'fix://documents/remove-duplicate-singular',
       });
     }

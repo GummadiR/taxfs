@@ -526,6 +526,30 @@ here. They print by name on every run and their reasons live in
    extraction mapping and a critic but no manual entry path, so with
    extraction off it cannot be supplied.
 
+1f. **DONE — re-running the carryover worksheet REPLACES its previous run.**
+   1e added detection (a blocking gate-0 critic) and a red warning, but
+   neither could clean up a duplicate already saved, and the operator had no
+   obvious way to: two worksheet runs appear on Documents as two rows both
+   labelled only `USER_ENTRY`.
+
+   The mechanism: `computeCarryoversFrom2024` minted
+   `worksheet-caploss-${crypto.randomUUID()}` on EVERY run, so a second run
+   created a second source and a second confirmed fact per concept. Nothing
+   deduplicated. "Run the worksheet again" has always meant "replace what I
+   entered" to the operator; it silently meant "add".
+
+   It now deletes every existing `worksheet-caploss-*` source (cascade,
+   the same contract document removal uses) before saving, and SAYS how many
+   it replaced. Safe to delete the whole source: one carries nothing but the
+   two carryover concepts. This SELF-HEALS a return that already carries a
+   doubled carryover — one re-run corrects it.
+
+   Not covered, and left to the gate-0 critic: the same concept typed on
+   Documents. A `manual-*` source can carry several concepts, so superseding
+   one would destroy the others; a fact-level delete is not on the spine
+   contract (`deleteSource` is source-level), and adding one is an
+   architectural change needing an ADR.
+
 1e. **DONE — a capital-loss carryover entered twice was subtracted twice.**
    THE root cause of the CPA tie-out gap, found by arithmetic rather than
    by reading code: entering the carryovers moved total income by 84,820,
