@@ -46,7 +46,6 @@ const NAV: [string, string][] = [
   ['/amend', '13 · Amend'],
   ['/entities', '14 · Entities'],
   ['/business', '15 · Business Filing'],
-  ['/agents', 'AI activity'],
   ['/workspaces', 'Workspaces'],
 ];
 

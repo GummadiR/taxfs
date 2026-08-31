@@ -370,11 +370,6 @@ test.describe('hardening & discovery surface (§7.7–7.8)', () => {
     await expect(page.getByTestId('discovery-card')).toContainText('?');
   });
 
-  test('the agent-trace viewer renders (empty until live calls)', async ({ page }) => {
-    await page.goto('/agents');
-    await expect(page.getByTestId('traces-empty')).toBeVisible();
-  });
-
   test('the owner can add a reviewer member; the roster shows it', async ({ page }) => {
     await page.goto('/workspaces');
     await page.getByTestId('member-uuid').fill('99999999-9999-4999-8999-999999999999');
