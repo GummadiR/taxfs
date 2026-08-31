@@ -1,7 +1,7 @@
 {
  "name": "return29-foreign-plus-brokerage",
- "description": "Schedule D carries the WHOLE capital-gain story (P28): a brokerage 1099-B net total (sourced income.capital_gain.net, 20,000) coexists with the 15CA/15CB foreign-currency path (4,175,000 INR gain / 835,000 INR TDS at 83.5 = 50,000 / 10,000 USD). The FCY facts activate Schedule D, and the sourced totals FOLD INTO Part II — never dropped, never double-counted, and the legacy fed.capital_gain.net.total line is not emitted (Sch D owns the 1040 line 7).",
- "note": "HAND-VERIFIED against the PLACEHOLDER fixture rules (std deduction 15,000; ordinary brackets 10/12/22% at 10k/40k/90k; LTCG 0% to 48k then 15%). Sch D: LT = 20,000 (folded 1099-B) + 50,000 (foreign, converted) = 70,000; ST 0; line 16 = 70,000; net capital gain 70,000. Total income = 100,000 wages + 70,000 = 170,000; taxable 155,000. Ordinary portion 85,000 -> 1,000 + 3,600 + 9,900 = 14,500; all 70,000 pref stacks past the 48,000 ceiling at 15% = 10,500; tax 25,000. Form 1116: foreign-source = the 50,000 LTCG only (the brokerage gain is US-source); SS904(b)(2)(B) scale by marginal preferential / TOP ordinary rate = 15/37 (the placeholder rules carry a 37% top bracket, same as return27) -> 50,000 x 15/37 = 20,270.27 -> 20,270. Limitation = 25,000 x 20,270 / 155,000 = 3,269.03 -> 3,269. Credit = min(10,000, 3,269) = 3,269; unused 6,731. After credits 21,731; payments 15,000 -> owe 6,731.",
+ "description": "Schedule D carries the WHOLE capital-gain story (P28): a brokerage 1099-B net total (sourced income.capital_gain.net, 20,000) coexists with the 15CA/15CB foreign-currency path (4,175,000 INR gain / 835,000 INR TDS at 83.5 = 50,000 / 10,000 USD). The FCY facts activate Schedule D, and the sourced totals FOLD INTO Part II \u2014 never dropped, never double-counted, and the legacy fed.capital_gain.net.total line is not emitted (Sch D owns the 1040 line 7).",
+ "note": "HAND-VERIFIED against the PLACEHOLDER fixture rules (std deduction 15,000; ordinary brackets 10/12/22% at 10k/40k/90k; LTCG 0% to 48k then 15%). Sch D: LT = 20,000 (folded 1099-B) + 50,000 (foreign, converted) = 70,000; ST 0; line 16 = 70,000; net capital gain 70,000. Total income = 100,000 wages + 70,000 = 170,000; taxable 155,000. Ordinary portion 85,000 -> 1,000 + 3,600 + 9,900 = 14,500; all 70,000 pref stacks past the 48,000 ceiling at 15% = 10,500; tax 25,000. Form 1116: foreign-source = the 50,000 LTCG only (the brokerage gain is US-source); SS904(b)(2)(B) scale by marginal preferential / TOP ordinary rate = 15/37 (the placeholder rules carry a 37% top bracket, same as return27) -> 50,000 x 15/37 = 20,270.27 -> 20,270. Limitation = 25,000 x 20,270 / 155,000 = 3,269.03 -> 3,269. Credit = min(10,000, 3,269) = 3,269; unused 6,731. After credits 21,731; payments 15,000 -> owe 6,731. \u00a7904(b)(2)(B)(ii) CORRECTION: the rate-differential adjustment applies to ENTIRE taxable income (Form 1116 line 18) as well as to foreign-source income, and the kernel previously scaled only the numerator. HAND-VERIFIED on return27: adjusted foreign-source = 50,000 x 15/37 = 20,270; the reduction to worldwide = 50,000 - 20,270 = 29,730, so line 18 = 135,000 - 29,730 = 105,270; limitation = 22,000 x 20,270/105,270 = 4,236 (was 3,303 on the unadjusted 135,000). Independently confirmed against a professionally prepared return whose Form 1116 line 18 was 239,975 against taxable income of 295,678 - a reduction of exactly (net capital gain + qualified dividends) x (1 - 15/37). The credit rises in every affected golden and stays at or below foreign tax paid.",
  "filing_status": "single",
  "il_exemption_count": 1,
  "facts": [
@@ -71,11 +71,11 @@
   "fed.total_income": "170000",
   "fed.taxable_income": "155000",
   "fed.tax.total": "25000",
-  "fed.credit.foreign_tax": "3269",
-  "fed.credit.foreign_tax.unused": "6731",
-  "fed.tax_after_credits": "21731",
-  "fed.tax.liability.total": "21731",
+  "fed.credit.foreign_tax": "4470",
+  "fed.credit.foreign_tax.unused": "5530",
+  "fed.tax_after_credits": "20530",
+  "fed.tax.liability.total": "20530",
   "fed.payments.total": "15000",
-  "fed.refund_or_due": "-6731"
+  "fed.refund_or_due": "-5530"
  }
 }

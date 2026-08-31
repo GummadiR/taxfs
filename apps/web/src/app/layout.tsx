@@ -29,8 +29,14 @@ const NAV: [string, string][] = [
   ['/documents', '2 · Documents'],
   ['/data', '3 · Add Data'],
   ['/interview', '4 · Interview'],
-  ['/review', '5 · Review'],
-  ['/gates', '6 · Gates Board'],
+  // Gates before Review, because that is the causal order: running the gates
+  // is what COMPUTES and commits the derived facts (Orchestrator.runAll →
+  // computeAndCommit). Review only displays what that produced, so a Review
+  // opened before the gates have run shows the previous answer. Numbered the
+  // other way round, every change to Documents sent the operator to a stale
+  // Review and back again.
+  ['/gates', '5 · Gates Board'],
+  ['/review', '6 · Review'],
   ['/forms', '7 · Forms'],
   ['/file-it', '8 · File It'],
   ['/efile', '9 · E-file Sheet'],

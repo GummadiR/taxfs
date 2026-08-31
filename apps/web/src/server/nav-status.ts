@@ -93,7 +93,7 @@ function statusFrom(c: Counts): Record<string, NavStatus> {
           hint: `${c.sources} document(s) recorded, nothing awaiting confirmation.` }
       : { badge: 'empty', tone: 'idle', hint: 'No documents uploaded yet.' };
 
-  // 5 · Review — the computed return. A staleness impact matters more than
+  // 6 · Review — the computed return. A staleness impact matters more than
   // the numbers themselves, because the numbers on screen are then wrong.
   out['/review'] = c.stale > 0
     ? { badge: 'stale', tone: 'attention',
@@ -102,7 +102,7 @@ function statusFrom(c: Counts): Record<string, NavStatus> {
       ? { badge: 'computed', tone: 'ok', hint: 'Figures reflect the latest confirmed values.' }
       : { badge: 'not computed', tone: 'idle', hint: 'Nothing computed yet — run the gates.' };
 
-  // 6 · Gates Board — 7 gates x 2 jurisdictions. A single FAILURE is what
+  // 5 · Gates Board — 7 gates x 2 jurisdictions. A single FAILURE is what
   // stops packaging, so failures lead. A gate-5 warning is NOT a failure:
   // gate 5 is advisory and never blocks a lawful return (the rule the board
   // itself states), so a clean return with an advisory note must not wear an
