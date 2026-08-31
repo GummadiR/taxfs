@@ -11,7 +11,7 @@ import { DEMO_DOCS, MANUAL_CONCEPTS, addDemoDoc, addManualEntry } from '@/server
 import { withUserClient } from '@/server/db';
 import { takeBudget } from '@/server/limits';
 import { TAX_YEAR } from '@/server/env';
-import { pendingConfirmations, rescanState, valuesBySource, TYPE_TO_VERIFY_BELOW } from '@/server/confirmations';
+import { pendingConfirmations, rescanState, sourceTitle, valuesBySource, TYPE_TO_VERIFY_BELOW } from '@/server/confirmations';
 import { Origin } from '@/components/badges';
 
 async function addDemo(formData: FormData) {
@@ -226,7 +226,9 @@ export default async function Documents({ searchParams }: { searchParams: Promis
           // The operator's own file name (exact for new uploads via __filename;
           // recovered from the storage path for older ones). The doc id stays
           // available on hover — it is a database key, not a display name.
-          const docName = s.fields['__filename'] ?? documentDisplayName(s.raw_ref);
+          const docName = s.fields['__filename']
+            ?? documentDisplayName(s.raw_ref)
+            ?? sourceTitle(s, bySource.get(s.source_id) ?? []);
           const st = rescanState(s, facts);
           const isTarget = row === s.source_id;
           return (

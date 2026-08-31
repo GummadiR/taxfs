@@ -146,6 +146,38 @@ export interface SourceValue {
  * answered anywhere. They belong beside the document, which is also where
  * their confirmation lives.
  */
+/**
+ * A readable name for a source row.
+ *
+ * Uploaded documents already had one. Everything the operator TYPED did not:
+ * Documents rendered `manual-c9aaa07f-cc1e-4410-a2fb-d996f8b01580` and left
+ * them to work out what it held. That is not a cosmetic problem — the way to
+ * fix a value counted twice is to find the row that holds it and Remove it,
+ * and two carryover entries appear as two rows both headed "USER_ENTRY".
+ *
+ * So the title says what KIND of entry it is, and then what it actually
+ * holds, taken from the values already on the row.
+ */
+export function sourceTitle(source: SourceDoc, values: readonly SourceValue[]): string | null {
+  const id = source.source_id;
+  const kind = id.startsWith('worksheet-caploss-')
+    ? 'Capital-loss carryover worksheet'
+    : id.startsWith('fxlookup-')
+      ? 'Exchange-rate lookup'
+      : id.startsWith('wizard-attestation.')
+        ? `Attestation — ${id.slice('wizard-attestation.'.length).replace(/[._-]+/g, ' ')}`
+        : id.startsWith('manual-')
+          ? 'Typed entry'
+          : null;
+  if (kind === null) return null;
+  // Name what it holds. Two labels is enough to tell two rows apart at a
+  // glance; the full list is rendered under the row anyway.
+  const labels = [...new Set(values.map((v) => v.label))];
+  if (labels.length === 0) return kind;
+  const shown = labels.slice(0, 2).join(', ');
+  return labels.length > 2 ? `${kind} — ${shown} +${labels.length - 2} more` : `${kind} — ${shown}`;
+}
+
 export function valuesBySource(facts: readonly TaxFact[]): Map<string, SourceValue[]> {
   const out = new Map<string, SourceValue[]>();
   for (const f of facts) {
