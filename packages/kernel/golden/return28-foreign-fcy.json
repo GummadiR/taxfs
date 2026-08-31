@@ -1,7 +1,7 @@
 {
  "name": "return28-foreign-fcy",
  "description": "Form 1116 with FOREIGN-CURRENCY intake (the 15CA/15CB path): the Indian property-sale gain and TDS arrive in rupees plus one user-chosen exchange rate; the KERNEL converts with the arithmetic on the record AND reports the converted gain itself \u2014 no separate US-side capital-gain entry exists in the facts (P25). The converted gain enters via Schedule D (all long-term here), so it lands in total income, the preferential-rate stack, AGI, and IL automatically. 4,175,000 INR gain and 835,000 INR TDS at 83.5 INR/USD convert to exactly the 50,000 / 10,000 USD of return27 \u2014 every downstream line must match return27 to the dollar.",
- "note": "HAND-VERIFIED: 4,175,000 \u00f7 83.5 = 50,000.00 \u2192 50,000; 835,000 \u00f7 83.5 = 10,000.00 \u2192 10,000. Sch D: LT 50,000, ST 0 \u2192 line 16 = 50,000, net capital gain 50,000 (all preferential). From there identical to return27 (see its note): total income 150,000, taxable 135,000, tax 22,000, \u00a7904 limitation 3,303, credit 3,303, unused 6,697, owe 3,697. CONTRAST with return27: there the foreign concepts are USD and only CHARACTERIZE a separately-entered capital gain; here the FCY concepts ARE the income and count exactly once. \u00a7904(b)(2)(B)(ii) CORRECTION: the rate-differential adjustment applies to ENTIRE taxable income (Form 1116 line 18) as well as to foreign-source income, and the kernel previously scaled only the numerator. HAND-VERIFIED on return27: adjusted foreign-source = 50,000 x 15/37 = 20,270; the reduction to worldwide = 50,000 - 20,270 = 29,730, so line 18 = 135,000 - 29,730 = 105,270; limitation = 22,000 x 20,270/105,270 = 4,236 (was 3,303 on the unadjusted 135,000). Independently confirmed against a professionally prepared return whose Form 1116 line 18 was 239,975 against taxable income of 295,678 - a reduction of exactly (net capital gain + qualified dividends) x (1 - 15/37). The credit rises in every affected golden and stays at or below foreign tax paid.",
+ "note": "HAND-VERIFIED: 4,175,000 \u00f7 83.5 = 50,000.00 \u2192 50,000; 835,000 \u00f7 83.5 = 10,000.00 \u2192 10,000. Sch D: LT 50,000, ST 0 \u2192 line 16 = 50,000, net capital gain 50,000 (all preferential). From there identical to return27 (see its note): total income 150,000, taxable 135,000, tax 22,000, \u00a7904 limitation 3,303, credit 3,303, unused 6,697, owe 3,697. CONTRAST with return27: there the foreign concepts are USD and only CHARACTERIZE a separately-entered capital gain; here the FCY concepts ARE the income and count exactly once. \u00a7904(b)(2)(B)(ii) CORRECTION: the rate-differential adjustment applies to ENTIRE taxable income (Form 1116 line 18) as well as to foreign-source income, and the kernel previously scaled only the numerator. HAND-VERIFIED on return27: adjusted foreign-source = 50,000 x 15/37 = 20,270; the reduction to worldwide = 50,000 - 20,270 = 29,730, so line 18 = 135,000 - 29,730 = 105,270; limitation = 22,000 x 20,270/105,270 = 4,236 (was 3,303 on the unadjusted 135,000). Independently confirmed against a professionally prepared return whose Form 1116 line 18 was 239,975 against taxable income of 295,678 - a reduction of exactly (net capital gain + qualified dividends) x (1 - 15/37). The credit rises in every affected golden and stays at or below foreign tax paid. FORM 1116 PART I: deductions are now apportioned against foreign-source income (lines 3 and 4), which was not modelled at all. HAND-VERIFIED on return27, which takes the STANDARD deduction so it lands whole on line 3a: 3a 15,000; 3d gross foreign 50,000; 3e gross income from all sources 150,000; 3f 0.33333; 3g 5,000; line 1a 50,000 x 15/37 = 20,270; line 7 = 20,270 - 5,000 = 15,270; line 18 = 105,270; limitation = 22,000 x 15,270/105,270 = 3,191. The kernel independently produced 3,191. Verified line-for-line against a professionally prepared Form 1116 whose 3a was 17,144 (SALT 28,337 less state income tax withheld 11,193 - state INCOME tax is definitely related and is NOT apportioned), 3e 371,473 (total income plus 42,410 of carryovers and a 395 short-term loss added back, because line 3e is GROSS), 3f 0.2874, 3g 4,927 and 4a 1,053 (mortgage interest at the same ratio). Credits FALL here, as they must: apportioned deductions shrink the numerator.",
  "filing_status": "single",
  "il_exemption_count": 1,
  "facts": [
@@ -59,10 +59,10 @@
   "fed.total_income": "150000",
   "fed.taxable_income": "135000",
   "fed.tax.total": "22000",
-  "fed.credit.foreign_tax": "4236",
-  "fed.credit.foreign_tax.unused": "5764",
-  "fed.tax_after_credits": "17764",
-  "fed.tax.liability.total": "17764",
-  "fed.refund_or_due": "-2764"
+  "fed.credit.foreign_tax": "3191",
+  "fed.credit.foreign_tax.unused": "6809",
+  "fed.tax_after_credits": "18809",
+  "fed.tax.liability.total": "18809",
+  "fed.refund_or_due": "-3809"
  }
 }
