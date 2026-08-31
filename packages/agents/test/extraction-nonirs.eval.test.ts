@@ -85,3 +85,49 @@ describe('FOREIGN-REMITTANCE (15CA/15CB) → foreign-currency TDS concept', () =
     ]);
   });
 });
+
+describe('1098 that reports escrowed real-estate taxes', () => {
+  /**
+   * The real document that exposed this: a JPMorgan Chase Form 1098 with box
+   * 1 = $3,029.86, and below the form boxes a lender block reading "MORTGAGE
+   * REAL ESTATE TAXES PAID $11,682.34". The 1098 type carried only interest
+   * and points, so the $11,682.34 was silently dropped and the Illinois
+   * Schedule ICR credit — 5% of principal-residence property tax — never
+   * appeared on the return.
+   */
+  it('carries the escrowed taxes to the same concept a county bill feeds', async () => {
+    const rig = makeRig({ extraction: () => output({
+      doc_type: '1098',
+      tax_year: 2025,
+      payer: { name: 'JPMORGAN CHASE BANK, N.A.', ein_token: 'tok_ein_chase1' },
+      fields: [
+        { name: 'box1_mortgage_interest', raw_text: '$3,029.86', normalized: { kind: 'decimal', value: '3029.86' }, region, confidence: 0.98 },
+        { name: 'real_estate_taxes_paid', raw_text: '$11,682.34', normalized: { kind: 'decimal', value: '11682.34' }, region, confidence: 0.95 },
+      ],
+    }) });
+    const run = await runExtraction(rig.deps, doc('s-1098-escrow'), 'tp-x');
+    if (run.status !== 'ok') throw new Error(`expected ok, got ${run.status}`);
+    expect(run.proposals.map((p) => [p.concept, p.value])).toEqual([
+      ['deduction.sch_a.mortgage_interest', '3029.86'],
+      ['il.property_tax.residence', '11682.34'],
+    ]);
+  });
+
+  it('a 1098 with no escrow block still yields its interest, unblocked', async () => {
+    // Most 1098s carry no tax figure at all. The new field is not critical,
+    // so its absence must never hold up the form's real payload.
+    const rig = makeRig({ extraction: () => output({
+      doc_type: '1098',
+      tax_year: 2025,
+      payer: { name: 'JPMORGAN CHASE BANK, N.A.', ein_token: 'tok_ein_chase1' },
+      fields: [
+        { name: 'box1_mortgage_interest', raw_text: '$3,029.86', normalized: { kind: 'decimal', value: '3029.86' }, region, confidence: 0.98 },
+      ],
+    }) });
+    const run = await runExtraction(rig.deps, doc('s-1098-plain'), 'tp-x');
+    if (run.status !== 'ok') throw new Error(`expected ok, got ${run.status}`);
+    expect(run.proposals.map((p) => [p.concept, p.value])).toEqual([
+      ['deduction.sch_a.mortgage_interest', '3029.86'],
+    ]);
+  });
+});

@@ -4,6 +4,7 @@ export * from './critics/f7-remaining';
 export * from './critics/p98-retirement';
 export * from './critics/esttax-penalty';
 export * from './critics/duplicate-singular';
+export * from './critics/property-tax-two-sources';
 export * from './orchestrator';
 export * from './harness';
 export * from './engagement';

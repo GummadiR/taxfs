@@ -102,7 +102,10 @@ export const FIELD_SCHEMAS: Record<Exclude<ExtractionDocType, 'UNREADABLE'>, str
   // Amounts are in the FOREIGN currency — conversion happens downstream as its
   // own recorded calculation, never silently inside extraction.
   'FOREIGN-REMITTANCE': ['remittance_amount_foreign', 'foreign_tax_withheld_foreign', 'taxable_income_foreign', 'long_term_gain_foreign', 'remittance_date', 'currency_code'],
-  '1098': ['box1_mortgage_interest', 'box6_points'],
+  // A servicer that ESCROWS reports the year's real-estate taxes on the 1098
+  // itself, so the third field is not an extra — it is the reason a taxpayer
+  // who never sees a county bill still has a property-tax figure.
+  '1098': ['box1_mortgage_interest', 'box6_points', 'real_estate_taxes_paid'],
 };
 
 /** Which concepts each extracted field feeds (mapping is deterministic, not agent-decided). */
@@ -170,6 +173,11 @@ export const CONCEPT_BY_FIELD: Record<string, { concept: string; jurisdiction: J
   // points paid on a purchase, deductible in the year paid.
   box1_mortgage_interest: { concept: C.SCHA_MORTGAGE_INTEREST, jurisdiction: ['FED'], critical: true },
   box6_points: { concept: C.SCHA_MORTGAGE_POINTS, jurisdiction: ['FED'], critical: false },
+  // Escrowed real-estate taxes reported ON the 1098. Same concept as a county
+  // bill: Schedule A SALT federally, Schedule ICR in Illinois. NOT critical —
+  // most 1098s carry no escrow figure, and a form that simply does not state
+  // one must never hold up the mortgage interest that is its real payload.
+  real_estate_taxes_paid: { concept: C.IL_PROPERTY_TAX, jurisdiction: ['IL'], critical: false },
   foreign_tax_withheld_foreign: { concept: C.FOREIGN_TAX_FCY, jurisdiction: ['FED'], critical: true },
   // P32 — the 15CB often carries the CA-computed taxable gain ('amount of
   // income chargeable to tax'). It proposes into the FCY income concept for
@@ -300,7 +308,7 @@ const VISION_SYSTEM_PROMPT =
   'Omit any of these three entirely when the box is absent or zero. A standalone single-section form keeps its own doc_type. ' +
   'PROPERTY-TAX-BILL rules: a county/municipal real-estate tax bill or payment receipt — property_tax_paid is the TOTAL tax PAID for the year on the principal residence (sum both installments if both are shown as paid); ignore assessed values, exemptions, and prior-year balances. ' +
   'DONATION-RECEIPT rules: a charitable receipt or year-end giving statement (temple, church, nonprofit) — charitable_contribution is the total DEDUCTIBLE amount given for the tax year; exclude anything the receipt marks as goods/services received or as a non-deductible item. ' +
-  '1098 rules: Form 1098 Mortgage Interest Statement. payer.name is the LENDER / recipient of the interest (the bank or servicer), never the borrower. box1_mortgage_interest = box 1 "Mortgage interest received from payer(s)/borrower(s)". box6_points = box 6 "Points paid on purchase of principal residence" — omit the field entirely when the box is blank. Do NOT read box 2 (outstanding principal), box 5 (mortgage insurance premiums) or box 10 (property taxes) into these fields. ' +
+  '1098 rules: Form 1098 Mortgage Interest Statement. payer.name is the LENDER / recipient of the interest (the bank or servicer), never the borrower. box1_mortgage_interest = box 1 "Mortgage interest received from payer(s)/borrower(s)". box6_points = box 6 "Points paid on purchase of principal residence" — omit the field entirely when the box is blank. real_estate_taxes_paid = the REAL ESTATE / PROPERTY TAXES the servicer PAID for the year, which a lender reports either in box 10 ("Other") or in a summary block printed outside the form boxes (e.g. a line reading "REAL ESTATE TAXES PAID $11,682.34"); read it from whichever of the two states it, and OMIT the field entirely when neither does — never infer it from an escrow balance, a monthly payment, an assessed value, or box 2. Do NOT read box 2 (outstanding mortgage principal) or box 5 (mortgage insurance premiums) into any field. ' +
   'FOREIGN-REMITTANCE rules: India Form 15CA / 15CB, or any foreign remittance or tax-withholding certificate. payer.name must be the DEDUCTING INSTITUTION (bank / CA firm) or the literal string \"Form 15CA/15CB\" — NEVER the individual remitter or taxpayer name. remittance_amount_foreign is the gross amount remitted and foreign_tax_withheld_foreign is the tax deducted at source (TDS), BOTH in the document\'s own currency and NOT converted; currency_code is the ISO code as a string field (e.g. "INR"). These certificates often print BOTH a foreign-currency figure and its USD equivalent side by side — ALWAYS take the amount denominated in currency_code and NEVER the USD equivalent (an INR TDS reads like 13,42,770, not like 15,615). taxable_income_foreign = the amount of income CHARGEABLE TO TAX / taxable capital gain the chartered accountant computed on the 15CB (foreign currency; omit the field entirely when the certificate does not state it — never infer it from the remittance amount). long_term_gain_foreign = the portion of taxable_income_foreign that is a LONG-TERM capital gain, in the same foreign currency. Read the certificate\'s "Nature of remittance" / "nature of payment" line: when it says long-term capital gain (or the equivalent), set this EQUAL to taxable_income_foreign. When the certificate says short-term, or names some other kind of income (interest, dividend, rent, salary), OMIT the field entirely. Never split it yourself and never guess a portion. remittance_date = the date of remittance / sale stated on the certificate, normalized {kind:\'date\', value:\'YYYY-MM-DD\'}. Never convert currency — the exchange rate is chosen downstream. ' +
   'If the document is not one of the listed types, or is illegible, return doc_type "UNREADABLE" with empty fields — never guess.';
 
