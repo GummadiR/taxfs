@@ -71,7 +71,18 @@ export const FIELD_SCHEMAS: Record<Exclude<ExtractionDocType, 'UNREADABLE'>, str
   '1099-B': ['net_lt_gain'],
   // K-1 paper carries the entity's numbers only — basis and material
   // participation are the RECIPIENT'S facts, entered on Add Data.
-  'K-1': ['box1_ordinary', 'entity_is_scorp', 'net_lt_capital_gain', 'guaranteed_payments'],
+  // A K-1 carries far more than box 1. Items L and K on a 1065 K-1 hold the
+  // partner's TAX-BASIS capital account and share of liabilities — together
+  // the outside basis that decides how much of a loss is deductible at all.
+  // An 1120-S K-1 has no equivalent (that is why Form 7203 exists), so an
+  // S-corp shareholder still supplies stock basis from their own records.
+  'K-1': [
+    'box1_ordinary', 'entity_is_scorp', 'net_lt_capital_gain', 'guaranteed_payments',
+    'box2_rental',
+    'item_l_beginning_capital', 'item_l_contributions', 'item_l_withdrawals',
+    'item_k_liabilities_beginning', 'item_k_liabilities_ending',
+    'item_g_limited_partner',
+  ],
   '1095-A': ['annual_premiums', 'annual_slcsp', 'annual_aptc'],
   '1099-R': ['box1_gross', 'box2a_taxable', 'box4_fed_withholding'],
   'SSA-1099': ['box5_net_benefits'],
@@ -199,6 +210,11 @@ export const K1_CONCEPT_BY_FIELD: Record<string, { suffix: string; jurisdiction:
   entity_is_scorp: { suffix: 'is_scorp', jurisdiction: ['FED'], critical: true },
   net_lt_capital_gain: { suffix: 'capital_gain', jurisdiction: ['FED', 'IL'], critical: false },
   guaranteed_payments: { suffix: 'guaranteed_payment', jurisdiction: ['FED', 'IL'], critical: false },
+  // Box 2 — net rental real estate. A second Schedule E stream that rides the
+  // same basis and §469 limits as box 1.
+  box2_rental: { suffix: 'box2', jurisdiction: ['FED', 'IL'], critical: false },
+  // Item L "Capital contributed during the year" — raises basis directly.
+  item_l_contributions: { suffix: 'contributions', jurisdiction: ['FED'], critical: false },
 };
 
 /** Deterministic K-1 instance id from the issuing entity. */
@@ -295,7 +311,7 @@ const VISION_SYSTEM_PROMPT =
   'tax_year is the year printed on the form, or null if not legible. ' +
   'PRIVACY (hard rules): never output a Social Security Number in any form — omit SSNs entirely, including from raw_text. ' +
   'Never output a raw EIN: set payer.ein_token to "tok_ein_" followed by 6-10 lowercase letters/digits stable for the payer, or null if none is printed. ' +
-  'K-1 rules: entity_is_scorp is 1 for a 1120-S K-1 and 0 for a 1065 K-1 (normalized decimal); guaranteed_payments only on 1065 K-1s (box 4); net_lt_capital_gain = box 8a (1120-S) / 9a (1065). ' +
+  'K-1 rules: entity_is_scorp is 1 for a 1120-S K-1 and 0 for a 1065 K-1 (normalized decimal); guaranteed_payments only on 1065 K-1s (box 4); net_lt_capital_gain = box 8a (1120-S) / 9a (1065); box2_rental = box 2 net rental real estate income/(loss), a LOSS staying negative. PARTNER-LEVEL fields, 1065 K-1 ONLY — omit every one of them on an 1120-S K-1, which reports none of this: item_l_beginning_capital = Item L \"Beginning capital account\" (the tax-basis capital account; take the printed figure, negative if it is in parentheses). item_l_contributions = Item L \"Capital contributed during the year\". item_l_withdrawals = Item L \"Withdrawals and distributions\" as a POSITIVE number even though the form prints it in parentheses. item_k_liabilities_beginning and item_k_liabilities_ending = the Item K TOTAL share of liabilities at beginning and at end of year — ADD the nonrecourse, qualified nonrecourse financing and recourse rows together for each column, and omit a column the form leaves blank. item_g_limited_partner = 1 when Item G is checked \"Limited partner or other LLC member\", 0 when it is checked \"General partner or LLC member-manager\"; omit when neither box is marked. Never compute a basis figure yourself and never carry a number between these fields — read each one where the form prints it, and omit any the form does not state. ' +
   '1095-A rules: extract the ANNUAL totals row (line 33) columns A/B/C. ' +
   'CONSOLIDATED-1099 rules: a combined brokerage statement (Fidelity/Schwab/Vanguard style) with 1099-DIV, 1099-INT, and 1099-B SECTIONS in one document is doc_type CONSOLIDATED-1099 — read the SUMMARY totals, not per-lot rows: ' +
   'total_interest = 1099-INT box 1 total; total_ordinary_dividends = 1099-DIV box 1a; total_qualified_dividends = 1099-DIV box 1b; ' +
@@ -427,6 +443,105 @@ export type ExtractionRun =
  * NOTE: no spine access here — proposals only become facts through the
  * ReviewPendingStore confirm path.
  */
+
+/**
+ * Outside basis, read off the K-1 instead of asked for.
+ *
+ * §704(d) caps a partner's deductible loss at outside basis, and with no
+ * basis on file the kernel has to assume zero — which suspends the whole
+ * loss. That was being asked of the operator for every K-1, including the
+ * ones that PRINT the answer: a 1065 K-1 states the tax-basis capital
+ * account in Item L and the partner's share of liabilities in Item K, and
+ * outside basis is the two together (§722, §752).
+ *
+ * So these are DERIVED PROPOSALS, not facts: they land in the same confirm
+ * queue as every extracted value (G8), carrying the arithmetic in their
+ * field name so the operator can check it against the form.
+ *
+ * Deliberate limits:
+ *  - An 1120-S K-1 states no basis at all — that is what Form 7203 is for —
+ *    so nothing is derived for one, and the shareholder still supplies stock
+ *    basis from their own records.
+ *  - A missing Item K yields basis from capital ALONE, which understates it.
+ *    Understating basis suspends more loss, which is the safe direction to
+ *    be wrong in, and the operator sees the figure before confirming.
+ *  - Material participation is an hours test and is never on any K-1. The
+ *    ONE case that is a matter of law is Item G: §469(h)(2) presumes a
+ *    limited partner does not materially participate. A general partner is
+ *    left alone, so ACC-K1-COMPLETE still asks.
+ */
+function deriveK1Proposals(
+  k1Id: string,
+  fields: ExtractionField[],
+  doc: DocImageStub,
+  taxpayer_id: string,
+  isScorp: boolean,
+): ProposalInput[] {
+  if (isScorp) return [];
+  const num = (name: string): { v: Money; c: number } | null => {
+    const f = fields.find((x) => x.name === name);
+    if (!f || f.normalized.kind !== 'decimal') return null;
+    try {
+      return { v: Money.fromString(f.normalized.value), c: f.confidence };
+    } catch {
+      return null;
+    }
+  };
+  const propose = (
+    suffix: string, field: string, value: Money, confidence: number, critical: boolean,
+  ): ProposalInput => ({
+    taxpayer_id,
+    tax_year: doc.expected_tax_year,
+    source_id: doc.doc_id,
+    source_field: field,
+    concept: `k1.${k1Id}.${suffix}`,
+    jurisdiction: ['FED'],
+    taxpayer_scope: 'primary',
+    value: value.toString(),
+    suggestion: null,
+    confidence,
+    critical,
+  });
+
+  const out: ProposalInput[] = [];
+  const capital = num('item_l_beginning_capital');
+  const liabBeg = num('item_k_liabilities_beginning');
+  const liabEnd = num('item_k_liabilities_ending');
+  const withdrawals = num('item_l_withdrawals');
+  const limited = num('item_g_limited_partner');
+
+  if (capital !== null) {
+    // §722/§752: outside basis = tax-basis capital + share of liabilities.
+    const basis = liabBeg === null ? capital.v : capital.v.add(liabBeg.v);
+    const conf = liabBeg === null ? capital.c : Math.min(capital.c, liabBeg.c);
+    out.push(propose(
+      'basis_opening',
+      liabBeg === null ? 'item_l_beginning_capital' : 'item_l_capital_plus_item_k_liabilities',
+      basis, conf, true,
+    ));
+  }
+  if (liabBeg !== null && liabEnd !== null) {
+    // §752: the CHANGE in liability share moves basis during the year.
+    out.push(propose(
+      'liab_change', 'item_k_liabilities_ending_less_beginning',
+      liabEnd.v.sub(liabBeg.v), Math.min(liabBeg.c, liabEnd.c), false,
+    ));
+  }
+  if (withdrawals !== null && !withdrawals.v.isZero()) {
+    // The kernel SUBTRACTS distributions, so the magnitude is what it wants —
+    // whichever sign the form printed.
+    const magnitude = withdrawals.v.isNegative() ? withdrawals.v.neg() : withdrawals.v;
+    out.push(propose('distributions', 'item_l_withdrawals', magnitude, withdrawals.c, false));
+  }
+  if (limited !== null && !limited.v.isZero()) {
+    out.push(propose(
+      'material_participation', 'item_g_limited_partner',
+      Money.zero(), limited.c, true,
+    ));
+  }
+  return out;
+}
+
 export async function runExtraction(
   deps: AgentRunDeps,
   doc: DocImageStub,
@@ -467,6 +582,12 @@ export async function runExtraction(
       critical: mapping.critical,
       region: f.region,
     });
+  }
+  if (k1Id !== null) {
+    proposals.push(...deriveK1Proposals(
+      k1Id, output.fields, doc, taxpayer_id,
+      output.fields.some((f) => f.name === 'entity_is_scorp' && f.normalized.kind === 'decimal' && f.normalized.value !== '0'),
+    ));
   }
   return { status: 'ok', output, flags, proposals };
 }
